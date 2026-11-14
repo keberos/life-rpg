@@ -1,0 +1,391 @@
+<title>Life RPG Art Directions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Fredoka:wght@500;600&family=Inter:wght@400;500;600&family=Nunito:wght@600;800&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  /* Layout: one tall column of style "plates"; each plate shows the same cast drawn in its style. Deliberately single dark theme: a gallery wall. */
+  :root {
+    --wall: #15131c;
+    --wall-2: #1e1b28;
+    --ink: #eeeaf6;
+    --ink-2: #a9a3bd;
+    --line: #34303f;
+    --pick: #f2c14e;
+    --f-ui: 'Inter', system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  html { background: var(--wall); }
+  body {
+    background: var(--wall);
+    color: var(--ink);
+    font: 15px/1.5 var(--f-ui);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 48px;
+  }
+  main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+  header { display: flex; flex-direction: column; gap: 8px; }
+  header h1 { font: 700 26px/1.2 var(--f-ui); margin: 0; text-wrap: balance; }
+  header p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; }
+  .legend span { font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+
+  .plate { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--wall-2); }
+  .plate-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; padding: 14px 16px 10px; }
+  .plate-head h2 { margin: 0; font: 700 18px/1.2 var(--f-ui); }
+  .plate-head .tag { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--pick); }
+  .plate-desc { padding: 0 16px 12px; color: var(--ink-2); margin: 0; max-width: 68ch; }
+  .stage { padding: 18px 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; justify-content: center; }
+  .cast { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px 22px; }
+  figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  figcaption { font-size: 12px; opacity: 0.8; }
+  canvas, .vec { display: block; image-rendering: pixelated; max-width: 100%; }
+  .items { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .slot { display: flex; align-items: center; justify-content: center; border-radius: 8px; padding: 6px; }
+  .ui { display: grid; grid-template-columns: 1fr auto; gap: 10px 14px; align-items: center; padding: 12px 14px; border-radius: 10px; max-width: 460px; width: 100%; margin: 0 auto; }
+  .ui .name { font-weight: 600; }
+  .ui .bar { grid-column: 1 / -1; height: 12px; border-radius: 3px; overflow: hidden; }
+  .ui .bar i { display: block; height: 100%; width: 64%; }
+  .ui .btns { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+  .ui button { font: inherit; cursor: pointer; padding: 8px 12px; min-height: 40px; }
+  .ui .meta { grid-column: 1 / -1; font-size: 13px; opacity: 0.85; }
+  .pickbar { display: flex; justify-content: flex-end; padding: 0 16px 16px; }
+  .pickbar button { font: 600 14px var(--f-ui); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer; min-height: 40px; }
+  .pickbar button[aria-pressed="true"] { border-color: var(--pick); color: var(--pick); }
+  .note { color: var(--ink-2); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .bob { animation: bob 1.6s steps(2, end) infinite; }
+    .bob:nth-child(2) { animation-delay: 0.4s; }
+    .bob:nth-child(3) { animation-delay: 0.8s; }
+    @keyframes bob { 50% { transform: translateY(-3px); } }
+  }
+
+  /* ---- A: Classic 16-bit ---- */
+  .s-a .stage { background: linear-gradient(#5c94fc 0 62%, #3d7a2a 62% 66%, #2b5a1e 66%); }
+  .s-a .ui { background: linear-gradient(#2d3fb5, #131c6b); border: 3px solid #fff; box-shadow: 0 0 0 3px #10102a; color: #fff; font: 10px/1.8 'Press Start 2P', monospace; }
+  .s-a .ui .bar { background: #10102a; border: 2px solid #fff; border-radius: 0; }
+  .s-a .ui .bar i { background: #3fd04a; }
+  .s-a .ui button { background: #10102a; color: #fff; border: 2px solid #fff; border-radius: 0; font: 10px 'Press Start 2P', monospace; }
+  .s-a .slot { background: #131c6b; border: 2px solid #fff; border-radius: 0; }
+
+  /* ---- B: Hi-bit lit ---- */
+  .s-b .stage { background: radial-gradient(120% 90% at 30% 0%, #3a4a7a 0%, #1d2240 55%, #12142a 100%); }
+  .s-b .ui { background: linear-gradient(180deg, rgba(28, 33, 64, 0.92), rgba(16, 18, 38, 0.95)); border: 1px solid #c9a24a; box-shadow: inset 0 0 0 1px rgba(255, 230, 170, 0.12), 0 8px 24px rgba(0, 0, 0, 0.45); color: #f3ead2; font: 500 14px 'Inter', sans-serif; }
+  .s-b .ui .name { font: 700 16px 'Cinzel', serif; letter-spacing: 0.04em; }
+  .s-b .ui .bar { background: #0b0d1c; border: 1px solid #6c5a2e; }
+  .s-b .ui .bar i { background: linear-gradient(90deg, #4cc38a, #8be38f); }
+  .s-b .ui button { background: linear-gradient(#2f3a6e, #1c2347); color: #f3ead2; border: 1px solid #c9a24a; border-radius: 6px; font-weight: 600; }
+  .s-b .slot { background: radial-gradient(circle at 50% 35%, #2f3a6e, #151a35); border: 1px solid #c9a24a; }
+
+  /* ---- C: Soft pastel ---- */
+  .s-c .stage { background: linear-gradient(#ffe9f1, #f3e6ff); }
+  .s-c .ui { background: #fffaf3; border: 3px solid #e8b9d0; color: #5a3d5c; font: 500 15px 'Fredoka', sans-serif; border-radius: 18px; }
+  .s-c .ui .name { font-weight: 600; }
+  .s-c .ui .bar { background: #f3dce8; border-radius: 99px; }
+  .s-c .ui .bar i { background: #8fd6a8; border-radius: 99px; }
+  .s-c .ui button { background: #ffd6e6; color: #5a3d5c; border: 2px solid #e8a9c6; border-radius: 99px; font: 600 14px 'Fredoka', sans-serif; }
+  .s-c .slot { background: #fffaf3; border: 2px solid #e8b9d0; border-radius: 14px; }
+  .s-c figcaption { color: #5a3d5c; }
+
+  /* ---- D: Handheld 4-tone ---- */
+  .s-d .stage { background: #9bbc0f; }
+  .s-d figcaption { color: #0f380f; font: 18px 'VT323', monospace; opacity: 1; }
+  .s-d .ui { background: #8bac0f; border: 4px solid #0f380f; color: #0f380f; font: 20px/1.1 'VT323', monospace; border-radius: 4px; }
+  .s-d .ui .bar { background: #306230; border-radius: 0; }
+  .s-d .ui .bar i { background: #0f380f; }
+  .s-d .ui button { background: #306230; color: #9bbc0f; border: none; border-radius: 2px; font: 20px 'VT323', monospace; }
+  .s-d .slot { background: #8bac0f; border: 3px solid #0f380f; border-radius: 4px; }
+
+  /* ---- E: Flat illustrated ---- */
+  .s-e .stage { background: linear-gradient(160deg, #263859 0%, #17223b 100%); }
+  .s-e figcaption { color: #e7ecf5; }
+  .s-e .ui { background: #f7f4ee; color: #1f2a44; font: 600 15px 'Nunito', sans-serif; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+  .s-e .ui .name { font-weight: 800; }
+  .s-e .ui .bar { background: #e3ddd1; border-radius: 99px; }
+  .s-e .ui .bar i { background: #3fb984; border-radius: 99px; }
+  .s-e .ui button { background: #ff7b54; color: #fff; border: none; border-radius: 12px; font: 800 14px 'Nunito', sans-serif; box-shadow: 0 3px 0 #c95632; }
+  .s-e .slot { background: #f7f4ee; border-radius: 14px; }
+</style>
+
+<main>
+  <header>
+    <h1>Pick an art direction</h1>
+    <p>Same cast in five styles: three classes (Warrior, Sage, Cleric), the first boss, four items, and a slice of the battle screen. Look for what reads best on your phone, especially the items and numbers. These are direction samples I drew in code; final art would be made or licensed in the style you pick.</p>
+    <div class="legend"><span>Warrior · Sage · Cleric</span><span>Bog Troll</span><span>Sword · Staff · Potion · Scroll</span><span>Battle UI</span></div>
+  </header>
+
+  <section class="plate s-a" data-style="A">
+    <div class="plate-head"><h2>A. Classic 16-bit</h2><span class="tag">SNES-era JRPG</span></div>
+    <p class="plate-desc">Chunky pixels, black outlines, bright saturated colors, blue menu windows with white borders. The most nostalgic look; small details are bold but simple.</p>
+    <div class="stage"><div class="row" data-scene></div><div class="items" data-items></div><div class="ui" data-ui></div></div>
+    <div class="pickbar"><button type="button" aria-pressed="false">I like this one</button></div>
+  </section>
+
+  <section class="plate s-b" data-style="B">
+    <div class="plate-head"><h2>B. Hi-bit, lit</h2><span class="tag">Modern pixel art</span></div>
+    <p class="plate-desc">Pixels at double density with soft lighting, colored outlines and a glow behind the cast, plus a clean fantasy UI with gold trim and readable type. Closest to "Final Fantasy, but modern."</p>
+    <div class="stage"><div class="row" data-scene></div><div class="items" data-items></div><div class="ui" data-ui></div></div>
+    <div class="pickbar"><button type="button" aria-pressed="false">I like this one</button></div>
+  </section>
+
+  <section class="plate s-c" data-style="C">
+    <div class="plate-head"><h2>C. Soft pastel</h2><span class="tag">Cozy pixel</span></div>
+    <p class="plate-desc">Rounded "plush" pixels, pastel colors and soft outlines. Friendly and calm, more cozy game than epic quest.</p>
+    <div class="stage"><div class="row" data-scene></div><div class="items" data-items></div><div class="ui" data-ui></div></div>
+    <div class="pickbar"><button type="button" aria-pressed="false">I like this one</button></div>
+  </section>
+
+  <section class="plate s-d" data-style="D">
+    <div class="plate-head"><h2>D. Handheld 4-tone</h2><span class="tag">Retro handheld</span></div>
+    <p class="plate-desc">Everything in four shades of green, like an old handheld screen. Very distinctive and cheap to make, but items are harder to tell apart without color.</p>
+    <div class="stage"><div class="row" data-scene></div><div class="items" data-items></div><div class="ui" data-ui></div></div>
+    <div class="pickbar"><button type="button" aria-pressed="false">I like this one</button></div>
+  </section>
+
+  <section class="plate s-e" data-style="E">
+    <div class="plate-head"><h2>E. Flat illustrated</h2><span class="tag">Not pixel art</span></div>
+    <p class="plate-desc">Smooth vector shapes and a bright, modern app look. For contrast: easiest to read at any size, but it leaves the pixel-RPG feel behind.</p>
+    <div class="stage"><div class="row" data-scene></div><div class="items" data-items></div><div class="ui" data-ui></div></div>
+    <div class="pickbar"><button type="button" aria-pressed="false">I like this one</button></div>
+  </section>
+
+  <p class="note">Tap "I like this one" on as many as you want; your picks are remembered on this device only. Then tell me in chat which one (or which mix, e.g. "B's characters with A's menus").</p>
+</main>
+
+<script>
+(() => {
+  // ---------- Sprites (semantic letters; each style maps letters to colors) ----------
+  const HERO = [
+    '................',
+    '.....oooooo.....',
+    '....ohhhhhho....',
+    '...ohhhhhhhHo...',
+    '...ohHssssHHo...',
+    '...ossesseSso...',
+    '...osssssssSo...',
+    '....oSssssSo....',
+    '...ooaaaaaaAoo..',
+    '..oaalaaaaaaAAo.',
+    '..osoaagGaaAoso.',
+    '..oo.obbbbBo.oo.',
+    '....oaaaaaaAo...',
+    '....oaAo.oaAo...',
+    '....obbo.obBo...',
+    '....oooo.oooo...',
+  ];
+  const TROLL = [
+    '....................',
+    '......oooooooo......',
+    '....oogggggggGoo....',
+    '...ogggggggggggGo...',
+    '..oggywgggggywgGGo..',
+    '..ogggggggggggggGo..',
+    '..oggoooooooooggGo..',
+    '..oggowowwowwogGGo..',
+    '...ogggggggggggGo...',
+    '.oooogggggggggGoooo.',
+    'ogggoggddddddgGogGGo',
+    'ogggoggddddddgGogGGo',
+    'ogGGoggggggggGGoGGGo',
+    '.oGooggggggggGGooGo.',
+    '.oo..ogggggggGGo.oo.',
+    '.....ogggoogggGo....',
+    '.....oggo..ogGGo....',
+    '....oggGo..oggGo....',
+    '....oBBBo..oBBBo....',
+    '....ooooo..ooooo....',
+  ];
+  const SWORD = [
+    '..........oo', '.........owo', '........owmo', '.......owmo.', '......owmo..', '..o..owmo...',
+    '..ogowmo....', '...oggmo....', '...ogGo.....', '..obog......', '.obbo.......', '.oo.........',
+  ];
+  const STAFF = [
+    '.....ooo....', '....occco...', '....oclco...', '....occco...', '.....oCo....', '.....obo....',
+    '.....obo....', '.....obo....', '.....oBo....', '.....obo....', '.....oBo....', '.....ooo....',
+  ];
+  const POTION = [
+    '....oooo....', '....obbo....', '.....oo.....', '....owwo....', '...owrrro...', '..owrrrrro..',
+    '..orrlrrRo..', '..orrrrrRo..', '..orrrrRRo..', '...oRRRRo...', '....oooo....', '............',
+  ];
+  const SCROLL = [
+    '............', '..oooooooo..', '.opppppppPo.', '.oPoooooooo.', '..opppppPo..', '..opkkkkPo..',
+    '..opppppPo..', '..opkkkPPo..', '..opppppPo..', '.oooooooooo.', '.opppppppPo.', '..oooooooo..',
+  ];
+
+  const BASE = {
+    o: '#1a1020', s: '#f2c39b', S: '#c98b6b', e: '#1a1020', h: '#6b3e22', H: '#43251a',
+    b: '#7a4a2a', B: '#4e2d1a', g: '#f2c14e', G: '#b8862a', m: '#c9d1e0', M: '#7d879c', w: '#ffffff',
+    y: '#ffe066', d: '#a6c96a', c: '#5ad1ff', C: '#2a7fb8', l: '#ffffff', r: '#e5394b', R: '#9b1f33',
+    p: '#f3e2b8', P: '#c9ae7a', k: '#5a3d2b',
+  };
+  const CLASSES = {
+    Warrior: { a: '#c0392b', A: '#7f1f1a', l: '#ee6b5e', h: '#6b3e22', H: '#43251a' },
+    Sage: { a: '#3d6fd8', A: '#22408f', l: '#86adff', h: '#d9d6e6', H: '#9a96ad' },
+    Cleric: { a: '#efe7d0', A: '#b4a57e', l: '#ffffff', h: '#f0cf6a', H: '#b8913a' },
+  };
+  const TROLL_PAL = { g: '#5f9a3e', G: '#3a6a26', d: '#a6c96a', y: '#ffe066', w: '#fffbe6', B: '#5a3a22' };
+
+  // ---------- Color helpers ----------
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const toHex = (rgb) => '#' + rgb.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+  const mix = (a, b, t) => toHex(hex(a).map((v, i) => v + (hex(b)[i] - v) * t));
+  const lum = (h) => { const [r, g, b] = hex(h); return 0.299 * r + 0.587 * g + 0.114 * b; };
+
+  // Each style turns the semantic palette into its own colors.
+  const STYLES = {
+    A: { scale: 6, map: (c) => c, outline: '#1a1020', round: 0, hibit: false },
+    B: { scale: 6, map: (c) => c, outline: null, round: 0, hibit: true },
+    C: { scale: 6, map: (c, k) => (k === 'o' || k === 'e' ? '#6b4a6b' : mix(c, '#ffffff', 0.38)), round: 0.35, hibit: false },
+    D: {
+      scale: 6, round: 0, hibit: false,
+      map: (c, k) => { if (k === 'o' || k === 'e') return '#0f380f'; const L = lum(c); return L > 200 ? '#9bbc0f' : L > 140 ? '#8bac0f' : L > 80 ? '#306230' : '#0f380f'; },
+    },
+  };
+
+  const OPAQUE = (ch) => ch && ch !== '.';
+  function draw(rows, pal, styleKey, scale) {
+    const st = STYLES[styleKey];
+    const w = rows[0].length, h = rows.length;
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const cv = document.createElement('canvas');
+    const pad = st.hibit ? 2 : 0;
+    cv.width = (w + pad * 2) * scale * dpr; cv.height = (h + pad * 2) * scale * dpr;
+    cv.style.width = `${(w + pad * 2) * scale}px`; cv.style.height = `${(h + pad * 2) * scale}px`;
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.imageSmoothingEnabled = false;
+    const at = (x, y) => (y >= 0 && y < h && x >= 0 && x < w ? rows[y][x] : '.');
+    const colorOf = (k) => st.map(pal[k] ?? BASE[k] ?? '#ff00ff', k);
+    const ox = pad * scale, oy = pad * scale;
+
+    if (st.hibit) {
+      // soft glow + ground shadow behind the sprite
+      const g = ctx.createRadialGradient(ox + w * scale / 2, oy + h * scale * 0.45, 2, ox + w * scale / 2, oy + h * scale * 0.45, w * scale * 0.75);
+      g.addColorStop(0, 'rgba(255, 220, 150, 0.22)'); g.addColorStop(1, 'rgba(255, 220, 150, 0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.beginPath(); ctx.ellipse(ox + w * scale / 2, oy + h * scale + scale * 0.6, w * scale * 0.32, scale * 0.9, 0, 0, Math.PI * 2); ctx.fill();
+    }
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const k = rows[y][x];
+        if (!OPAQUE(k)) continue;
+        let col = colorOf(k);
+        if (st.hibit && k === 'o') {
+          // selective outline: darken the neighboring fill instead of using black
+          const n = [at(x + 1, y), at(x - 1, y), at(x, y + 1), at(x, y - 1)].find((q) => OPAQUE(q) && q !== 'o');
+          col = n ? mix(colorOf(n), '#12102a', 0.62) : '#1b1530';
+        }
+        const px = ox + x * scale, py = oy + y * scale;
+        if (st.hibit && k !== 'o') {
+          // double-density pixels with edge lighting from the top-left
+          const half = scale / 2;
+          const edge = (q) => !OPAQUE(q) || q === 'o';
+          const up = edge(at(x, y - 1)), left = edge(at(x - 1, y)), down = edge(at(x, y + 1)), right = edge(at(x + 1, y));
+          const cells = [
+            [0, 0, up || left ? 0.22 : 0.06], [half, 0, up ? 0.14 : 0], [0, half, left ? 0.08 : 0], [half, half, down || right ? -0.2 : -0.04],
+          ];
+          for (const [dx, dy, t] of cells) {
+            ctx.fillStyle = t >= 0 ? mix(col, '#fff4d6', t) : mix(col, '#1a1840', -t);
+            ctx.fillRect(px + dx, py + dy, half + 0.3, half + 0.3);
+          }
+        } else if (st.round) {
+          ctx.fillStyle = col;
+          ctx.beginPath(); ctx.roundRect(px, py, scale + 0.2, scale + 0.2, scale * st.round); ctx.fill();
+        } else {
+          ctx.fillStyle = col;
+          ctx.fillRect(px, py, scale + 0.2, scale + 0.2);
+        }
+      }
+    }
+    return cv;
+  }
+
+  // ---------- E: flat vector versions ----------
+  const VEC = {
+    hero: (c) => `<svg class="vec" viewBox="0 0 80 100" width="80" height="100" aria-hidden="true">
+      <ellipse cx="40" cy="96" rx="22" ry="4" fill="#0d1428" opacity=".5"/>
+      <rect x="27" y="78" width="10" height="16" rx="4" fill="#3b3150"/><rect x="43" y="78" width="10" height="16" rx="4" fill="#3b3150"/>
+      <rect x="20" y="44" width="40" height="40" rx="14" fill="${c.a}"/>
+      <rect x="20" y="62" width="40" height="6" fill="${c.A}"/><circle cx="40" cy="65" r="4" fill="#f2c14e"/>
+      <circle cx="16" cy="64" r="6" fill="#f2c39b"/><circle cx="64" cy="64" r="6" fill="#f2c39b"/>
+      <circle cx="40" cy="28" r="20" fill="#f2c39b"/>
+      <path d="M20 26 Q22 6 40 7 Q58 6 60 26 Q50 16 40 18 Q30 16 20 26Z" fill="${c.h}"/>
+      <circle cx="33" cy="30" r="3" fill="#1f2a44"/><circle cx="47" cy="30" r="3" fill="#1f2a44"/>
+      <path d="M35 38 Q40 42 45 38" stroke="#c97a5a" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+    troll: `<svg class="vec" viewBox="0 0 140 130" width="140" height="130" aria-hidden="true">
+      <ellipse cx="70" cy="124" rx="50" ry="6" fill="#0d1428" opacity=".5"/>
+      <rect x="40" y="96" width="22" height="26" rx="10" fill="#4f8a36"/><rect x="78" y="96" width="22" height="26" rx="10" fill="#4f8a36"/>
+      <ellipse cx="22" cy="78" rx="14" ry="26" fill="#5f9a3e"/><ellipse cx="118" cy="78" rx="14" ry="26" fill="#5f9a3e"/>
+      <rect x="22" y="22" width="96" height="86" rx="40" fill="#6aa846"/>
+      <ellipse cx="70" cy="80" rx="28" ry="20" fill="#a6c96a"/>
+      <circle cx="50" cy="48" r="9" fill="#fffbe6"/><circle cx="90" cy="48" r="9" fill="#fffbe6"/>
+      <circle cx="52" cy="49" r="4" fill="#1f2a44"/><circle cx="88" cy="49" r="4" fill="#1f2a44"/>
+      <path d="M48 64 H92 Q70 76 48 64Z" fill="#1f2a44"/><path d="M56 64 l4 7 4-7z M76 64 l4 7 4-7z" fill="#fffbe6"/></svg>`,
+    sword: `<svg class="vec" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><g transform="rotate(45 24 24)"><rect x="21" y="2" width="6" height="30" rx="3" fill="#d6dce8"/><rect x="14" y="30" width="20" height="5" rx="2.5" fill="#f2c14e"/><rect x="21.5" y="35" width="5" height="9" rx="2" fill="#8a5a3b"/></g></svg>`,
+    staff: `<svg class="vec" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect x="22" y="14" width="4" height="32" rx="2" fill="#8a5a3b"/><circle cx="24" cy="11" r="8" fill="#5ad1ff"/><circle cx="21" cy="8" r="2.5" fill="#fff" opacity=".8"/></svg>`,
+    potion: `<svg class="vec" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect x="19" y="4" width="10" height="6" rx="2" fill="#8a5a3b"/><path d="M20 10h8v8l9 12a10 10 0 0 1-8 15H19a10 10 0 0 1-8-15l9-12z" fill="#e5394b"/><path d="M20 10h8v8l3 4H17l3-4z" fill="#f3d6dc"/><circle cx="18" cy="32" r="3" fill="#fff" opacity=".7"/></svg>`,
+    scroll: `<svg class="vec" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect x="9" y="8" width="30" height="32" rx="4" fill="#f3e2b8"/><rect x="6" y="6" width="36" height="7" rx="3.5" fill="#d9be86"/><rect x="6" y="36" width="36" height="7" rx="3.5" fill="#d9be86"/><rect x="14" y="18" width="20" height="3" rx="1.5" fill="#8a6a4a"/><rect x="14" y="25" width="15" height="3" rx="1.5" fill="#8a6a4a"/></svg>`,
+  };
+
+  const UI_TEXT = (s) => `
+    <span class="name">Warrior · Lv 36</span><span>119 / 186 HP</span>
+    <div class="bar"><i></i></div>
+    <div class="meta">Bog Troll uses Mud Slam in 1 turn · Weak to STR, FTH</div>
+    <div class="btns"><button type="button">Shield Bash ×1</button><button type="button">Potion</button><button type="button">Thunder Scroll</button></div>`;
+
+  for (const plate of document.querySelectorAll('.plate')) {
+    const key = plate.dataset.style;
+    const scene = plate.querySelector('[data-scene]');
+    const items = plate.querySelector('[data-items]');
+    const cast = document.createElement('div');
+    cast.className = 'cast';
+    if (key === 'E') {
+      for (const [name, c] of Object.entries(CLASSES)) {
+        const f = document.createElement('figure');
+        f.className = 'bob';
+        f.innerHTML = VEC.hero(c) + `<figcaption>${name}</figcaption>`;
+        cast.append(f);
+      }
+      const bf = document.createElement('figure');
+      bf.innerHTML = VEC.troll + '<figcaption>Bog Troll</figcaption>';
+      cast.append(bf);
+      for (const k of ['sword', 'staff', 'potion', 'scroll']) {
+        const s = document.createElement('div'); s.className = 'slot'; s.innerHTML = VEC[k]; items.append(s);
+      }
+    } else {
+      for (const [name, c] of Object.entries(CLASSES)) {
+        const f = document.createElement('figure');
+        f.className = 'bob';
+        f.append(draw(HERO, c, key, STYLES[key].scale));
+        const cap = document.createElement('figcaption'); cap.textContent = name; f.append(cap);
+        cast.append(f);
+      }
+      const bf = document.createElement('figure');
+      bf.append(draw(TROLL, TROLL_PAL, key, 7));
+      const cap = document.createElement('figcaption'); cap.textContent = 'Bog Troll'; bf.append(cap);
+      cast.append(bf);
+      for (const spr of [SWORD, STAFF, POTION, SCROLL]) {
+        const s = document.createElement('div'); s.className = 'slot'; s.append(draw(spr, {}, key, 4)); items.append(s);
+      }
+    }
+    scene.append(cast);
+    plate.querySelector('[data-ui]').innerHTML = UI_TEXT(key);
+
+    // remember picks on this device only
+    const btn = plate.querySelector('.pickbar button');
+    const storeKey = `art-pick-${key}`;
+    try { if (localStorage.getItem(storeKey) === '1') btn.setAttribute('aria-pressed', 'true'); } catch {}
+    btn.addEventListener('click', () => {
+      const on = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', String(on));
+      btn.textContent = on ? 'Picked' : 'I like this one';
+      try { localStorage.setItem(storeKey, on ? '1' : '0'); } catch {}
+    });
+    if (btn.getAttribute('aria-pressed') === 'true') btn.textContent = 'Picked';
+  }
+})();
+</script>

@@ -1,0 +1,25 @@
+{
+  "size": 96,
+  "frames": {
+    "idle": [
+      0,
+      1
+    ],
+    "attack": [
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "classes": [
+    "adventurer",
+    "warrior",
+    "paladin",
+    "ranger",
+    "monk",
+    "sage",
+    "cleric",
+    "spellblade"
+  ]
+}
