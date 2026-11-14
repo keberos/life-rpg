@@ -45,6 +45,9 @@ export function Home() {
         </div>
       </Win>
 
+      {g.questsTotal === 0 && (
+        <p class="muted center">Welcome, adventurer. When you'd normally scroll, take a quest instead. Your first quest in each stat is a quick check, so later ones fit you.</p>
+      )}
       <button class="btn primary big" onClick={() => go('#/quest')}>Start a quest</button>
       <div class="row wrap" style={{ gap: '6px' }}>
         <span class="faint">Or train:</span>

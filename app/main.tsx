@@ -1,6 +1,7 @@
 import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { STAT_IDS, type StatId } from '../src/engine/types.ts';
+import { grantStarterKit } from './state/logic.ts';
 import { store, useGame } from './state/store.ts';
 // Fonts are bundled with the app (no third-party requests from the phone).
 import '@fontsource/pixelify-sans/latin-500.css';
@@ -9,7 +10,6 @@ import './styles.css';
 import { BossScreen } from './ui/BossScreen.tsx';
 import { Home } from './ui/Home.tsx';
 import { CheckIn, Debug, Intercept, Menu, SaveScreen, ShortcutGuide, Skipped } from './ui/Menu.tsx';
-import { Onboarding } from './ui/Onboarding.tsx';
 import { QuestScreen } from './ui/QuestScreen.tsx';
 
 function useHash() {
@@ -31,8 +31,6 @@ function App() {
   const parts = hash.replace(/^#\/?/, '').split('/');
   const [route, arg, arg2] = parts;
 
-  if (!store.get().profile.onboarded && route !== 'debug') return <Onboarding />;
-
   switch (route) {
     case 'quest': {
       // #/quest, #/quest/STR, #/quest/id/<questId>
@@ -51,5 +49,8 @@ function App() {
     default: return <Home />;
   }
 }
+
+// Drop-in start: no setup screens. First open just gets the starter kit.
+if (!store.get().profile.onboarded) grantStarterKit();
 
 render(<App />, document.getElementById('app')!);

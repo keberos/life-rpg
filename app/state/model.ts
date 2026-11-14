@@ -63,6 +63,8 @@ export interface GameState {
   levels: StatBlock;
   levelProgress: StatBlock; // 0..1 toward next level
   ratings: StatBlock;
+  /** Stats whose difficulty has been measured by a first-quest calibration. */
+  calibrated: Record<StatId, boolean>;
   daysSinceTrained: StatBlock;
   totalLevel: number;
   ownedGear: GearDef[];
@@ -98,6 +100,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
 
   const xp = emptyStats();
   const ratings = emptyStats(DEFAULT_RATING);
+  const calibrated = Object.fromEntries(STAT_IDS.map((s) => [s, false])) as Record<StatId, boolean>;
   const lastTrained: Partial<Record<StatId, number>> = {};
   const owned = new Set<string>();
   const items: Record<string, number> = {};
@@ -112,6 +115,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     switch (e.type) {
       case 'placement':
         ratings[e.stat] = e.rating;
+        calibrated[e.stat] = true;
         break;
       case 'quest':
         xp[e.stat] += e.xp;
@@ -178,7 +182,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   return {
     now, dayKey, week,
     seasonOver: week > SEASON_WEEKS,
-    xp, levels, levelProgress, ratings, daysSinceTrained, totalLevel,
+    xp, levels, levelProgress, ratings, calibrated, daysSinceTrained, totalLevel,
     ownedGear, equipped: [...bestBySlot.values()], items,
     unlocked, activeClass,
     boss: { def, tier, defeated, foughtToday, nextBossWeek },

@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
+import { grantStarterKit } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { TopBar, Win, go } from './components.tsx';
 
@@ -153,7 +154,7 @@ export function Debug() {
       </Win>
       {confirm ? (
         <div class="row">
-          <button class="btn bad grow" onClick={() => { store.reset(); go('#/'); }}>Erase everything</button>
+          <button class="btn bad grow" onClick={() => { store.reset(); grantStarterKit(); go('#/'); }}>Erase everything</button>
           <button class="btn ghost" onClick={() => setConfirm(false)}>Cancel</button>
         </div>
       ) : (

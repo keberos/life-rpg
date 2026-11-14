@@ -62,10 +62,12 @@ export function completeQuest(
   feedback: Feedback,
   amount?: number,
   score?: string,
+  /** Set by a calibration run: this becomes the stat's rating directly. */
+  calibratedRating?: number,
 ): QuestResult {
-  const before = state.ratings[q.stat];
+  const before = calibratedRating ?? state.ratings[q.stat];
   // Easy wins don't push difficulty up (unless you say it was too easy); everything else uses the rule.
-  const after = difficulty === 'easy' && feedback === 'success' ? before : updateRating(before, feedback);
+  const after = calibratedRating !== undefined ? calibratedRating : difficulty === 'easy' && feedback === 'success' ? before : updateRating(before, feedback);
   const xp = questXp(difficulty, outcome, state.daysSinceTrained[q.stat]);
   const newXp = state.xp[q.stat] + xp;
   const newLevel = levelFromXp(newXp);
@@ -81,10 +83,26 @@ export function completeQuest(
   return { xp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
 }
 
-export function recordPlacement(stat: StatId, questId: string, value: number) {
+/** Record a calibration result (max reps / longest hold) and return the stat's new rating. */
+export function recordPlacement(stat: StatId, questId: string, value: number): number | undefined {
   const q = questById(questId);
-  if (!q?.curve) return;
-  store.log({ type: 'placement', stat, questId, value, rating: placementRating(q.curve, value) });
+  if (!q?.curve) return undefined;
+  const rating = placementRating(q.curve, value);
+  store.log({ type: 'placement', stat, questId, value, rating });
+  return rating;
+}
+
+/** Quests whose first run measures you instead of asking for a fixed amount. */
+export const canCalibrate = (q: QuestDef) => !!q.curve && (q.kind === 'reps' || q.kind === 'timer');
+
+/** First open: everyone starts with common gear (boss balance assumes it) and two items. */
+export function grantStarterKit() {
+  store.log(
+    ...['iron-sword', 'leather-vest', 'prayer-beads'].map((id) => ({ type: 'loot' as const, kind: 'gear' as const, id, source: 'starter' })),
+    { type: 'loot', kind: 'item', id: 'potion', source: 'starter' },
+    { type: 'loot', kind: 'item', id: 'thunder-scroll', source: 'starter' },
+  );
+  store.updateProfile({ onboarded: true });
 }
 
 const TIER_RARITY: Record<number, Rarity> = { 1: 'common', 2: 'rare', 3: 'epic', 4: 'legendary' };

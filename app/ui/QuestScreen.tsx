@@ -5,7 +5,7 @@ import { makeRng } from '../../src/engine/rng.ts';
 import type { StatId } from '../../src/engine/types.ts';
 import { patternQuestions } from '../content/patterns.ts';
 import { STAT_INFO, questById, type QuestDef, type QuizQuestion } from '../content/quests.ts';
-import { amountFor, completeQuest, howText, suggestQuest, type QuestResult } from '../state/logic.ts';
+import { amountFor, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
 
@@ -14,7 +14,16 @@ type Phase = 'brief' | 'run' | 'rate' | 'done';
 export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string }) {
   const g = useGame();
   const enabled = store.get().profile.enabledStats;
-  const [quest, setQuest] = useState<QuestDef>(() => (questId && questById(questId)) || suggestQuest(g, enabled, stat));
+  const [quest, setQuestRaw] = useState<QuestDef>(() => (questId && questById(questId)) || suggestQuest(g, enabled, stat));
+  // The first measurable quest in a stat is a calibration run: measure, don't prescribe.
+  const calibFor = (q: QuestDef) => canCalibrate(q) && !store.state().calibrated[q.stat];
+  const [calibrating, setCalibrating] = useState(() => calibFor(quest));
+  const [calibNote, setCalibNote] = useState<string | null>(null);
+  const setQuest = (q: QuestDef) => {
+    setQuestRaw(q);
+    setCalibrating(calibFor(q));
+    setCalibNote(null);
+  };
   const [difficulty, setDifficulty] = useState<RelativeDifficulty>('normal');
   const [phase, setPhase] = useState<Phase>('brief');
   const [outcome, setOutcome] = useState<QuestOutcome>('success');
@@ -34,6 +43,15 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
     else setPhase('rate');
   };
 
+  const finishCalibration = (value: number) => {
+    const rating = recordPlacement(quest.stat, quest.id, value);
+    setOutcome('success');
+    setResult(completeQuest(g, quest, 'normal', 'success', 'success', value, undefined, rating));
+    const next = rating === undefined ? undefined : amountFor(quest, rating, 'normal');
+    setCalibNote(next === undefined ? null : `Calibrated. Your ${quest.title.toLowerCase()} quests will start at ${next} ${quest.unit}.`);
+    setPhase('done');
+  };
+
   const swap = () => setQuest(suggestQuest(g, enabled, stat, quest.id));
   const info = STAT_INFO[quest.stat];
 
@@ -46,15 +64,24 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
           <Win>
             <div class="stack">
               <div class="row between"><h2>{quest.title}</h2><StatChip stat={quest.stat} /></div>
-              {amount !== undefined && (
+              {calibrating && (
+                <p>
+                  <b>First {info.name.toLowerCase()} quest: quick check.</b>{' '}
+                  {quest.kind === 'reps'
+                    ? `Do as many ${quest.title.toLowerCase()} as you can with good form, then enter how many.`
+                    : 'Start the timer and keep going as long as you comfortably can, then tap Stop.'}
+                  {' '}This sets the starting level for future {info.name.toLowerCase()} quests.
+                </p>
+              )}
+              {!calibrating && amount !== undefined && (
                 <div class="center"><div class="big-number" style={{ color: info.color }}>{amount}</div><div class="muted">{quest.unit}</div></div>
               )}
-              <p>{howText(quest, amount)}</p>
+              {!calibrating && <p>{howText(quest, amount)}</p>}
               {quest.safety && <p class="faint">{quest.safety}</p>}
               {quest.source && <p class="faint">{quest.source}</p>}
             </div>
           </Win>
-          {quest.curve && (
+          {quest.curve && !calibrating && (
             <div class="row" style={{ gap: '6px' }}>
               {(['easy', 'normal', 'hard'] as const).map((d) => (
                 <button key={d} class={`btn ghost small grow ${difficulty === d ? 'selected' : ''}`} onClick={() => setDifficulty(d)}>
@@ -68,7 +95,9 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
         </>
       )}
 
-      {phase === 'run' && <Runner quest={quest} amount={amount} rating={rating} onDone={ranOut} onScore={setScore} />}
+      {phase === 'run' && calibrating && quest.kind === 'reps' && <CalibrateReps unit={quest.unit ?? 'reps'} onDone={finishCalibration} />}
+      {phase === 'run' && calibrating && quest.kind === 'timer' && <CalibrateHold onDone={finishCalibration} />}
+      {phase === 'run' && !calibrating && <Runner quest={quest} amount={amount} rating={rating} onDone={ranOut} onScore={setScore} />}
 
       {phase === 'rate' && (
         <Win>
@@ -88,6 +117,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             <div class="big-number pop" style={{ color: info.color }}>+{result.xp} XP</div>
             <p class="muted">{info.name}{g.daysSinceTrained[quest.stat] >= 1 ? ' (rested bonus)' : ''}</p>
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
+            {calibNote && <p>{calibNote}</p>}
             {outcome === 'fail' && <p class="muted">Effort still counts. The next one will be a little gentler.</p>}
             {result.drop && <p class="pop">Found: <b>{result.drop}</b></p>}
             <button class="btn primary" onClick={() => { setQuest(suggestQuest(store.state(), enabled, undefined, quest.id)); setDifficulty('normal'); setResult(null); setScore(undefined); setPhase('brief'); }}>Another quest</button>
@@ -96,6 +126,56 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
         </Win>
       )}
     </div>
+  );
+}
+
+/** Calibration: count your max reps. */
+function CalibrateReps({ unit, onDone }: { unit: string; onDone: (n: number) => void }) {
+  const [n, setN] = useState(0);
+  return (
+    <Win>
+      <div class="stack center">
+        <p class="muted">Go! Count as you do them, then set the number.</p>
+        <div class="row" style={{ justifyContent: 'center', gap: '16px' }}>
+          <button class="btn big" style={{ width: '72px' }} onClick={() => setN((x) => Math.max(0, x - 1))} aria-label="One less">−</button>
+          <div class="big-number" style={{ minWidth: '96px' }}>{n}</div>
+          <button class="btn big" style={{ width: '72px' }} onClick={() => setN((x) => x + 1)} aria-label="One more">+</button>
+        </div>
+        <div class="row" style={{ justifyContent: 'center', gap: '8px' }}>
+          {[5, 10].map((k) => <button key={k} class="btn ghost small" onClick={() => setN((x) => x + k)}>+{k}</button>)}
+        </div>
+        <p class="muted">{unit}</p>
+        <button class="btn good big" disabled={n < 1} onClick={() => onDone(n)}>Done</button>
+      </div>
+    </Win>
+  );
+}
+
+/** Calibration: stopwatch for your longest comfortable hold. */
+function CalibrateHold({ onDone }: { onDone: (seconds: number) => void }) {
+  const [start, setStart] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now());
+  useWakeLock(start !== null);
+  useEffect(() => {
+    if (start === null) return;
+    const id = setInterval(() => setNow(Date.now()), 200);
+    return () => clearInterval(id);
+  }, [start]);
+  const secs = start === null ? 0 : Math.floor((now - start) / 1000);
+  return (
+    <Win>
+      <div class="stack center">
+        <div class="big-number">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</div>
+        {start === null ? (
+          <button class="btn primary big" onClick={() => { setStart(Date.now()); setNow(Date.now()); }}>Start</button>
+        ) : (
+          <>
+            <p class="muted">Keep going as long as you comfortably can.</p>
+            <button class="btn good big" onClick={() => { beep(); onDone(Math.max(1, secs)); }}>Stop</button>
+          </>
+        )}
+      </div>
+    </Win>
   );
 }
 
