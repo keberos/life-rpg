@@ -93,7 +93,7 @@ export function SeasonScreen() {
       <Win quiet>
         <div class="stack" style={{ gap: '6px' }}>
           <b>Starting class</b>
-          <span class="faint">Beat a boss as a class to master it. Mastered classes can start a season unlocked.</span>
+          <span class="faint">Beat the Hollow Warden or Ashen Wyrm as a class to master it. Mastered classes can start a season unlocked.</span>
           {['adventurer', ...lifetime.masteredClasses].map((id) => (
             <button key={id} class={`btn ghost option-row ${startClass === id ? 'selected' : ''}`} onClick={() => setStartClass(id)}>
               <b>{className(id)}</b>

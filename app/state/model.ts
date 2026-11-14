@@ -16,6 +16,12 @@ export const DAY = 86_400_000;
 export const SEASON_WEEKS = 8;
 /** The week boss `tier` can first arrive (1, 3, 5, 7). */
 export const bossWeek = (tier: number) => tier * 2 - 1;
+/** Beating a boss of this tier or higher as a class masters it (a Legacy starting class). */
+export const MASTERY_TIER = 3;
+export const masteryBosses = () => corePack.bosses.filter((b) => b.tier >= MASTERY_TIER);
+/** Does this boss win master the class it was fought as? */
+export const mastersClass = (bossId: string, classId?: string) =>
+  !!classId && classId !== 'adventurer' && (corePack.bosses.find((b) => b.id === bossId)?.tier ?? 0) >= MASTERY_TIER;
 export const DEFAULT_RATING = 6;
 
 export interface Profile {
@@ -146,7 +152,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   // ---- Lifetime record (all seasons). ----
   const lifetimeQuests = all.filter((e) => e.type === 'quest').length;
   const seasonsCompleted = all.filter((e) => e.type === 'newSeason').length;
-  const masteredClasses = [...new Set(all.flatMap((e) => (e.type === 'boss' && e.win && e.classId && e.classId !== 'adventurer' ? [e.classId] : [])))];
+  const masteredClasses = [...new Set(all.flatMap((e) => (e.type === 'boss' && e.win && mastersClass(e.bossId, e.classId) ? [e.classId!] : [])))];
   let bossesBeaten = 0;
   let fullClear = false;
   {

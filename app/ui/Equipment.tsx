@@ -2,7 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import type { ClassDef, GearDef, GearSlot } from '../../src/engine/types.ts';
 import { SLOT_LABEL, describeActive, describeItem, describePassive, describeStats } from '../content/describe.ts';
-import { GEAR_SLOTS } from '../state/model.ts';
+import { GEAR_SLOTS, masteryBosses } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { TopBar, Win, go } from './components.tsx';
 import { Hero } from './sprites.tsx';
@@ -127,7 +127,11 @@ export function Equipment() {
                 {active && <span class="faint"> · current</span>}
                 {fresh.has(c.id) && <span class="new-tag"> NEW</span>}
                 {!unlocked && <span class="faint"> · needs {needs(c)}</span>}
+                {c.id !== 'adventurer' && g.lifetime.masteredClasses.includes(c.id) && <span class="r-rare"> · mastered</span>}
               </span>
+              {unlocked && c.id !== 'adventurer' && !g.lifetime.masteredClasses.includes(c.id) && (
+                <span class="faint small-text">Mastery: beat the {masteryBosses().map((b) => b.name).join(' or ')} as {c.name} to start future seasons as it.</span>
+              )}
               <ClassKit c={c} anyUnlocked={g.unlocked.length > 1} />
             </button>
           );

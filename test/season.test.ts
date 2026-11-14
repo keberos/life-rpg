@@ -17,9 +17,17 @@ const season1: LogEvent[] = [
   quest(1),
   { at: d(2), type: 'loot', kind: 'gear', id: 'iron-sword', source: 'quest:pushups' },
   win(5, 'bog-troll'),
+  win(40, 'hollow-warden'),
 ];
 
 describe('seasons', () => {
+  it('mastery needs a late-season boss win as that class', () => {
+    const early = derive(save([win(5, 'bog-troll'), win(20, 'storm-harpy', 'ranger')]));
+    expect(early.lifetime.masteredClasses).toEqual([]);
+    const late = derive(save([win(40, 'hollow-warden', 'adventurer'), win(50, 'ashen-wyrm', 'sage')]));
+    expect(late.lifetime.masteredClasses).toEqual(['sage']);
+  });
+
   it('season 1 is over after 8 weeks, and finishing it unlocks Field Kit', () => {
     const s = derive(save(season1));
     expect(s.seasonOver).toBe(true);
@@ -38,7 +46,7 @@ describe('seasons', () => {
     expect(s.ratings.STR).toBe(9);
     expect(s.calibrated.STR).toBe(false); // recheck this season
     expect(s.lifetime.questsTotal).toBe(1);
-    expect(s.lifetime.bossesBeaten).toBe(1);
+    expect(s.lifetime.bossesBeaten).toBe(2);
   });
 
   it('a recheck compares with last season', () => {

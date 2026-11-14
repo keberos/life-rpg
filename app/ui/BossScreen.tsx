@@ -4,6 +4,7 @@ import { createFight, fight as simulate, type Fight, type FightEvent } from '../
 import { makeRng } from '../../src/engine/rng.ts';
 import type { BattleItemDef } from '../../src/engine/types.ts';
 import { bossLoot } from '../state/logic.ts';
+import { mastersClass } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
 import { HelpTip } from './Help.tsx';
@@ -21,6 +22,7 @@ export function BossScreen() {
   const [lines, setLines] = useState<string[]>([]);
   const [fast, setFast] = useState(false);
   const [loot, setLoot] = useState<string[] | null>(null);
+  const [mastered, setMastered] = useState<string | null>(null);
   const [flash, setFlash] = useState<'hit' | 'hurt' | null>(null);
   const [heroAction, setHeroAction] = useState<'idle' | 'attack'>('idle');
   const queued = useRef<number | undefined>(undefined);
@@ -97,6 +99,7 @@ export function BossScreen() {
     satchel.forEach((it, k) => {
       if (v.buttons[firstItem + k].charges === 0) store.log({ type: 'useItem', id: it.id });
     });
+    if (v.win && mastersClass(boss.def.id, g.activeClass.id) && !g.lifetime.masteredClasses.includes(g.activeClass.id)) setMastered(g.activeClass.name);
     store.log({ type: 'boss', bossId: boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed, classId: g.activeClass.id });
     setLoot(bossLoot(g, v.win));
   };
@@ -181,6 +184,12 @@ export function BossScreen() {
                 : `The ${boss.def.name} was down to ${Math.max(1, Math.round((v.bossHp / v.bossMaxHp) * 100))}% HP. Every quest makes the next attempt stronger. Try again tomorrow.`}
             </p>
             {loot && loot.length > 0 && <p class="pop">Loot: <b>{loot.join(', ')}</b></p>}
+            {mastered && (
+              <div class="class-banner pop">
+                <b>{mastered} mastered!</b>
+                <span class="small-text">You can start any future season as a {mastered}, with its abilities from day one.</span>
+              </div>
+            )}
             <button class="btn primary" onClick={() => go('#/')}>Back to camp</button>
           </div>
         </Win>
