@@ -17,7 +17,7 @@ export function Home() {
     <div class="stack">
       <div class="topbar">
         <div>
-          <h3>Season 1</h3>
+          <h3>Season {g.season.number}</h3>
           <span class="faint">Week {Math.min(g.week, SEASON_WEEKS)} of {SEASON_WEEKS}</span>
         </div>
         <button class="iconbtn" onClick={() => go('#/menu')} aria-label="Menu">☰</button>
@@ -45,7 +45,7 @@ export function Home() {
           <span class="small-text">Choose a class to get its abilities in boss fights ›</span>
         </button>
       )}
-      {g.questsTotal === 0 && (
+      {g.lifetime.questsTotal === 0 && (
         <p class="muted center">Welcome, adventurer. When you'd normally scroll, take a quest instead. Your first quest in each stat is a quick check, so later ones fit you.</p>
       )}
       <button class="btn primary big" onClick={() => go('#/quest')}>Quick quest</button>
@@ -72,7 +72,7 @@ export function Home() {
             </div>
             {boss.behind && !boss.defeated && <span class="faint">It waits for you. The next boss comes once it falls.</span>}
             {g.seasonOver ? (
-              <span class="muted">Season complete. Seasons and Legacy are coming next.</span>
+              <button class="btn primary" onClick={() => go('#/season')}>Season complete! See your recap</button>
             ) : boss.defeated ? (
               <span class="muted">Defeated! {boss.nextBossWeek ? `Next boss arrives in week ${boss.nextBossWeek}.` : 'Season boss down.'}</span>
             ) : boss.foughtToday && boss.behind ? (

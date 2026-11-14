@@ -181,7 +181,8 @@ export function Guide({ topic }: { topic?: string }) {
       </Section>
 
       <Section id="season" title="Seasons">
-        <p>A season lasts {SEASON_WEEKS} weeks with {corePack.bosses.length} bosses. Seasons and Legacy unlocks that carry over between seasons are coming next.</p>
+        <p>A season lasts {SEASON_WEEKS} weeks with {corePack.bosses.length} bosses. When it ends you get a recap, then start a new season: levels and gear reset, while your calibration and lifetime record carry over. Each new season opens with a quick recheck of each stat, so you can see your real-life progress.</p>
+        <p><b>Legacy</b> makes each season different. Beat a boss as a class to master it, and you can start a later season as that class. Starting perks (unlocked by finishing a season, or beating every boss in one) give you a different opening.</p>
       </Section>
     </div>
   );

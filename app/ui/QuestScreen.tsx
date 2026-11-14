@@ -45,11 +45,17 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
   };
 
   const finishCalibration = (value: number) => {
+    const prev = store.get().events.findLast((e) => e.type === 'placement' && e.questId === quest.id);
+    const before = prev?.type === 'placement' ? prev.value : undefined;
     const rating = recordPlacement(quest.stat, quest.id, value);
     setOutcome('success');
     setResult(completeQuest(g, quest, 'normal', 'success', 'success', value, undefined, rating));
     const next = rating === undefined ? undefined : amountFor(quest, rating, 'normal');
-    setCalibNote(next === undefined ? null : `Calibrated. Your ${quest.title.toLowerCase()} quests will start at ${next} ${quest.unit}.`);
+    const recheck =
+      before === undefined ? ''
+      : value > before ? `Recheck: ${before} → ${value} ${quest.unit}. That's real progress since last season! `
+      : `Recheck: ${value} ${quest.unit} (last season ${before}). `;
+    setCalibNote(next === undefined ? null : `${recheck}Calibrated. Your ${quest.title.toLowerCase()} quests will start at ${next} ${quest.unit}.`);
     setPhase('done');
   };
 

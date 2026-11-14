@@ -97,7 +97,7 @@ export function BossScreen() {
     satchel.forEach((it, k) => {
       if (v.buttons[firstItem + k].charges === 0) store.log({ type: 'useItem', id: it.id });
     });
-    store.log({ type: 'boss', bossId: boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed });
+    store.log({ type: 'boss', bossId: boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed, classId: g.activeClass.id });
     setLoot(bossLoot(g, v.win));
   };
 

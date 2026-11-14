@@ -13,6 +13,7 @@ import { Guide, StatScreen } from './ui/Help.tsx';
 import { Home } from './ui/Home.tsx';
 import { CheckIn, Debug, Intercept, Menu, SaveScreen, ShortcutGuide, Skipped } from './ui/Menu.tsx';
 import { QuestScreen } from './ui/QuestScreen.tsx';
+import { SeasonScreen } from './ui/SeasonScreen.tsx';
 
 function useHash() {
   const [hash, setHash] = useState(location.hash || '#/');
@@ -42,6 +43,7 @@ function App() {
     }
     case 'boss': return <BossScreen />;
     case 'gear': return <Equipment />;
+    case 'season': return <SeasonScreen />;
     case 'help': return <Guide topic={arg} />;
     case 'stat': return STAT_IDS.includes(arg as StatId) ? <StatScreen stat={arg as StatId} /> : <Home />;
     case 'menu': return <Menu />;

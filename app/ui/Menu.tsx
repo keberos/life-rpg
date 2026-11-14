@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
 import { grantStarterKit } from '../state/logic.ts';
+import { DAY, SEASON_WEEKS } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { TopBar, Win, go } from './components.tsx';
 
@@ -17,7 +18,9 @@ export function Menu() {
       <button class="btn ghost" onClick={() => go('#/debug')}>Debug panel</button>
       <Win quiet>
         <div class="stack" style={{ gap: '4px' }}>
-          <span class="faint">Quests completed: {g.questsTotal}</span>
+          <span class="faint">Season {g.season.number} · quests this season: {g.questsTotal}</span>
+          <span class="faint">Lifetime: {g.lifetime.questsTotal} quests · {g.lifetime.bossesBeaten} bosses beaten · {g.lifetime.seasonsCompleted} seasons finished</span>
+          {g.lifetime.masteredClasses.length > 0 && <span class="faint">Classes mastered: {g.lifetime.masteredClasses.map((id) => corePack.classes.find((c) => c.id === id)?.name ?? id).join(', ')}</span>}
           <span class="faint">Scroll urges turned into quests: {g.interceptsAccepted} (skipped {g.interceptsSkipped})</span>
         </div>
       </Win>
@@ -142,6 +145,7 @@ export function Debug() {
       <div class="row wrap">
         <button class="btn small" onClick={() => store.log({ type: 'debugTime', days: 1 })}>+1 day</button>
         <button class="btn small" onClick={() => store.log({ type: 'debugTime', days: 7 })}>+1 week</button>
+        <button class="btn small" onClick={() => store.log({ type: 'debugTime', days: Math.max(1, Math.ceil((g.season.start + SEASON_WEEKS * 7 * DAY - g.now) / DAY)) })}>To season end</button>
         <button class="btn small" onClick={() => store.log(...STAT_IDS.map((stat) => ({ type: 'debugXp' as const, stat, xp: 150 })))}>+150 XP all</button>
         <button class="btn small" onClick={() => store.log(...corePack.battleItems.map((i) => ({ type: 'loot' as const, kind: 'item' as const, id: i.id, source: 'debug' })))}>+1 each item</button>
         <button class="btn small" onClick={() => store.log(...corePack.gear.map((x) => ({ type: 'loot' as const, kind: 'gear' as const, id: x.id, source: 'debug' })))}>All gear</button>

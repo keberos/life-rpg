@@ -70,14 +70,15 @@ function pickWeighted<T extends string>(rng: Rng, weights: Partial<Record<T, num
  * BEFORE this quest was logged; `events` is the log AFTER it.
  */
 export function rollDrop(state: GameState, q: QuestDef, events: LogEvent[], rng: Rng): Drop | null {
-  const n = state.questsTotal; // 0 = this is the first quest
+  const n = state.questsTotal; // this season's quests; 0 = first. Each season re-kits you for its first boss.
   if (n < GUIDED.length) {
     const g = GUIDED[n];
     const id = typeof g.id === 'function' ? g.id(q) : g.id;
     const owned = state.ownedGear.some((x) => x.id === id);
     if (!(g.kind === 'gear' && owned)) {
       const def = g.kind === 'gear' ? gearName(id) : undefined;
-      return { kind: g.kind, id, name: g.kind === 'gear' ? def?.name ?? id : itemName(id), rarity: def?.rarity, tip: g.tip };
+      const tip = state.season.number === 1 ? g.tip : undefined; // tips teach once
+      return { kind: g.kind, id, name: g.kind === 'gear' ? def?.name ?? id : itemName(id), rarity: def?.rarity, tip };
     }
   }
 

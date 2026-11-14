@@ -30,7 +30,9 @@ interface Base { at: number }
 export type LogEvent = Base & (
   | { type: 'placement'; stat: StatId; questId: string; value: number; rating: number }
   | { type: 'quest'; questId: string; stat: StatId; difficulty: RelativeDifficulty; amount?: number; outcome: QuestOutcome; feedback: Feedback; xp: number; ratingBefore: number; ratingAfter: number; score?: string }
-  | { type: 'boss'; bossId: string; win: boolean; turns: number; omen: Omen; pressed: number }
+  | { type: 'boss'; bossId: string; win: boolean; turns: number; omen: Omen; pressed: number; classId?: string }
+  /** A new season starts at this event. Everything season-scoped resets; ratings and the lifetime record don't. */
+  | { type: 'newSeason'; perk?: string; startClass?: string; heirloom?: string }
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
@@ -63,11 +65,37 @@ export interface BossStatus {
   behind: boolean;
 }
 
+/** Across all seasons. Never resets. */
+export interface Lifetime {
+  seasonsCompleted: number;
+  questsTotal: number;
+  bossesBeaten: number;
+  /** Classes you've beaten a boss with. Each becomes a starting class option. */
+  masteredClasses: string[];
+  /** Beat all four bosses in a single season (unlocks Heirloom). */
+  fullClear: boolean;
+  unlockedPerks: string[];
+}
+
+export interface Season {
+  number: number;
+  start: number;
+  perk?: string;
+  startClass?: string;
+  heirloom?: string;
+  quests: number;
+  bossesBeaten: string[];
+  /** Calibration results this season, with last season's for comparison. */
+  rechecks: { stat: StatId; questId: string; value: number; before?: number }[];
+}
+
 export interface GameState {
   now: number;
   dayKey: string;
   week: number;
   seasonOver: boolean;
+  season: Season;
+  lifetime: Lifetime;
   xp: StatBlock;
   levels: StatBlock;
   levelProgress: StatBlock; // 0..1 toward next level
@@ -104,18 +132,62 @@ export const dayKeyOf = (t: number) => {
 const RARITY_RANK = { common: 0, rare: 1, epic: 2, legendary: 3 } as const;
 
 export function derive(save: SaveFile, realNow = Date.now()): GameState {
-  const { profile, events } = save;
-  const now = realNow + timeOffset(events);
+  const { profile, events: all } = save;
+  const now = realNow + timeOffset(all);
   const dayKey = dayKeyOf(now);
-  const week = Math.floor((now - profile.seasonStart) / (7 * DAY)) + 1;
+
+  // ---- Seasons: everything after the last newSeason event is this season. ----
+  const seasonIdx = all.findLastIndex((e) => e.type === 'newSeason');
+  const seasonEvent = seasonIdx >= 0 ? (all[seasonIdx] as Extract<LogEvent, { type: 'newSeason' }>) : undefined;
+  const seasonStart = seasonEvent?.at ?? profile.seasonStart;
+  const events = all.slice(seasonIdx + 1); // this season only
+  const week = Math.floor((now - seasonStart) / (7 * DAY)) + 1;
+
+  // ---- Lifetime record (all seasons). ----
+  const lifetimeQuests = all.filter((e) => e.type === 'quest').length;
+  const seasonsCompleted = all.filter((e) => e.type === 'newSeason').length;
+  const masteredClasses = [...new Set(all.flatMap((e) => (e.type === 'boss' && e.win && e.classId && e.classId !== 'adventurer' ? [e.classId] : [])))];
+  let bossesBeaten = 0;
+  let fullClear = false;
+  {
+    let seasonWins = new Set<string>();
+    for (const e of all) {
+      if (e.type === 'newSeason') seasonWins = new Set();
+      if (e.type === 'boss' && e.win) {
+        bossesBeaten++;
+        seasonWins.add(e.bossId);
+        if (corePack.bosses.every((b) => seasonWins.has(b.id))) fullClear = true;
+      }
+    }
+  }
+  // Season 1 counts as finished once its weeks are up, so its unlocks show on the recap.
+  const finishedSeasons = seasonsCompleted + (week > SEASON_WEEKS ? 1 : 0);
+  const unlockedPerks = [...(finishedSeasons >= 1 ? ['field-kit'] : []), ...(fullClear ? ['heirloom'] : [])];
+
+  // Last calibration per quest before this season, for "recheck" comparisons. Ratings carry over.
+  const before = new Map<string, number>();
+  const ratings = emptyStats(DEFAULT_RATING);
+  for (const e of all.slice(0, seasonIdx + 1)) {
+    if (e.type === 'placement') {
+      before.set(e.questId, e.value);
+      ratings[e.stat] = e.rating;
+    }
+    if (e.type === 'quest') ratings[e.stat] = e.ratingAfter;
+  }
+  const rechecks: Season['rechecks'] = [];
 
   const xp = emptyStats();
-  const ratings = emptyStats(DEFAULT_RATING);
   const calibrated = Object.fromEntries(STAT_IDS.map((s) => [s, false])) as Record<StatId, boolean>;
   const lastTrained: Partial<Record<StatId, number>> = {};
   const owned = new Set<string>();
   const items: Record<string, number> = {};
-  let classChoice: string | null = null;
+  let classChoice: string | null = seasonEvent?.startClass ?? null;
+  // Legacy perks picked for this season.
+  if (seasonEvent?.perk === 'field-kit') {
+    items.potion = 2;
+    items['ward-scroll'] = 1;
+  }
+  if (seasonEvent?.perk === 'heirloom' && seasonEvent.heirloom) owned.add(seasonEvent.heirloom);
   const seenClasses = new Set<string>();
   const slotChoice = new Map<GearSlot, string | null>();
   let questsToday = 0;
@@ -129,6 +201,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
       case 'placement':
         ratings[e.stat] = e.rating;
         calibrated[e.stat] = true;
+        rechecks.push({ stat: e.stat, questId: e.questId, value: e.value, before: before.get(e.questId) });
         break;
       case 'quest':
         xp[e.stat] += e.xp;
@@ -176,7 +249,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     levelProgress[s] = hi > lo ? (xp[s] - lo) / (hi - lo) : 0;
     const last = lastTrained[s];
     // Never trained: count from season start, so day one isn't "rested" everywhere.
-    daysSinceTrained[s] = Math.floor((now - (last ?? profile.seasonStart)) / DAY);
+    daysSinceTrained[s] = Math.floor((now - (last ?? seasonStart)) / DAY);
   }
   const totalLevel = STAT_IDS.reduce((n, s) => n + levels[s], 0);
 
@@ -188,7 +261,10 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     if (!cur || RARITY_RANK[g.rarity] > RARITY_RANK[cur.rarity]) bestBySlot.set(g.slot, g);
   }
 
-  const unlocked = unlockedClasses(levels, corePack.classes);
+  // A mastered class picked as this season's starting class is open from day one.
+  const startClass = corePack.classes.find((c) => c.id === seasonEvent?.startClass);
+  const byStats = unlockedClasses(levels, corePack.classes);
+  const unlocked = startClass && !byStats.includes(startClass) ? [...byStats, startClass] : byStats;
   const chosen = unlocked.find((c) => c.id === classChoice);
   // You stay an Adventurer until you choose a class yourself.
   const activeClass = chosen ?? unlocked[0];
@@ -196,8 +272,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
 
   // Bosses advance when you beat them, paced by the calendar: boss N arrives no
   // sooner than week bossWeek(N). A boss you haven't beaten waits for you.
-  const seasonEvents = events.filter((e) => e.at >= profile.seasonStart);
-  const beaten = new Set(seasonEvents.flatMap((e) => (e.type === 'boss' && e.win ? [e.bossId] : [])));
+  const beaten = new Set(events.flatMap((e) => (e.type === 'boss' && e.win ? [e.bossId] : [])));
   const bossOf = (t: number) => corePack.bosses.find((b) => b.tier === t) ?? corePack.bosses[0];
   const maxTier = Math.max(...corePack.bosses.map((b) => b.tier));
   const arrivedTier = Math.min(maxTier, Math.max(1, Math.ceil(week / 2)));
@@ -212,6 +287,12 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   return {
     now, dayKey, week,
     seasonOver: week > SEASON_WEEKS,
+    season: {
+      number: seasonsCompleted + 1, start: seasonStart,
+      perk: seasonEvent?.perk, startClass: seasonEvent?.startClass, heirloom: seasonEvent?.heirloom,
+      quests: questsTotal, bossesBeaten: [...beaten], rechecks,
+    },
+    lifetime: { seasonsCompleted, questsTotal: lifetimeQuests, bossesBeaten, masteredClasses, fullClear, unlockedPerks },
     xp, levels, levelProgress, ratings, calibrated, daysSinceTrained, totalLevel,
     ownedGear, equipped: GEAR_SLOTS.flatMap((slot) => {
       if (slotChoice.has(slot)) {
