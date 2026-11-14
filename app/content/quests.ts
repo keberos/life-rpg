@@ -112,7 +112,7 @@ export const QUESTS: QuestDef[] = [
   },
   {
     id: 'toe-taps', stat: 'AGI', kind: 'reps', title: 'Cross-body toe taps', unit: 'reps',
-    how: 'Standing, tap right hand to left foot, then left hand to right foot. {n} taps total, steady rhythm.',
+    how: 'Standing, tap right hand to left foot, then left hand to right foot. Do {n} taps total, steady rhythm.',
     curve: { base: 16, growth: 1.05, min: 10, max: 100 }, safety: PHYS_SAFETY,
   },
 

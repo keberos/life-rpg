@@ -7,7 +7,7 @@ import { makeRng } from '../../src/engine/rng.ts';
 import type { Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
 import { rollDrop, type Drop } from './drops.ts';
-import type { GameState } from './model.ts';
+import { dayKeyOf, type GameState } from './model.ts';
 import { store } from './store.ts';
 
 export const DIFFICULTY_SCALE: Record<RelativeDifficulty, number> = { easy: 0.75, normal: 1, hard: 1.3 };
@@ -17,6 +17,14 @@ export function amountFor(q: QuestDef, rating: number, difficulty: RelativeDiffi
   if (!q.curve) return undefined;
   const base = paramFor(q.curve, rating);
   return Math.max(q.curve.min, Math.round(base * DIFFICULTY_SCALE[difficulty]));
+}
+
+/** Instructions for a calibration run: same how-to, but "as many as you can" instead of a number. */
+export function calibrationHowText(q: QuestDef): string {
+  return q.how
+    .replace(/for \{n\} seconds/g, 'for as long as you comfortably can')
+    .replace(/Do \{n\} /g, 'Do as many ')
+    .replace(/\{n\}/g, 'as many');
 }
 
 export function howText(q: QuestDef, amount?: number): string {
@@ -35,9 +43,16 @@ export function suggestQuest(state: GameState, enabled: StatId[], stat?: StatId,
   const lastQuestId = lastQuest?.type === 'quest' ? lastQuest.questId : undefined;
   let pickStat = stat;
   if (!pickStat) {
-    let best = -1;
+    // Quests already done today in each stat: spread a session across stats.
+    const today: Partial<Record<StatId, number>> = {};
+    for (const e of store.get().events) {
+      if (e.type !== 'quest' || dayKeyOf(e.at) !== state.dayKey) continue;
+      const s = questById(e.questId)?.stat;
+      if (s) today[s] = (today[s] ?? 0) + 1;
+    }
+    let best = -Infinity;
     for (const s of enabled) {
-      const score = Math.min(state.daysSinceTrained[s], 7) + (state.boss.def.weakTo.includes(s) ? 1.5 : 0) + rng() * 2;
+      const score = Math.min(state.daysSinceTrained[s], 7) + (state.boss.def.weakTo.includes(s) ? 1.5 : 0) - 2 * (today[s] ?? 0) + rng() * 2;
       if (score > best) [best, pickStat] = [score, s];
     }
   }

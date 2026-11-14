@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
-import { createFight, describe, type Fight, type FightEvent } from '../../src/engine/combat.ts';
+import { createFight, fight as simulate, type Fight, type FightEvent } from '../../src/engine/combat.ts';
 import { makeRng } from '../../src/engine/rng.ts';
 import type { BattleItemDef } from '../../src/engine/types.ts';
 import { bossLoot } from '../state/logic.ts';
@@ -45,6 +45,22 @@ export function BossScreen() {
 
   const canFight = !boss.defeated && !boss.foughtToday && !g.seasonOver;
 
+  // A rough read on your odds: replay the fight a few hundred times with sensible button use.
+  const odds = useMemo(() => {
+    if (!canFight) return null;
+    const rng = makeRng(12345);
+    const load = { stats: g.levels, cls: g.activeClass, gear: g.equipped, items: satchel };
+    let wins = 0;
+    let bossLeft = 0;
+    const N = 300;
+    for (let i = 0; i < N; i++) {
+      const r = simulate(load, boss.def, rng);
+      if (r.win) wins++;
+      bossLeft += r.bossHpLeftPct;
+    }
+    return { win: wins / N, bossLeft: bossLeft / N };
+  }, [canFight, satchel]);
+
   const start = () => {
     const f = createFight({ stats: g.levels, cls: g.activeClass, gear: g.equipped, items: satchel }, boss.def, makeRng((Date.now() ^ 0x9e3779b9) >>> 0));
     setFight(f);
@@ -63,7 +79,7 @@ export function BossScreen() {
         setHeroAction('attack');
         setTimeout(() => setHeroAction('idle'), fast ? 300 : 480);
       }
-      setLines((ls) => [...evs.filter(show).map(describe).reverse(), ...ls].slice(0, 30));
+      setLines((ls) => [...evs.map((e) => narrate(e, boss.def.name)).filter((l): l is string => !!l).reverse(), ...ls].slice(0, 30));
       const v = fight.view();
       if (v.over) {
         clearInterval(id);
@@ -127,6 +143,7 @@ export function BossScreen() {
       {!fight && (
         canFight ? (
           <>
+            {odds && <OddsLine win={odds.win} />}
             <p class="muted center">The fight plays out on its own. Tap your gear and items at the right moment to tilt it.</p>
             <button class="btn primary big" onClick={start}>Fight!</button>
           </>
@@ -158,7 +175,11 @@ export function BossScreen() {
         <Win>
           <div class="stack center">
             <h1 class="pop" style={{ color: v.win ? 'var(--accent)' : 'var(--bad)' }}>{v.win ? 'Victory!' : 'Defeated'}</h1>
-            <p class="muted">{v.win ? `Took ${v.turn} turns.` : 'Every quest makes the next attempt stronger. Try again tomorrow.'}</p>
+            <p class="muted">
+              {v.win
+                ? `Took ${v.turn} turns.`
+                : `The ${boss.def.name} was down to ${Math.max(1, Math.round((v.bossHp / v.bossMaxHp) * 100))}% HP. Every quest makes the next attempt stronger. Try again tomorrow.`}
+            </p>
             {loot && loot.length > 0 && <p class="pop">Loot: <b>{loot.join(', ')}</b></p>}
             <button class="btn primary" onClick={() => go('#/')}>Back to camp</button>
           </div>
@@ -168,5 +189,39 @@ export function BossScreen() {
   );
 }
 
-/** Keep the ticker readable: skip bookkeeping events. */
-const show = (e: FightEvent) => e.t !== 'turn';
+function OddsLine({ win }: { win: number }) {
+  const [label, color, hint] =
+    win >= 0.75 ? ['Good odds', 'var(--good)', 'You should be ready.']
+    : win >= 0.45 ? ['Even fight', 'var(--accent)', 'Could go either way. Good timing with items helps.']
+    : win >= 0.15 ? ['Long shot', 'var(--ink-2)', 'Possible with luck. A few more quests in its weak stats would help.']
+    : ['Not ready yet', 'var(--bad)', 'Train its weak stats and gather gear first. Trying still earns a little loot.'];
+  return (
+    <div class="stack center" style={{ gap: '2px' }}>
+      <span class="pixel" style={{ color }}>{label}</span>
+      <span class="faint">{hint}</span>
+    </div>
+  );
+}
+
+/** Battle log lines in plain words. Bookkeeping events are skipped (null). */
+function narrate(e: FightEvent, boss: string): string | null {
+  const n = (x: number) => Math.round(x);
+  switch (e.t) {
+    case 'omen': case 'turn': case 'end': return null;
+    case 'press': return `You use ${e.name}!`;
+    case 'damage': return `${e.source} deals ${n(e.amount)} damage.`;
+    case 'mend': return `${e.source} heals you for ${n(e.amount)}.`;
+    case 'shield': return `${e.source} shields you (${n(e.amount)}).`;
+    case 'stun': return `${e.source} stuns the ${boss}!`;
+    case 'buff': return `${e.source}: damage up ${Math.round((e.mult - 1) * 100)}%.`;
+    case 'heal': return `You recover ${n(e.amount)} HP.`;
+    case 'hit': return e.crit ? `Critical hit! ${n(e.amount)} damage.` : `You hit for ${n(e.amount)}.`;
+    case 'bossStunned': return `The ${boss} is stunned and can't act.`;
+    case 'dodge': return e.special ? 'You dodge its special attack!' : 'You dodge.';
+    case 'bossAttack': {
+      const what = e.special ? `unleashes ${e.name}` : 'attacks';
+      return `The ${boss} ${what}${e.crit ? ' (critical)' : ''}: ${n(e.amount)} damage${e.absorbed ? `, ${n(e.absorbed)} blocked` : ''}.`;
+    }
+    case 'revive': return 'Your faith holds. You get back up!';
+  }
+}

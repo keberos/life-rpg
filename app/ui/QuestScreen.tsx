@@ -5,7 +5,7 @@ import { makeRng } from '../../src/engine/rng.ts';
 import type { StatId } from '../../src/engine/types.ts';
 import { patternQuestions } from '../content/patterns.ts';
 import { STAT_INFO, questById, type QuestDef, type QuizQuestion } from '../content/quests.ts';
-import { amountFor, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
+import { amountFor, calibrationHowText, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
 
@@ -65,13 +65,14 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             <div class="stack">
               <div class="row between"><h2>{quest.title}</h2><StatChip stat={quest.stat} /></div>
               {calibrating && (
-                <p>
-                  <b>First {info.name.toLowerCase()} quest: quick check.</b>{' '}
-                  {quest.kind === 'reps'
-                    ? `Do as many ${quest.title.toLowerCase()} as you can with good form, then enter how many.`
-                    : 'Start the timer and keep going as long as you comfortably can, then tap Stop.'}
-                  {' '}This sets the starting level for future {info.name.toLowerCase()} quests.
-                </p>
+                <>
+                  <p>{calibrationHowText(quest)}</p>
+                  <p class="muted">
+                    <b>First {info.name.toLowerCase()} quest: quick check.</b>{' '}
+                    {quest.kind === 'reps' ? 'Count your reps, then enter how many.' : 'The timer starts when you tap Start; tap Stop when you are done.'}
+                    {' '}This sets the starting level for future {info.name.toLowerCase()} quests.
+                  </p>
+                </>
               )}
               {!calibrating && amount !== undefined && (
                 <div class="center"><div class="big-number" style={{ color: info.color }}>{amount}</div><div class="muted">{quest.unit}</div></div>
@@ -117,6 +118,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             <div class="big-number pop" style={{ color: info.color }}>+{result.xp} XP</div>
             <p class="muted">{info.name}{g.daysSinceTrained[quest.stat] >= 1 ? ' (rested bonus)' : ''}</p>
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
+            {score && <p>{score.replace('/', ' of ')} right</p>}
             {calibNote && <p>{calibNote}</p>}
             {outcome === 'fail' && <p class="muted">Effort still counts. The next one will be a little gentler.</p>}
             {result.drop && (
