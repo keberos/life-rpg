@@ -23,6 +23,7 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/state/store.ts` | localStorage persistence, export/import |
 | `app/state/logic.ts` | Quest picking, completion (XP + calibration), loot |
 | `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
+| `art-kit/src/exercises.ts` | Exercise guide poses; `npm run exercises` renders them to `public/exercises/` |
 | `app/art/` | Hero look from class + equipped gear, rendered by the art kit in a worker and cached, so earned gear shows on the character |
 | `app/ui/` | Preact screens; `sprites.tsx` holds placeholder pixel art |
 

@@ -16,6 +16,12 @@ export interface Pose {
   sway: number; // -1..1 secondary motion for capes, scarves, hair
   twist: number; // upper body turn against the hips (radians)
   tilt: number; // shoulder tilt (radians), the other half of contrapposto
+  /** Upper body folds forward at the hips (radians). Exercise poses. */
+  bend?: number;
+  /** Whole body tips forward around the feet (radians), e.g. plank. Exercise poses. */
+  pitch?: number;
+  /** Put the lowest joint on the ground and center the body front-to-back. Exercise poses. */
+  ground?: boolean;
 }
 
 export const REST: Pose = { bob: 0, lean: 0, legL: 0, legR: 0, kneeL: 0, kneeR: 0, legOut: 0, armL: 0, armR: 0, elbowL: 0.15, elbowR: 0.15, armOut: 0.12, sway: 0, twist: 0, tilt: 0 };
@@ -91,9 +97,10 @@ export function solve(body: Body, pose: Pose): Joints {
   const leanZ = Math.sin(pose.lean);
   const pelvis = v(0, y(pelvisY), 0);
   // Upper body turns and tilts against the hips (contrapposto).
-  const up = (p: V3): V3 => (pose.twist || pose.tilt ? add(pelvis, rotZ(rotY(sub(p, pelvis), pose.twist), pose.tilt)) : p);
-  const upDir = (d: V3): V3 => rotZ(rotY(d, pose.twist), pose.tilt);
-  return {
+  const bend = pose.bend ?? 0;
+  const up = (p: V3): V3 => (pose.twist || pose.tilt || bend ? add(pelvis, rotZ(rotY(rotX(sub(p, pelvis), bend), pose.twist), pose.tilt)) : p);
+  const upDir = (d: V3): V3 => rotZ(rotY(rotX(d, bend), pose.twist), pose.tilt);
+  const j: Joints = {
     pelvis,
     chest: up(v(0, y(chestY), leanZ * 2)),
     neck: up(v(0, y(neckY), 0.1 + leanZ * 3)),
@@ -106,6 +113,26 @@ export function solve(body: Body, pose: Pose): Joints {
     ankleL: LL.ankle, ankleR: LR.ankle, footL: LL.foot, footR: LR.foot,
     build: w, hs: H, shoulderW: body.shoulderW, waistW: body.waistW, handScale: body.handScale, sway: pose.sway,
   };
+  return pose.pitch || pose.ground ? placeOnGround(j, pose.pitch ?? 0) : j;
+}
+
+const POINT_KEYS = ['pelvis', 'chest', 'neck', 'head', 'shoulderL', 'shoulderR', 'elbowL', 'elbowR', 'handL', 'handR',
+  'hipL', 'hipR', 'kneeL', 'kneeR', 'ankleL', 'ankleR', 'footL', 'footR'] as const;
+
+/** Tip the whole body forward around the feet, then rest the lowest point on the ground, centered front-to-back. */
+function placeOnGround(j: Joints, pitch: number): Joints {
+  const pivot = mul(add(j.ankleL, j.ankleR), 0.5);
+  const out = { ...j } as Joints;
+  for (const k of POINT_KEYS) out[k] = add(pivot, rotX(sub(j[k], pivot), pitch));
+  out.forearmL = rotX(j.forearmL, pitch);
+  out.forearmR = rotX(j.forearmR, pitch);
+  // Limbs have thickness: keep joint centers about a limb radius above the floor.
+  const lows = POINT_KEYS.map((k) => out[k][1] - (k === 'head' ? 2.6 * j.hs : 0.9));
+  const minY = Math.min(...lows);
+  const zs = POINT_KEYS.map((k) => out[k][2]);
+  const midZ = (Math.min(...zs) + Math.max(...zs)) / 2;
+  for (const k of POINT_KEYS) out[k] = add(out[k], v(0, -minY, -midZ));
+  return out;
 }
 
 // ---------- Animations ----------

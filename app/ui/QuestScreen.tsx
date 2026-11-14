@@ -8,6 +8,7 @@ import { STAT_INFO, questById, type QuestDef, type QuizQuestion } from '../conte
 import { amountFor, calibrationHowText, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
+import { ExerciseArt, ExerciseGuideView } from './ExerciseGuide.tsx';
 
 type Phase = 'brief' | 'run' | 'rate' | 'done';
 
@@ -64,6 +65,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
           <Win>
             <div class="stack">
               <div class="row between"><h2>{quest.title}</h2><StatChip stat={quest.stat} /></div>
+              {quest.guide && <ExerciseGuideView key={quest.id} guide={quest.guide} open={calibrating} />}
               {calibrating && (
                 <>
                   <p>{calibrationHowText(quest)}</p>
@@ -96,6 +98,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
         </>
       )}
 
+      {phase === 'run' && quest.guide && <div class="center" style={{ display: 'flex', justifyContent: 'center' }}><ExerciseArt guide={quest.guide} size={144} /></div>}
       {phase === 'run' && calibrating && quest.kind === 'reps' && <CalibrateReps unit={quest.unit ?? 'reps'} onDone={finishCalibration} />}
       {phase === 'run' && calibrating && quest.kind === 'timer' && <CalibrateHold onDone={finishCalibration} />}
       {phase === 'run' && !calibrating && <Runner quest={quest} amount={amount} rating={rating} onDone={ranOut} onScore={setScore} />}

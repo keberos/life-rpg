@@ -165,3 +165,11 @@ button.stat.tappable { width: 100%; background: none; border: none; padding: 2px
 .class-banner { display: flex; flex-direction: column; gap: 4px; align-items: center; border-color: var(--accent); color: var(--accent); }
 .class-banner .small-text { color: var(--ink-2); }
 .new-tag { color: var(--accent); font-family: var(--pixel); font-size: 12px; }
+
+/* Exercise guides */
+.exercise-stage { position: relative; border-radius: 10px; background: linear-gradient(to bottom, transparent 91%, rgba(255,255,255,0.08) 91%, rgba(255,255,255,0.08) 93%, transparent 93%); }
+.exercise-stage.wall::before { content: ''; position: absolute; left: 22%; width: 9%; top: 18%; bottom: 7%; background: repeating-linear-gradient(to bottom, #5b5f73 0 14px, #4a4e61 14px 16px); border-radius: 2px; }
+.exercise-art { position: relative; animation: ex-flip 1.6s steps(1) infinite; }
+@keyframes ex-flip { 0% { background-position: 0 0; } 50% { background-position: var(--shift) 0; } }
+@media (prefers-reduced-motion: reduce) { .exercise-art { animation: none; } }
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }

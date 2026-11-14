@@ -28,6 +28,17 @@ export interface QuestDef {
   questions?: QuizQuestion[];
   prompt?: string;
   safety?: string;
+  /** Exercise guide: step-by-step form, plus an animated picture from public/exercises/<art>.png. */
+  guide?: ExerciseGuide;
+}
+
+export interface ExerciseGuide {
+  art?: string;
+  /** Draw a wall behind the picture (wall sit). */
+  wall?: boolean;
+  steps: string[];
+  /** An easier version, so anyone can start. */
+  easier?: string;
 }
 
 export interface StatInfo {
@@ -85,16 +96,47 @@ export const QUESTS: QuestDef[] = [
     curve: { base: 5, growth: 1.06, min: 3, max: 60 },
     placement: { ask: 'How many push-ups can you do in one set, with good form? (Knee or wall push-ups are fine.)', unit: 'reps' },
     safety: PHYS_SAFETY,
+    guide: {
+      art: 'pushups',
+      steps: [
+        "Hands on the floor a little wider than your shoulders.",
+        "Walk your feet back until your body is one straight line, head to heels.",
+        "Bend your elbows to lower your chest toward the floor, elbows angled back, not flared out.",
+        "Push the floor away to come back up. That's one.",
+      ],
+      easier: "Knees on the floor, or hands on a wall or countertop.",
+    },
   },
   {
     id: 'squats', stat: 'STR', kind: 'reps', title: 'Slow squats', unit: 'reps',
     how: 'Do {n} squats: 3 seconds down, 1 second up. Chest tall, knees track over toes.',
     curve: { base: 8, growth: 1.06, min: 5, max: 80 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'squats',
+      steps: [
+        "Feet shoulder-width apart, toes turned out a little.",
+        "Reach your arms forward for balance.",
+        "Sit your hips back and down for a slow count of 3, chest tall, knees following your toes.",
+        "Go as low as is comfortable, then stand up in 1 count.",
+      ],
+      easier: "Squat down to a chair and stand back up.",
+    },
   },
   {
     id: 'wall-sit', stat: 'STR', kind: 'timer', title: 'Wall sit', unit: 'seconds',
     how: 'Back flat on a wall, thighs as close to level as you can. Hold for {n} seconds.',
     curve: { base: 20, growth: 1.05, min: 10, max: 240 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'wall-sit',
+      wall: true,
+      steps: [
+        "Stand with your back flat against a wall.",
+        "Walk your feet out about two steps.",
+        "Slide down until your knees are bent, as close to a right angle as you can.",
+        "Keep your back on the wall and hold. Hands rest on your thighs.",
+      ],
+      easier: "Don't slide down as far.",
+    },
   },
 
   // ---------------- AGI ----------------
@@ -104,16 +146,46 @@ export const QUESTS: QuestDef[] = [
     curve: { base: 20, growth: 1.05, min: 10, max: 120 },
     placement: { ask: 'How many seconds can you balance on one leg, eyes open?', unit: 'seconds' },
     safety: 'Keep a wall or chair within reach.',
+    guide: {
+      art: 'balance',
+      steps: [
+        "Stand tall near a wall or chair you can grab.",
+        "Shift your weight onto one foot and lift the other knee.",
+        "Arms out to the sides if it helps. Fix your eyes on one spot.",
+        "Hold, then switch legs.",
+      ],
+      easier: "Keep the lifted toes lightly touching the floor.",
+    },
   },
   {
     id: 'mobility-flow', stat: 'AGI', kind: 'timer', title: 'Hip and spine flow', unit: 'seconds',
     how: 'Move slowly for {n} seconds: hip circles, cat-cow, world\'s greatest stretch each side. Smooth, no bouncing.',
     curve: { base: 45, growth: 1.03, min: 30, max: 180 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'mobility-flow',
+      steps: [
+        "Hip circles: hands on hips, slow big circles each way.",
+        "Cat-cow: on hands and knees, round your back up, then let it sag gently, slowly.",
+        "World's greatest stretch: step into a long lunge, hand down inside your front foot, then reach that arm up to the sky. Switch sides.",
+        "Move smoothly and breathe. No bouncing.",
+      ],
+      easier: "Hip circles only.",
+    },
   },
   {
     id: 'toe-taps', stat: 'AGI', kind: 'reps', title: 'Cross-body toe taps', unit: 'reps',
     how: 'Standing, tap right hand to left foot, then left hand to right foot. Do {n} taps total, steady rhythm.',
     curve: { base: 16, growth: 1.05, min: 10, max: 100 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'toe-taps',
+      steps: [
+        "Stand with feet wider than your hips.",
+        "Hinge at the hips and reach your right hand toward your left foot.",
+        "Come up, then reach your left hand toward your right foot.",
+        "Keep a steady rhythm. Reaching your shin counts too.",
+      ],
+      easier: "Tap your knees instead of your toes.",
+    },
   },
 
   // ---------------- STA ----------------
@@ -123,6 +195,16 @@ export const QUESTS: QuestDef[] = [
     curve: { base: 20, growth: 1.05, min: 10, max: 300 },
     placement: { ask: 'How many seconds can you hold a forearm plank?', unit: 'seconds' },
     safety: PHYS_SAFETY,
+    guide: {
+      art: 'plank',
+      steps: [
+        "Forearms on the floor, elbows under your shoulders.",
+        "Step your feet back so your body is one straight line.",
+        "Squeeze your glutes and brace your belly like you're about to be poked.",
+        "Don't let your hips sag or pike up. Breathe and hold.",
+      ],
+      easier: "Knees down, body straight from knees to head.",
+    },
   },
   {
     id: 'box-breathing', stat: 'STA', kind: 'breath', title: 'Box breathing', unit: 'cycles',
@@ -133,6 +215,16 @@ export const QUESTS: QuestDef[] = [
     id: 'march', stat: 'STA', kind: 'timer', title: 'High-knee march', unit: 'seconds',
     how: 'March in place, knees to hip height, arms pumping, for {n} seconds.',
     curve: { base: 30, growth: 1.04, min: 20, max: 240 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'march',
+      steps: [
+        "Stand tall.",
+        "Drive one knee up to hip height while the opposite arm swings forward.",
+        "Switch, and keep a brisk rhythm.",
+        "Stay light on your feet.",
+      ],
+      easier: "Lift your knees only as high as feels good.",
+    },
   },
 
   // ---------------- INT ----------------

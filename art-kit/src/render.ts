@@ -2,7 +2,7 @@
 // 4-tone ramps with ambient occlusion, cast shadows and painted surface
 // detail, then smoothing, outline, contour, cleanup and aura passes.
 import { MATERIALS, OUTLINE_DARK, mixHex, rgba, vividRamp } from './materials.ts';
-import { ANIM_FRAMES, animPose, solve, type AnimName } from './rig.ts';
+import { ANIM_FRAMES, animPose, solve, type AnimName, type Pose } from './rig.ts';
 import { add, dot, mul, norm, rotY, sub, v, type V3 } from './sdf.ts';
 import { STYLES, type Style } from './styles.ts';
 import { lookParts, type Look, type Part } from './wardrobe.ts';
@@ -26,6 +26,8 @@ export interface RenderOpts {
   dir?: Dir;
   anim?: AnimName;
   frame?: number;
+  /** A one-off pose instead of an animation frame (exercise guides). */
+  pose?: Pose;
   quality?: Quality;
   size?: number;
   pixelsPerUnit?: number;
@@ -55,7 +57,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const style = STYLES[opts.style ?? 'classic'];
   const pitch = ((opts.pitchDeg ?? style.pitchDeg) * Math.PI) / 180;
 
-  const joints = solve({ build: look.build ?? 1, height: look.height ?? 1, ...style.body }, animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
+  const joints = solve({ build: look.build ?? 1, height: look.height ?? 1, ...style.body }, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
   const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime' });
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
