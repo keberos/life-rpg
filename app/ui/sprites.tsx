@@ -1,6 +1,7 @@
 // Sprites. Heroes come from the art kit; bosses are still hand-placed placeholders
 // (each row a string, each character a palette color, '.' transparent).
 import { useEffect, useState } from 'preact/hooks';
+import { useHeroSprite } from '../art/useHeroSprite.ts';
 
 type Palette = Record<string, string>;
 
@@ -27,8 +28,10 @@ const FRAME = 96;
 const STRIP = 6;
 const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sage', 'cleric', 'spellblade']);
 
-export function Hero({ classId, scale = 6, action = 'idle' }: { classId: string; scale?: number; action?: 'idle' | 'attack' }) {
+/** `gear` = equipped gear ids: the hero is rendered wearing them (cached). Without it, the class's stock strip. */
+export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[] }) {
   const id = KNOWN.has(classId) ? classId : 'adventurer';
+  const sprite = useHeroSprite(id, gear);
   const px = Math.round((FRAME * scale) / 5);
   const frames = action === 'attack' ? [2, 3, 4, 5] : [0, 1];
   const [i, setI] = useState(0);
@@ -46,7 +49,7 @@ export function Hero({ classId, scale = 6, action = 'idle' }: { classId: string;
       style={{
         width: `${px}px`,
         height: `${px}px`,
-        backgroundImage: `url(./sprites/${id}.png)`,
+        backgroundImage: `url(${gear ? sprite.url : `./sprites/${id}.png`})`,
         backgroundSize: `${px * STRIP}px ${px}px`,
         backgroundPosition: `-${frame * px}px 0px`,
       }}

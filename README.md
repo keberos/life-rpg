@@ -21,6 +21,8 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/state/model.ts` | Save file = profile + append-only event log; all progress is derived from the log |
 | `app/state/store.ts` | localStorage persistence, export/import |
 | `app/state/logic.ts` | Quest picking, completion (XP + calibration), loot |
+| `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
+| `app/art/` | Hero look from class + equipped gear, rendered by the art kit in a worker and cached, so earned gear shows on the character |
 | `app/ui/` | Preact screens; `sprites.tsx` holds placeholder pixel art |
 
 ## What's here (phase 0: engine + battle simulator)

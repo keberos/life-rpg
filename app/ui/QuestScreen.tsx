@@ -119,7 +119,14 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
             {calibNote && <p>{calibNote}</p>}
             {outcome === 'fail' && <p class="muted">Effort still counts. The next one will be a little gentler.</p>}
-            {result.drop && <p class="pop">Found: <b>{result.drop}</b></p>}
+            {result.drop && (
+              <div class={`drop pop rarity-${result.drop.rarity ?? 'item'}`}>
+                <span class="faint">{result.drop.kind === 'gear' ? 'New gear' : 'Found'}</span>
+                <b>{result.drop.name}</b>
+                {result.drop.rarity && <span class="faint">{result.drop.rarity}{result.drop.kind === 'gear' ? ' · equipped' : ''}</span>}
+                {result.drop.tip && <p class="muted">{result.drop.tip}</p>}
+              </div>
+            )}
             <button class="btn primary" onClick={() => { setQuest(suggestQuest(store.state(), enabled, undefined, quest.id)); setDifficulty('normal'); setResult(null); setScore(undefined); setPhase('brief'); }}>Another quest</button>
             <button class="btn ghost" onClick={() => go('#/')}>Back to camp</button>
           </div>

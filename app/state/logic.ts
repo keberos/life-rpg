@@ -6,7 +6,8 @@ import { questXp, levelFromXp, type QuestOutcome, type RelativeDifficulty } from
 import { makeRng } from '../../src/engine/rng.ts';
 import type { Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
-import { ITEM_EVERY_N_QUESTS, type GameState } from './model.ts';
+import { rollDrop, type Drop } from './drops.ts';
+import type { GameState } from './model.ts';
 import { store } from './store.ts';
 
 export const DIFFICULTY_SCALE: Record<RelativeDifficulty, number> = { easy: 0.75, normal: 1, hard: 1.3 };
@@ -51,7 +52,7 @@ export interface QuestResult {
   leveledUp: boolean;
   newLevel: number;
   ratingChange: number;
-  drop?: string; // battle item name
+  drop?: Drop;
 }
 
 export function completeQuest(
@@ -74,12 +75,8 @@ export function completeQuest(
 
   store.log({ type: 'quest', questId: q.id, stat: q.stat, difficulty, amount, outcome, feedback, xp, ratingBefore: before, ratingAfter: after, score });
 
-  let drop: string | undefined;
-  if ((state.questsTotal + 1) % ITEM_EVERY_N_QUESTS === 0) {
-    const item = corePack.battleItems[Math.floor(seedRng()() * corePack.battleItems.length)];
-    store.log({ type: 'loot', kind: 'item', id: item.id, source: `quest:${q.id}` });
-    drop = item.name;
-  }
+  const drop = rollDrop(state, q, store.get().events, seedRng()) ?? undefined;
+  if (drop) store.log({ type: 'loot', kind: drop.kind, id: drop.id, source: `quest:${q.id}` });
   return { xp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
 }
 
@@ -95,13 +92,8 @@ export function recordPlacement(stat: StatId, questId: string, value: number): n
 /** Quests whose first run measures you instead of asking for a fixed amount. */
 export const canCalibrate = (q: QuestDef) => !!q.curve && (q.kind === 'reps' || q.kind === 'timer');
 
-/** First open: everyone starts with common gear (boss balance assumes it) and two items. */
+/** First open: nothing to set up. Gear now comes from the guided first quest drops. */
 export function grantStarterKit() {
-  store.log(
-    ...['iron-sword', 'leather-vest', 'prayer-beads'].map((id) => ({ type: 'loot' as const, kind: 'gear' as const, id, source: 'starter' })),
-    { type: 'loot', kind: 'item', id: 'potion', source: 'starter' },
-    { type: 'loot', kind: 'item', id: 'thunder-scroll', source: 'starter' },
-  );
   store.updateProfile({ onboarded: true });
 }
 

@@ -32,7 +32,7 @@ export function Home() {
       <Win>
         <div class="row" style={{ alignItems: 'flex-start', gap: '14px' }}>
           <button class="iconbtn" style={{ padding: 0 }} onClick={cycleClass} aria-label="Change class">
-            <Hero classId={g.activeClass.id} scale={6} />
+            <Hero classId={g.activeClass.id} scale={6} gear={g.equipped.map((x) => x.id)} />
           </button>
           <div class="grow stack" style={{ gap: '6px' }}>
             <div class="row between">
@@ -86,11 +86,11 @@ export function Home() {
           <div class="row between"><span class="muted">Quests today</span><span class="pixel">{g.questsToday}</span></div>
           <div class="row between">
             <span class="muted">Satchel</span>
-            <span>{items.length ? items.map((i) => `${i.name} ×${g.items[i.id]}`).join(', ') : <span class="faint">empty (every {4}th quest drops an item)</span>}</span>
+            <span>{items.length ? items.map((i) => `${i.name} ×${g.items[i.id]}`).join(', ') : <span class="faint">empty (quests drop items)</span>}</span>
           </div>
           <div class="row between">
             <span class="muted">Gear</span>
-            <span>{g.equipped.length ? g.equipped.map((x) => x.name).join(', ') : <span class="faint">none yet (bosses drop gear)</span>}</span>
+            <span>{g.equipped.length ? g.equipped.map((x) => x.name).join(', ') : <span class="faint">none yet (quests and bosses drop gear)</span>}</span>
           </div>
           {g.questsToday > 0 && !g.checkedInToday && (
             <button class="btn ghost small" onClick={() => go('#/checkin')}>Done for today? 10-second check-in</button>

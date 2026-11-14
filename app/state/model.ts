@@ -12,8 +12,6 @@ import type { Omen } from '../../src/engine/combat.ts';
 export const DAY = 86_400_000;
 export const SEASON_WEEKS = 8;
 export const DEFAULT_RATING = 6;
-/** Every Nth completed quest drops a battle item. */
-export const ITEM_EVERY_N_QUESTS = 4;
 
 export interface Profile {
   id: string;
