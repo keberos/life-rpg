@@ -1,6 +1,6 @@
 // Equipment: auto-equip the best piece per slot unless the player picked one or chose none.
 import { describe, expect, it } from 'vitest';
-import { derive, type LogEvent, type SaveFile } from '../app/state/model.ts';
+import { DAY, derive, type LogEvent, type SaveFile } from '../app/state/model.ts';
 import { STAT_IDS } from '../src/engine/types.ts';
 
 const save = (events: LogEvent[]): SaveFile => ({
@@ -45,3 +45,33 @@ describe('classes', () => {
     expect(s.newClasses).toEqual([]);
   });
 });
+
+describe('boss progression', () => {
+  const seasonAgo = (days: number, events: LogEvent[]): SaveFile => ({
+    version: 1,
+    profile: { id: 't', createdAt: 0, seasonStart: Date.now() - days * DAY, enabledStats: [...STAT_IDS], onboarded: true },
+    events,
+  });
+  const win = (bossId: string, daysIn: number, seasonDays: number): LogEvent =>
+    ({ at: Date.now() - (seasonDays - daysIn) * DAY, type: 'boss', bossId, win: true, turns: 9, omen: 'uncertain', pressed: 0 });
+
+  it('waits for you: an unbeaten boss stays even when its weeks have passed', () => {
+    const s = derive(seasonAgo(30, [])); // week 5
+    expect(s.boss.def.id).toBe('bog-troll');
+    expect(s.boss.behind).toBe(true);
+  });
+
+  it('the next boss arrives right away if its week has already come', () => {
+    const s = derive(seasonAgo(30, [win('bog-troll', 28, 30)]));
+    expect(s.boss.def.id).toBe('storm-harpy');
+    expect(s.boss.defeated).toBe(false);
+  });
+
+  it('beating a boss early does not skip ahead of the calendar', () => {
+    const s = derive(seasonAgo(3, [win('bog-troll', 2, 3)])); // week 1
+    expect(s.boss.def.id).toBe('bog-troll');
+    expect(s.boss.defeated).toBe(true);
+    expect(s.boss.nextBossWeek).toBe(3);
+  });
+});
+

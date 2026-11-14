@@ -14,6 +14,8 @@ export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
 
 export const DAY = 86_400_000;
 export const SEASON_WEEKS = 8;
+/** The week boss `tier` can first arrive (1, 3, 5, 7). */
+export const bossWeek = (tier: number) => tier * 2 - 1;
 export const DEFAULT_RATING = 6;
 
 export interface Profile {
@@ -57,6 +59,8 @@ export interface BossStatus {
   defeated: boolean;
   foughtToday: boolean;
   nextBossWeek: number | null;
+  /** The calendar has moved past this boss: beat it to meet the next one. */
+  behind: boolean;
 }
 
 export interface GameState {
@@ -190,12 +194,20 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const activeClass = chosen ?? unlocked[0];
   const newClasses = unlocked.filter((c) => c.id !== 'adventurer' && !seenClasses.has(c.id) && c.id !== classChoice);
 
-  const tier = Math.min(4, Math.max(1, Math.ceil(week / 2)));
-  const def = corePack.bosses.find((b) => b.tier === tier) ?? corePack.bosses[0];
+  // Bosses advance when you beat them, paced by the calendar: boss N arrives no
+  // sooner than week bossWeek(N). A boss you haven't beaten waits for you.
   const seasonEvents = events.filter((e) => e.at >= profile.seasonStart);
-  const defeated = seasonEvents.some((e) => e.type === 'boss' && e.bossId === def.id && e.win);
+  const beaten = new Set(seasonEvents.flatMap((e) => (e.type === 'boss' && e.win ? [e.bossId] : [])));
+  const bossOf = (t: number) => corePack.bosses.find((b) => b.tier === t) ?? corePack.bosses[0];
+  const maxTier = Math.max(...corePack.bosses.map((b) => b.tier));
+  const arrivedTier = Math.min(maxTier, Math.max(1, Math.ceil(week / 2)));
+  let tier = 1;
+  while (tier < arrivedTier && beaten.has(bossOf(tier).id)) tier++;
+  const def = bossOf(tier);
+  const defeated = beaten.has(def.id);
   const foughtToday = events.some((e) => e.type === 'boss' && dayKeyOf(e.at) === dayKey);
-  const nextBossWeek = tier < 4 ? tier * 2 + 1 : null;
+  const nextBossWeek = tier < maxTier ? bossWeek(tier + 1) : null;
+  const behind = arrivedTier > tier; // a later boss would be here if this one were beaten
 
   return {
     now, dayKey, week,
@@ -211,7 +223,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
       return best ? [best] : [];
     }), items,
     unlocked, newClasses, activeClass,
-    boss: { def, tier, defeated, foughtToday, nextBossWeek },
+    boss: { def, tier, defeated, foughtToday, nextBossWeek, behind },
     questsToday, questsTotal, checkedInToday,
     interceptsAccepted: accepted, interceptsSkipped: skipped,
   };

@@ -7,7 +7,7 @@ import { FAIL_XP_SHARE, XP_TABLE, restedMultiplier, xpForLevel } from '../../src
 import { STAT_IDS, type StatId } from '../../src/engine/types.ts';
 import { QUESTS, STAT_INFO } from '../content/quests.ts';
 import { DROP_CHANCE, PITY_AFTER } from '../state/drops.ts';
-import { SEASON_WEEKS } from '../state/model.ts';
+import { SEASON_WEEKS, bossWeek } from '../state/model.ts';
 import { useGame } from '../state/store.ts';
 import { SATCHEL_SIZE } from './BossScreen.tsx';
 import { StatBar, TopBar, Win, go } from './components.tsx';
@@ -173,7 +173,7 @@ export function Guide({ topic }: { topic?: string }) {
       </Section>
 
       <Section id="bosses" title="Bosses">
-        <p>A new boss arrives every two weeks. You can challenge it once a day.</p>
+        <p>You can challenge the current boss once a day. Beat it and the next one arrives on its week (bosses 2, 3 and 4 come in weeks {bossWeek(2)}, {bossWeek(3)} and {bossWeek(4)}). Haven't beaten it yet? It waits for you, and the next one comes as soon as you do.</p>
         <p>Fights play out automatically, turn by turn. Your stats, gear and class decide how strong you are. You step in by tapping gear abilities and battle items at the right moment.</p>
         <p><b>Weaknesses:</b> each boss is weak to two stats. In that fight, those stats count {WEAKNESS_MULT}×.</p>
         <p><b>Omens:</b> each fight starts with an omen (favorable, uncertain or ominous). It's that fight's luck. Stronger heroes win more often, but no fight is certain either way.</p>

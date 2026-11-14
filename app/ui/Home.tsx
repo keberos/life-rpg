@@ -70,10 +70,13 @@ export function Home() {
               {boss.def.weakTo.map((s) => <StatChip key={s} stat={s} />)}
               <HelpTip topic="bosses" label="How bosses work" />
             </div>
+            {boss.behind && !boss.defeated && <span class="faint">It waits for you. The next boss comes once it falls.</span>}
             {g.seasonOver ? (
               <span class="muted">Season complete. Seasons and Legacy are coming next.</span>
             ) : boss.defeated ? (
               <span class="muted">Defeated! {boss.nextBossWeek ? `Next boss arrives in week ${boss.nextBossWeek}.` : 'Season boss down.'}</span>
+            ) : boss.foughtToday && boss.behind ? (
+              <span class="muted">You fought today. It waits for you: beat it to meet the next boss.</span>
             ) : boss.foughtToday ? (
               <span class="muted">You fought today. Train up and try again tomorrow.</span>
             ) : (
