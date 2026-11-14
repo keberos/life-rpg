@@ -103,14 +103,17 @@ describe('training pays off', () => {
     }
   });
 
-  it('gear actives and battle items tilt a coin-flip fight noticeably, but do not decide it', () => {
+  // Buttons = class abilities + gear actives. Pressing them well should matter a lot
+  // (that's the player's part in a fight) without making the fight a sure thing.
+  it('class abilities, gear actives and battle items tilt a coin-flip fight noticeably, but do not decide it', () => {
     for (const boss of corePack.bosses) {
       const stats = buildStats('Balanced', ON_SCHEDULE_POINTS[boss.tier] * coinFlipShare(boss, 'epic'));
       const auto = winRate({ stats, boss, gear: 'epic', items: false, policy: 'auto' });
       const actives = winRate({ stats, boss, gear: 'epic', items: false, policy: 'smart' });
       const items = winRate({ stats, boss, gear: 'epic', items: true, policy: 'smart' });
       expect(actives - auto, `${boss.id} actives`).toBeGreaterThan(0.08);
-      expect(actives - auto, `${boss.id} actives`).toBeLessThan(0.25);
+      expect(actives - auto, `${boss.id} actives`).toBeLessThan(0.4);
+      expect(items, `${boss.id} with everything`).toBeLessThan(0.97);
       expect(items - actives, `${boss.id} items`).toBeGreaterThan(0.05);
       expect(items - actives, `${boss.id} items`).toBeLessThan(0.2);
     }

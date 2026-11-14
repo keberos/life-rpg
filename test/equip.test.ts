@@ -30,3 +30,18 @@ describe('equipment', () => {
     expect(s.equipped.map((g) => g.id)).toEqual(['oak-staff']);
   });
 });
+
+describe('classes', () => {
+  const xp = (stat: 'STR' | 'STA', n: number): LogEvent => ({ at: 0, type: 'debugXp', stat, xp: n });
+  it('stays Adventurer until you choose, and flags the unlock as new until seen', () => {
+    let s = derive(save([xp('STR', 400), xp('STA', 400)]));
+    expect(s.unlocked.map((c) => c.id)).toContain('warrior');
+    expect(s.activeClass.id).toBe('adventurer');
+    expect(s.newClasses.map((c) => c.id)).toEqual(['warrior']);
+    s = derive(save([xp('STR', 400), xp('STA', 400), { at: 0, type: 'seenClasses', ids: ['warrior'] }]));
+    expect(s.newClasses).toEqual([]);
+    s = derive(save([xp('STR', 400), xp('STA', 400), { at: 0, type: 'chooseClass', classId: 'warrior' }]));
+    expect(s.activeClass.id).toBe('warrior');
+    expect(s.newClasses).toEqual([]);
+  });
+});

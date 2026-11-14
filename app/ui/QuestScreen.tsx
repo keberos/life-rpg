@@ -69,7 +69,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
                   <p>{calibrationHowText(quest)}</p>
                   <p class="muted">
                     <b>First {info.name.toLowerCase()} quest: quick check.</b>{' '}
-                    {quest.kind === 'reps' ? 'Count your reps, then enter how many.' : 'The timer starts when you tap Start; tap Stop when you are done.'}
+                    {quest.kind === 'reps' ? 'Count your reps, then enter how many.' : 'After Begin you get 5 seconds to get in position. Tap Stop when you are done.'}
                     {' '}This sets the starting level for future {info.name.toLowerCase()} quests.
                   </p>
                 </>
@@ -118,6 +118,12 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             <div class="big-number pop" style={{ color: info.color }}>+{result.xp} XP</div>
             <p class="muted">{info.name}{g.daysSinceTrained[quest.stat] >= 1 ? ' (rested bonus)' : ''}</p>
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
+            {result.leveledUp && g.newClasses.length > 0 && (
+              <button class="btn class-banner pop" onClick={() => go('#/gear')}>
+                <span class="pixel">Class unlocked: {g.newClasses.map((c) => c.name).join(', ')}!</span>
+                <span class="small-text">See its abilities ›</span>
+              </button>
+            )}
             {score && <p>{score.replace('/', ' of ')} right</p>}
             {calibNote && <p>{calibNote}</p>}
             {outcome === 'fail' && <p class="muted">Effort still counts. The next one will be a little gentler.</p>}
@@ -164,20 +170,20 @@ function CalibrateReps({ unit, onDone }: { unit: string; onDone: (n: number) => 
 function CalibrateHold({ onDone }: { onDone: (seconds: number) => void }) {
   const [start, setStart] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
-  useWakeLock(start !== null);
+  const [ready, setReady] = useState(false);
+  useWakeLock(true);
   useEffect(() => {
     if (start === null) return;
     const id = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(id);
   }, [start]);
   const secs = start === null ? 0 : Math.floor((now - start) / 1000);
+  if (!ready) return <GetReady onGo={() => { setReady(true); setStart(Date.now()); setNow(Date.now()); }} />;
   return (
     <Win>
       <div class="stack center">
         <div class="big-number">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}</div>
-        {start === null ? (
-          <button class="btn primary big" onClick={() => { setStart(Date.now()); setNow(Date.now()); }}>Start</button>
-        ) : (
+        {start === null ? null : (
           <>
             <p class="muted">Keep going as long as you comfortably can.</p>
             <button class="btn good big" onClick={() => { beep(); onDone(Math.max(1, secs)); }}>Stop</button>
@@ -217,18 +223,55 @@ function RepsRunner({ amount, unit, onDone }: { amount: number; unit: string; on
   );
 }
 
-function beep() {
+function beep(freq = 880, length = 0.6) {
   try {
     const ctx = new AudioContext();
     const o = ctx.createOscillator();
     const gain = ctx.createGain();
-    o.frequency.value = 880;
+    o.frequency.value = freq;
     gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + length);
     o.connect(gain).connect(ctx.destination);
     o.start();
-    o.stop(ctx.currentTime + 0.6);
+    o.stop(ctx.currentTime + length);
   } catch { /* audio unavailable */ }
+}
+
+const SETUP_SECONDS = 5;
+
+/** A short countdown so you can put the phone down and get into position. Ticks each second, beeps on go. */
+function GetReady({ onGo }: { onGo: () => void }) {
+  const [goAt, setGoAt] = useState(() => Date.now() + SETUP_SECONDS * 1000);
+  const [left, setLeft] = useState(SETUP_SECONDS);
+  useEffect(() => {
+    let last = SETUP_SECONDS;
+    const id = setInterval(() => {
+      const l = Math.max(0, Math.ceil((goAt - Date.now()) / 1000));
+      if (l !== last) {
+        last = l;
+        setLeft(l);
+        if (l > 0) beep(520, 0.12);
+      }
+      if (l === 0) {
+        clearInterval(id);
+        beep(880, 0.4);
+        onGo();
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, [goAt]);
+  return (
+    <Win>
+      <div class="stack center">
+        <p class="muted">Get in position</p>
+        <div class="big-number pop" key={left}>{left}</div>
+        <div class="row" style={{ gap: '6px', justifyContent: 'center' }}>
+          <button class="btn ghost small" onClick={() => setGoAt((t) => t + 5000)}>+5 seconds</button>
+          <button class="btn ghost small" onClick={onGo}>I'm ready</button>
+        </div>
+      </div>
+    </Win>
+  );
 }
 
 /** Keep the screen on while a timed quest runs (where supported). */
@@ -245,7 +288,7 @@ function useWakeLock(active: boolean) {
 function TimerRunner({ seconds, onDone }: { seconds: number; onDone: (o: QuestOutcome) => void }) {
   const [endAt, setEndAt] = useState<number | null>(null);
   const [left, setLeft] = useState(seconds);
-  useWakeLock(endAt !== null);
+  useWakeLock(true);
   useEffect(() => {
     if (endAt === null) return;
     // Wall-clock based, so it stays accurate if the phone throttles the page.
@@ -262,13 +305,12 @@ function TimerRunner({ seconds, onDone }: { seconds: number; onDone: (o: QuestOu
   }, [endAt]);
   const mm = Math.floor(left / 60);
   const ss = String(left % 60).padStart(2, '0');
+  if (endAt === null) return <GetReady onGo={() => setEndAt(Date.now() + seconds * 1000)} />;
   return (
     <Win>
       <div class="stack center">
         <div class="big-number">{mm}:{ss}</div>
-        {endAt === null ? (
-          <button class="btn primary big" onClick={() => setEndAt(Date.now() + seconds * 1000)}>Start timer</button>
-        ) : (
+        {endAt === null ? null : (
           <>
             <p class="muted">Hold steady. You've got this.</p>
             <button class="btn ghost" onClick={() => onDone('fail')}>Stop early</button>

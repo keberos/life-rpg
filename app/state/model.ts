@@ -32,6 +32,8 @@ export type LogEvent = Base & (
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
+  /** The player has seen these unlocked classes (clears the "new class" banner). */
+  | { type: 'seenClasses'; ids: string[] }
   /** Player's pick for a slot; null = wear nothing there. Overrides auto-equip. */
   | { type: 'equip'; slot: GearSlot; gearId: string | null }
   | { type: 'checkin'; fun: number; worthIt: boolean; note?: string }
@@ -74,6 +76,8 @@ export interface GameState {
   equipped: GearDef[];
   items: Record<string, number>;
   unlocked: ClassDef[];
+  /** Unlocked classes the player hasn't looked at yet. */
+  newClasses: ClassDef[];
   activeClass: ClassDef;
   boss: BossStatus;
   questsToday: number;
@@ -108,6 +112,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const owned = new Set<string>();
   const items: Record<string, number> = {};
   let classChoice: string | null = null;
+  const seenClasses = new Set<string>();
   const slotChoice = new Map<GearSlot, string | null>();
   let questsToday = 0;
   let questsTotal = 0;
@@ -140,6 +145,9 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
         break;
       case 'chooseClass':
         classChoice = e.classId;
+        break;
+      case 'seenClasses':
+        for (const id of e.ids) seenClasses.add(id);
         break;
       case 'equip':
         slotChoice.set(e.slot, e.gearId);
@@ -178,7 +186,9 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
 
   const unlocked = unlockedClasses(levels, corePack.classes);
   const chosen = unlocked.find((c) => c.id === classChoice);
-  const activeClass = chosen ?? unlocked[unlocked.length - 1];
+  // You stay an Adventurer until you choose a class yourself.
+  const activeClass = chosen ?? unlocked[0];
+  const newClasses = unlocked.filter((c) => c.id !== 'adventurer' && !seenClasses.has(c.id) && c.id !== classChoice);
 
   const tier = Math.min(4, Math.max(1, Math.ceil(week / 2)));
   const def = corePack.bosses.find((b) => b.tier === tier) ?? corePack.bosses[0];
@@ -200,7 +210,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
       const best = bestBySlot.get(slot);
       return best ? [best] : [];
     }), items,
-    unlocked, activeClass,
+    unlocked, newClasses, activeClass,
     boss: { def, tier, defeated, foughtToday, nextBossWeek },
     questsToday, questsTotal, checkedInToday,
     interceptsAccepted: accepted, interceptsSkipped: skipped,

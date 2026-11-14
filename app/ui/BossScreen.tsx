@@ -213,7 +213,7 @@ function narrate(e: FightEvent, boss: string): string | null {
     case 'mend': return `${e.source} heals you for ${n(e.amount)}.`;
     case 'shield': return `${e.source} shields you (${n(e.amount)}).`;
     case 'stun': return `${e.source} stuns the ${boss}!`;
-    case 'buff': return `${e.source}: damage up ${Math.round((e.mult - 1) * 100)}%.`;
+    case 'buff': return `${e.source}: damage +${Math.round((e.mult - 1) * 100)}%.`;
     case 'heal': return `You recover ${n(e.amount)} HP.`;
     case 'hit': return e.crit ? `Critical hit! ${n(e.amount)} damage.` : `You hit for ${n(e.amount)}.`;
     case 'bossStunned': return `The ${boss} is stunned and can't act.`;
@@ -223,5 +223,7 @@ function narrate(e: FightEvent, boss: string): string | null {
       return `The ${boss} ${what}${e.crit ? ' (critical)' : ''}: ${n(e.amount)} damage${e.absorbed ? `, ${n(e.absorbed)} blocked` : ''}.`;
     }
     case 'revive': return 'Your faith holds. You get back up!';
+    case 'evade': return `${e.source}: the next attack will miss.`;
+    case 'evaded': return e.special ? `The ${boss}'s special attack misses!` : `The ${boss}'s attack misses.`;
   }
 }

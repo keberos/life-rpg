@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import type { ClassDef, GearDef, GearSlot } from '../../src/engine/types.ts';
 import { SLOT_LABEL, describeActive, describeItem, describePassive, describeStats } from '../content/describe.ts';
@@ -18,7 +18,21 @@ function describeClass(c: ClassDef): string {
     p.critBonus && `+${Math.round(p.critBonus * 100)}% crit`,
     p.dodgeBonus && `+${Math.round(p.dodgeBonus * 100)}% dodge`,
   ].filter(Boolean);
-  return parts.length ? parts.join(', ') : 'No bonus yet. Train stats to unlock classes.';
+  return parts.join(', ');
+}
+
+function ClassKit({ c, anyUnlocked }: { c: ClassDef; anyUnlocked: boolean }) {
+  if (!c.trait && !c.abilities?.length) {
+    return <span class="small-text">Base attacks and battle items only.{anyUnlocked ? '' : ' Train two stats to level 6 to unlock your first class.'}</span>;
+  }
+  const bonus = describeClass(c);
+  return (
+    <div class="stack" style={{ gap: '3px' }}>
+      {c.trait && <span class="small-text"><b>{c.trait.name}</b> <span class="faint">(passive)</span>. {describePassive(c.trait)}</span>}
+      {c.abilities?.map((a) => <span key={a.id} class="small-text"><b>{a.name}.</b> {describeActive(a)}</span>)}
+      {bonus && <span class="faint">Also: {bonus}</span>}
+    </div>
+  );
 }
 const needs = (c: ClassDef) => Object.entries(c.requires).map(([s, v]) => `${s} ${v}`).join(', ');
 
@@ -37,6 +51,11 @@ export function Equipment() {
   const [open, setOpen] = useState<GearSlot | null>(null);
   const equippedIds = g.equipped.map((x) => x.id);
   const unlockedIds = new Set(g.unlocked.map((c) => c.id));
+  // Remember which classes were new when the screen opened, then mark them seen.
+  const [fresh] = useState(() => new Set(g.newClasses.map((c) => c.id)));
+  useEffect(() => {
+    if (g.newClasses.length) store.log({ type: 'seenClasses', ids: g.newClasses.map((c) => c.id) });
+  }, []);
 
   const pick = (slot: GearSlot, gearId: string | null) => {
     store.log({ type: 'equip', slot, gearId });
@@ -51,7 +70,6 @@ export function Equipment() {
         <div class="stack center" style={{ alignItems: 'center', gap: '4px' }}>
           <Hero classId={g.activeClass.id} scale={9} gear={equippedIds} />
           <h2>{g.activeClass.name}</h2>
-          <span class="faint">{describeClass(g.activeClass)}</span>
         </div>
       </Win>
 
@@ -104,8 +122,13 @@ export function Equipment() {
               disabled={!unlocked}
               onClick={() => store.log({ type: 'chooseClass', classId: c.id })}
             >
-              <b>{c.name}</b>{!unlocked && <span class="faint"> · needs {needs(c)}</span>}
-              <span class="small-text">{describeClass(c)}</span>
+              <span>
+                <b>{c.name}</b>
+                {active && <span class="faint"> · current</span>}
+                {fresh.has(c.id) && <span class="new-tag"> NEW</span>}
+                {!unlocked && <span class="faint"> · needs {needs(c)}</span>}
+              </span>
+              <ClassKit c={c} anyUnlocked={g.unlocked.length > 1} />
             </button>
           );
         })}

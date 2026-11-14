@@ -17,13 +17,15 @@ export type Effect =
   | { kind: 'heal'; pctMaxHp: number }
   | { kind: 'shield'; pctMaxHp: number }
   | { kind: 'stun'; turns: number }
-  | { kind: 'buffDamage'; mult: number; turns: number };
+  | { kind: 'buffDamage'; mult: number; turns: number }
+  | { kind: 'stackDamage'; pct: number; max: number } // +pct damage per stack for the rest of the fight
+  | { kind: 'evade'; attacks: number }; // the next N boss attacks miss, specials included
 
 /** Always-on gear ability. Fires on a trigger, sometimes with a chance. */
 export interface PassiveDef {
   id: string;
   name: string;
-  trigger: 'onHit' | 'turnStart' | 'onDodge' | 'onHeal';
+  trigger: 'onHit' | 'turnStart' | 'onDodge' | 'onHeal' | 'onHurt';
   chance: number; // 0..1
   effects: Effect[];
 }
@@ -77,6 +79,10 @@ export interface ClassDef {
   name: string;
   requires: Partial<StatBlock>;
   passive: ClassPassive;
+  /** Signature passive: what makes the class play differently. */
+  trait?: PassiveDef;
+  /** Buttons the class brings to every fight. */
+  abilities?: ActiveDef[];
 }
 
 export interface BossDef {

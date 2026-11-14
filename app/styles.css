@@ -162,3 +162,6 @@ hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.12); margin: 4px 
 .helptip:hover { color: var(--ink); }
 button.stat.tappable { width: 100%; background: none; border: none; padding: 2px 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .help-section { scroll-margin-top: 12px; }
+.class-banner { display: flex; flex-direction: column; gap: 4px; align-items: center; border-color: var(--accent); color: var(--accent); }
+.class-banner .small-text { color: var(--ink-2); }
+.new-tag { color: var(--accent); font-family: var(--pixel); font-size: 12px; }

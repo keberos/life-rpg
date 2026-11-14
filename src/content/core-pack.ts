@@ -7,15 +7,65 @@ export const corePack: ContentPack = {
   version: '0.1.0',
 
   classes: [
+    // Before choosing a class: base attacks and battle items only.
     { id: 'adventurer', name: 'Adventurer', requires: {}, passive: {} },
-    { id: 'warrior', name: 'Warrior', requires: { STR: 10, STA: 10 }, passive: { hpMult: 1.15, physMult: 1.1 } },
-    { id: 'sage', name: 'Sage', requires: { INT: 10, WIS: 10 }, passive: { spellMult: 1.25 } },
-    { id: 'cleric', name: 'Cleric', requires: { FTH: 10, WIS: 10 }, passive: { healMult: 1.4, hpMult: 1.05 } },
-    { id: 'ranger', name: 'Ranger', requires: { AGI: 10, STA: 10 }, passive: { critBonus: 0.1, dodgeBonus: 0.05 } },
+    {
+      id: 'warrior', name: 'Warrior', requires: { STR: 6, STA: 6 }, passive: { hpMult: 1.1, physMult: 1.05 },
+      trait: { id: 'battle-rage', name: 'Battle Rage', trigger: 'onHurt', chance: 1, effects: [{ kind: 'stackDamage', pct: 0.05, max: 6 }] },
+      abilities: [
+        { id: 'cleave', name: 'Cleave', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 10, scaling: 'STR', perPoint: 1.5 }] },
+        { id: 'iron-wall', name: 'Iron Wall', charges: 1, cooldown: 0, hint: 'beforeSpecial', effects: [{ kind: 'shield', pctMaxHp: 0.2 }] },
+      ],
+    },
+    {
+      id: 'sage', name: 'Sage', requires: { INT: 6, WIS: 6 }, passive: { spellMult: 1.1 },
+      trait: { id: 'arcane-echo', name: 'Arcane Echo', trigger: 'onHit', chance: 0.35, effects: [{ kind: 'damage', base: 6, scaling: 'INT', perPoint: 1.5, ignoresArmor: true }] },
+      abilities: [
+        { id: 'fireball', name: 'Fireball', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 16, scaling: 'INT', perPoint: 2, ignoresArmor: true }] },
+        { id: 'mana-shield', name: 'Mana Shield', charges: 1, cooldown: 0, hint: 'beforeSpecial', effects: [{ kind: 'shield', pctMaxHp: 0.2 }] },
+      ],
+    },
+    {
+      id: 'cleric', name: 'Cleric', requires: { FTH: 6, WIS: 6 }, passive: { healMult: 1.2 },
+      trait: { id: 'blessed-light', name: 'Blessed Light', trigger: 'onHeal', chance: 1, effects: [{ kind: 'shield', pctMaxHp: 0.1 }] },
+      abilities: [
+        { id: 'mend', name: 'Mend', charges: 1, cooldown: 0, hint: 'lowHp', effects: [{ kind: 'heal', pctMaxHp: 0.3 }] },
+        { id: 'smite', name: 'Smite', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 10, scaling: 'FTH', perPoint: 1.5, ignoresArmor: true }] },
+      ],
+    },
+    {
+      id: 'ranger', name: 'Ranger', requires: { AGI: 6, STA: 6 }, passive: { critBonus: 0.05 },
+      trait: { id: 'counter-shot', name: 'Counter Shot', trigger: 'onDodge', chance: 1, effects: [{ kind: 'extraHit', mult: 0.8 }] },
+      abilities: [
+        { id: 'evasive-roll', name: 'Evasive Roll', charges: 1, cooldown: 0, hint: 'beforeSpecial', effects: [{ kind: 'evade', attacks: 1 }] },
+        { id: 'aimed-shot', name: 'Aimed Shot', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 10, scaling: 'AGI', perPoint: 2 }] },
+      ],
+    },
     // Hybrids reward combining stats.
-    { id: 'paladin', name: 'Paladin', requires: { STR: 15, FTH: 15 }, passive: { hpMult: 1.1, healMult: 1.25, physMult: 1.1 } },
-    { id: 'monk', name: 'Monk', requires: { AGI: 15, WIS: 15 }, passive: { dodgeBonus: 0.08, critBonus: 0.08 } },
-    { id: 'spellblade', name: 'Spellblade', requires: { STR: 15, INT: 15 }, passive: { physMult: 1.12, spellMult: 1.12 } },
+    {
+      id: 'paladin', name: 'Paladin', requires: { STR: 12, FTH: 12 }, passive: { hpMult: 1.1, physMult: 1.05 },
+      trait: { id: 'aegis', name: 'Aegis', trigger: 'turnStart', chance: 0.2, effects: [{ kind: 'shield', pctMaxHp: 0.06 }] },
+      abilities: [
+        { id: 'divine-strike', name: 'Divine Strike', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 12, scaling: 'FTH', perPoint: 2 }] },
+        { id: 'lay-on-hands', name: 'Lay on Hands', charges: 1, cooldown: 0, hint: 'lowHp', effects: [{ kind: 'heal', pctMaxHp: 0.35 }] },
+      ],
+    },
+    {
+      id: 'monk', name: 'Monk', requires: { AGI: 12, WIS: 12 }, passive: { dodgeBonus: 0.05 },
+      trait: { id: 'flurry', name: 'Flurry', trigger: 'onHit', chance: 0.3, effects: [{ kind: 'extraHit', mult: 0.5 }] },
+      abilities: [
+        { id: 'stunning-palm', name: 'Stunning Palm', charges: 1, cooldown: 0, hint: 'asap', effects: [{ kind: 'stun', turns: 1 }] },
+        { id: 'inner-calm', name: 'Inner Calm', charges: 1, cooldown: 0, hint: 'lowHp', effects: [{ kind: 'heal', pctMaxHp: 0.15 }, { kind: 'buffDamage', mult: 1.2, turns: 3 }] },
+      ],
+    },
+    {
+      id: 'spellblade', name: 'Spellblade', requires: { STR: 12, INT: 12 }, passive: { physMult: 1.05, spellMult: 1.05 },
+      trait: { id: 'spellstrike', name: 'Spellstrike', trigger: 'onHit', chance: 0.4, effects: [{ kind: 'damage', base: 8, scaling: 'INT', perPoint: 1.2, ignoresArmor: true }] },
+      abilities: [
+        { id: 'enchant-blade', name: 'Enchant Blade', charges: 1, cooldown: 0, hint: 'asap', effects: [{ kind: 'buffDamage', mult: 1.25, turns: 3 }] },
+        { id: 'arcane-burst', name: 'Arcane Burst', charges: 2, cooldown: 2, hint: 'asap', effects: [{ kind: 'damage', base: 16, scaling: 'INT', perPoint: 1.8, ignoresArmor: true }] },
+      ],
+    },
   ],
 
   gear: [
@@ -71,9 +121,9 @@ export const corePack: ContentPack = {
 
   // Tier ~ week of the season. Tier 4 = season boss.
   bosses: [
-    { id: 'bog-troll', name: 'Bog Troll', tier: 1, hp: 510, attack: 26, armor: 20, weakTo: ['STR', 'FTH'], special: { name: 'Mud Slam', every: 4, mult: 2.2 }, enrageTurn: 14 },
-    { id: 'storm-harpy', name: 'Storm Harpy', tier: 2, hp: 1140, attack: 47, armor: 10, weakTo: ['AGI', 'INT'], special: { name: 'Gale Dive', every: 3, mult: 2.0 }, enrageTurn: 14 },
-    { id: 'hollow-warden', name: 'Hollow Warden', tier: 3, hp: 1690, attack: 63, armor: 30, weakTo: ['WIS', 'STA'], special: { name: 'Grave Cleave', every: 4, mult: 2.5 }, enrageTurn: 15 },
-    { id: 'ashen-wyrm', name: 'Ashen Wyrm', tier: 4, hp: 2830, attack: 88, armor: 12, weakTo: ['FTH', 'INT'], special: { name: 'Cinder Breath', every: 3, mult: 2.3 }, enrageTurn: 16 },
+    { id: 'bog-troll', name: 'Bog Troll', tier: 1, hp: 590, attack: 30, armor: 20, weakTo: ['STR', 'FTH'], special: { name: 'Mud Slam', every: 4, mult: 2.2 }, enrageTurn: 14 },
+    { id: 'storm-harpy', name: 'Storm Harpy', tier: 2, hp: 1180, attack: 49, armor: 10, weakTo: ['AGI', 'INT'], special: { name: 'Gale Dive', every: 3, mult: 2.0 }, enrageTurn: 14 },
+    { id: 'hollow-warden', name: 'Hollow Warden', tier: 3, hp: 1795, attack: 67, armor: 30, weakTo: ['WIS', 'STA'], special: { name: 'Grave Cleave', every: 4, mult: 2.5 }, enrageTurn: 15 },
+    { id: 'ashen-wyrm', name: 'Ashen Wyrm', tier: 4, hp: 2910, attack: 90, armor: 12, weakTo: ['FTH', 'INT'], special: { name: 'Cinder Breath', every: 3, mult: 2.3 }, enrageTurn: 16 },
   ],
 };

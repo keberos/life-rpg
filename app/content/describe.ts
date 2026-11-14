@@ -16,6 +16,8 @@ export function describeEffect(e: Effect): string {
     case 'shield': return `adds a shield worth ${pct(e.pctMaxHp)} of your max HP`;
     case 'stun': return `stuns the boss for ${e.turns} turn${e.turns > 1 ? 's' : ''} (not during its special)`;
     case 'buffDamage': return `+${pct(e.mult - 1)} damage for ${e.turns} turns`;
+    case 'stackDamage': return `+${pct(e.pct)} damage for the rest of the fight (up to +${pct(e.pct * e.max)})`;
+    case 'evade': return `makes the boss's next ${e.attacks === 1 ? 'attack' : `${e.attacks} attacks`} miss, even a special`;
   }
 }
 
@@ -26,6 +28,7 @@ const TRIGGER: Record<PassiveDef['trigger'], string> = {
   turnStart: 'Each turn',
   onDodge: 'When you dodge',
   onHeal: 'When you heal',
+  onHurt: 'When you take damage',
 };
 
 export function describePassive(p: PassiveDef): string {

@@ -106,6 +106,8 @@ export type FightEvent =
   | { t: 'dodge'; special: boolean }
   | { t: 'bossAttack'; name: string; amount: number; special: boolean; crit: boolean; absorbed: number }
   | { t: 'revive' }
+  | { t: 'evade'; source: string; attacks: number }
+  | { t: 'evaded'; special: boolean }
   | { t: 'end'; win: boolean };
 
 export interface ButtonView {
@@ -164,6 +166,9 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
   let revived = false;
   let pressed = 0;
   let lastHit = 0;
+  let rage = 0; // stackDamage stacks
+  let ragePct = 0;
+  let evade = 0;
   let over = false;
   let win = false;
 
@@ -175,8 +180,9 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
   const opening: FightEvent[] = [{ t: 'omen', omen, fortune }];
 
   const armorFactor = 100 / (100 + boss.armor);
-  const passives = load.gear.flatMap((g) => (g.passive ? [g.passive] : []));
+  const passives = [...(load.cls.trait ? [load.cls.trait] : []), ...load.gear.flatMap((g) => (g.passive ? [g.passive] : []))];
   const buttons: Button[] = [
+    ...(load.cls.abilities ?? []).map(toButton),
     ...load.gear.flatMap((g) => (g.active ? [toButton(g.active)] : [])),
     ...load.items.map((i) => ({ name: i.name, effects: i.effects, hint: i.hint, charges: 1, cooldown: 0, ready: 1, consumable: true })),
   ];
@@ -187,7 +193,7 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
         case 'damage': {
           let dmg = e.base + (e.scaling ? (e.perPoint ?? 0) * d.eff[e.scaling] : 0);
           if (!e.ignoresArmor) dmg *= armorFactor;
-          dmg *= d.insight * buffMult * fortune;
+          dmg *= d.insight * buffMult * (1 + rage * ragePct) * fortune;
           bossHp -= dmg;
           emit({ t: 'damage', source, amount: dmg });
           break;
@@ -220,6 +226,17 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
           buffMult = e.mult;
           buffTurns = e.turns;
           emit({ t: 'buff', source, mult: e.mult });
+          break;
+        case 'stackDamage':
+          ragePct = e.pct;
+          if (rage < e.max) {
+            rage++;
+            emit({ t: 'buff', source, mult: 1 + rage * e.pct });
+          }
+          break;
+        case 'evade':
+          evade += e.attacks;
+          emit({ t: 'evade', source, attacks: e.attacks });
           break;
       }
     }
@@ -260,7 +277,7 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
       firePassives('onHeal');
     }
 
-    let hit = (d.phys * armorFactor + d.spell + d.smite) * d.insight * buffMult * fortune;
+    let hit = (d.phys * armorFactor + d.spell + d.smite) * d.insight * buffMult * (1 + rage * ragePct) * fortune;
     const crit = rng() < d.crit;
     if (crit) hit *= 1.75;
     hit *= 0.75 + rng() * 0.5;
@@ -282,6 +299,13 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
     const bossCrit = rng() < BOSS_CRIT;
     if (bossCrit) dmg *= 1.6;
     if (specialNow) dmg *= boss.special.mult * (1 - d.specialResist);
+    if (evade > 0) {
+      evade--;
+      emit({ t: 'evaded', special: specialNow });
+      firePassives('onDodge');
+      if (bossHp <= 0) return finish(true);
+      return;
+    }
     // AGI dodges normal attacks fully, and big specials at half the chance.
     if (rng() < (specialNow ? d.dodge * 0.5 : d.dodge)) {
       emit({ t: 'dodge', special: specialNow });
@@ -293,6 +317,8 @@ export function createFight(load: Loadout, boss: BossDef, rng: Rng): Fight {
     shield -= absorbed;
     hp -= dmg - absorbed;
     emit({ t: 'bossAttack', name: specialNow ? boss.special.name : 'Attack', amount: dmg, special: specialNow, crit: bossCrit, absorbed });
+    if (dmg - absorbed > 0) firePassives('onHurt');
+    if (bossHp <= 0) return finish(true);
     if (hp <= 0) {
       if (!revived && rng() < d.reviveChance) {
         revived = true;
@@ -383,6 +409,8 @@ export function describe(e: FightEvent): string {
     case 'dodge': return `  dodged${e.special ? ' the special' : ''}`;
     case 'bossAttack': return `  boss ${e.name} ${n(e.amount)}${e.absorbed ? ` (${n(e.absorbed)} absorbed)` : ''}`;
     case 'revive': return '  revived!';
+    case 'evade': return `  ${e.source}: evading ${e.attacks}`;
+    case 'evaded': return `  evaded${e.special ? ' the special' : ''}`;
     case 'end': return e.win ? 'VICTORY' : 'DEFEAT';
   }
 }

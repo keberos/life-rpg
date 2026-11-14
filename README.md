@@ -57,5 +57,6 @@ AGI deal physical damage (AGI also crits and dodges, specials at half chance), I
 armor-piercing spell damage and starts the fight with an arcane ward, STA is HP, WIS boosts all
 damage and blunts boss specials, FTH heals, smites and may revive. Each boss is weak to two
 stats (they count 1.3x). Boss specials can't be interrupted by stuns. A per-fight **Fortune** roll (shown as an omen) keeps outcomes uncertain,
-so better stats tilt the odds instead of deciding them. The player steps in only by pressing
-gear actives (epic+) or spending scarce battle items.
+so better stats tilt the odds instead of deciding them. The player steps in by pressing
+class abilities (each class has two, plus a signature passive; Adventurers have none), gear
+actives (epic+) or scarce battle items. Classes unlock at stat thresholds and must be chosen.

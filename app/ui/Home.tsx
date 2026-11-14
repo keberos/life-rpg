@@ -33,12 +33,18 @@ export function Home() {
               <h2>{g.activeClass.name}</h2>
               <span class="pixel">Lv {g.totalLevel}</span>
             </div>
-            <span class="faint">Tap your hero for gear, a stat for details{g.unlocked.length > 1 ? ` (${g.unlocked.length} classes unlocked)` : ''}</span>
+            <span class="faint">Tap your hero for gear, a stat for details{g.unlocked.length > 1 ? ` (${g.unlocked.length - 1} class${g.unlocked.length > 2 ? 'es' : ''} unlocked)` : ''}</span>
             {enabled.map((s) => <StatBar key={s} stat={s} level={g.levels[s]} progress={g.levelProgress[s]} onClick={() => go(`#/stat/${s}`)} />)}
           </div>
         </div>
       </Win>
 
+      {g.newClasses.length > 0 && (
+        <button class="btn class-banner" onClick={() => go('#/gear')}>
+          <span class="pixel">New class unlocked: {g.newClasses.map((c) => c.name).join(', ')}!</span>
+          <span class="small-text">Choose a class to get its abilities in boss fights ›</span>
+        </button>
+      )}
       {g.questsTotal === 0 && (
         <p class="muted center">Welcome, adventurer. When you'd normally scroll, take a quest instead. Your first quest in each stat is a quick check, so later ones fit you.</p>
       )}
