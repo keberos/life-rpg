@@ -46,6 +46,7 @@ h3 { font-size: 16px; }
 p { margin: 0; }
 .muted { color: var(--ink-2); }
 .faint { color: var(--ink-3); font-size: 13px; }
+.passage { font-size: 17px; line-height: 1.6; padding: 10px 12px; border-left: 3px solid var(--ink-3); background: rgba(255,255,255,0.04); white-space: pre-line; }
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .row { display: flex; align-items: center; gap: 8px; }
 .between { justify-content: space-between; }
@@ -155,3 +156,9 @@ hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.12); margin: 4px 
 .r-rare { color: #7ab8ff; }
 .r-epic { color: #c9a2ff; }
 .r-legendary { color: #f2c14e; }
+
+/* Help */
+.helptip { background: none; border: none; color: var(--ink-3); font-size: 15px; padding: 2px 4px; min-width: 28px; min-height: 28px; cursor: pointer; vertical-align: middle; }
+.helptip:hover { color: var(--ink); }
+button.stat.tappable { width: 100%; background: none; border: none; padding: 2px 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.help-section { scroll-margin-top: 12px; }

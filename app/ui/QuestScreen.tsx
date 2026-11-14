@@ -331,7 +331,7 @@ function QuizRunner({ quest, rating, onDone, onScore }: { quest: QuestDef; ratin
     return (
       <Win>
         <div class="stack">
-          <p style={{ fontSize: '17px', lineHeight: 1.6 }}>{quest.passage}</p>
+          <p class="passage">{quest.passage}</p>
           {quest.source && <p class="faint">{quest.source}</p>}
           <button class="btn primary" onClick={() => setReading(false)}>I'm ready</button>
         </div>
@@ -380,8 +380,14 @@ function ReflectionRunner({ quest, onDone }: { quest: QuestDef; onDone: (o: Ques
   return (
     <Win>
       <div class="stack">
-        <p style={{ fontSize: '17px', lineHeight: 1.6 }}>{quest.prompt}</p>
-        {quest.source && <p class="faint">{quest.source}</p>}
+        {quest.passage && (
+          <>
+            <p class="passage">{quest.passage}</p>
+            {quest.source && <p class="faint">{quest.source}</p>}
+          </>
+        )}
+        <p style={{ fontSize: '17px', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{quest.prompt}</p>
+        {!quest.passage && quest.source && <p class="faint">{quest.source}</p>}
         <textarea placeholder="Optional: jot a few words (not saved)" />
         <button class="btn good big" onClick={() => onDone('success')}>Done reflecting</button>
       </div>

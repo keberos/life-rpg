@@ -6,10 +6,11 @@ import type { BattleItemDef } from '../../src/engine/types.ts';
 import { bossLoot } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
+import { HelpTip } from './Help.tsx';
 import { Boss, Hero } from './sprites.tsx';
 
 /** How many battle items you can carry into one fight. */
-const SATCHEL_SIZE = 3;
+export const SATCHEL_SIZE = 3;
 
 const OMEN_TEXT = { favorable: 'The omens are favorable.', uncertain: 'The omens are uncertain.', ominous: 'The omens are ominous...' };
 
@@ -100,6 +101,7 @@ export function BossScreen() {
               <span class="faint">Weak to</span>
               {boss.def.weakTo.map((s) => <StatChip key={s} stat={s} />)}
               <span class="faint">· {boss.def.special.name} every {boss.def.special.every} turns</span>
+              <HelpTip topic="bosses" label="How bosses work" />
             </div>
           )}
         </div>
@@ -135,7 +137,7 @@ export function BossScreen() {
 
       {v && (
         <>
-          <p class="center pixel" style={{ color: v.omen === 'favorable' ? 'var(--good)' : v.omen === 'ominous' ? 'var(--bad)' : 'var(--ink-2)' }}>{OMEN_TEXT[v.omen]}</p>
+          <p class="center pixel" style={{ color: v.omen === 'favorable' ? 'var(--good)' : v.omen === 'ominous' ? 'var(--bad)' : 'var(--ink-2)' }}>{OMEN_TEXT[v.omen]} {v.over && <HelpTip topic="bosses" label="What omens mean" />}</p>
           {!v.over && v.buttons.length > 0 && (
             <div class="row wrap" style={{ gap: '6px' }}>
               {v.buttons.map((b, k) => (

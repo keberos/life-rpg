@@ -6,14 +6,15 @@ export function Win({ children, quiet, class: cls }: { children: ComponentChildr
   return <div class={`win ${quiet ? 'quiet' : ''} ${cls ?? ''}`}>{children}</div>;
 }
 
-export function StatBar({ stat, level, progress }: { stat: StatId; level: number; progress: number }) {
+export function StatBar({ stat, level, progress, onClick }: { stat: StatId; level: number; progress: number; onClick?: () => void }) {
   const info = STAT_INFO[stat];
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div class="stat" title={info.name}>
+    <Tag class={`stat ${onClick ? 'tappable' : ''}`} title={info.name} onClick={onClick} aria-label={onClick ? `${info.name}, level ${level}. Tap for details` : undefined}>
       <span class="label" style={{ color: info.color }}>{info.short}</span>
       <div class="bar"><i style={{ width: `${Math.round(progress * 100)}%`, background: info.color }} /></div>
       <span class="lv">{level}</span>
-    </div>
+    </Tag>
   );
 }
 

@@ -10,6 +10,7 @@ export function Menu() {
   return (
     <div class="stack">
       <TopBar onBack={() => go('#/')} title="Menu" />
+      <button class="btn" onClick={() => go('#/help')}>Guide: how it all works</button>
       <button class="btn" onClick={() => go('#/checkin')}>Daily check-in</button>
       <button class="btn" onClick={() => go('#/shortcut')}>Set up the scroll catcher</button>
       <button class="btn" onClick={() => go('#/save')}>Backup and restore</button>

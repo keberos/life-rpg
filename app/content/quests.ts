@@ -36,15 +36,43 @@ export interface StatInfo {
   short: string;
   blurb: string;
   color: string; // CSS var name
+  /** What the quests train in real life. */
+  about: string;
+  /** What the stat does in boss fights (keep in sync with src/engine/combat.ts derive). */
+  battle: string;
 }
 
 export const STAT_INFO: Record<StatId, StatInfo> = {
-  STR: { id: 'STR', name: 'Strength', short: 'STR', blurb: 'Resistance training', color: 'var(--stat-str)' },
-  AGI: { id: 'AGI', name: 'Agility', short: 'AGI', blurb: 'Balance, coordination, mobility', color: 'var(--stat-agi)' },
-  STA: { id: 'STA', name: 'Stamina', short: 'STA', blurb: 'Endurance and breath', color: 'var(--stat-sta)' },
-  INT: { id: 'INT', name: 'Intellect', short: 'INT', blurb: 'Learning and patterns', color: 'var(--stat-int)' },
-  WIS: { id: 'WIS', name: 'Wisdom', short: 'WIS', blurb: 'Stoicism, perspective, emotional IQ', color: 'var(--stat-wis)' },
-  FTH: { id: 'FTH', name: 'Faith', short: 'FTH', blurb: 'Scripture and prayer', color: 'var(--stat-fth)' },
+  STR: {
+    id: 'STR', name: 'Strength', short: 'STR', blurb: 'Resistance training', color: 'var(--stat-str)',
+    about: 'Bodyweight strength: push-ups, squats and holds that build muscle you use every day.',
+    battle: 'Your main physical damage. Bosses with armor soak some of it.',
+  },
+  AGI: {
+    id: 'AGI', name: 'Agility', short: 'AGI', blurb: 'Balance, coordination, mobility', color: 'var(--stat-agi)',
+    about: 'Balance, coordination and mobility, the things that keep you moving well and falling less.',
+    battle: 'Adds physical damage, raises your critical hit chance, and lets you dodge attacks (big special attacks are harder to dodge).',
+  },
+  STA: {
+    id: 'STA', name: 'Stamina', short: 'STA', blurb: 'Endurance and breath', color: 'var(--stat-sta)',
+    about: 'Endurance and breath control: planks, marching and steady breathing.',
+    battle: 'Your HP. More stamina means you survive more hits.',
+  },
+  INT: {
+    id: 'INT', name: 'Intellect', short: 'INT', blurb: 'Learning and patterns', color: 'var(--stat-int)',
+    about: 'Focus and learning: reading closely, remembering what you read, and spotting patterns.',
+    battle: 'Spell damage that ignores armor, plus an arcane ward that absorbs damage at the start of each fight.',
+  },
+  WIS: {
+    id: 'WIS', name: 'Wisdom', short: 'WIS', blurb: 'Stoicism, perspective, emotional IQ', color: 'var(--stat-wis)',
+    about: 'Perspective and emotional skill: Stoic ideas, naming feelings, and seeing problems at their real size.',
+    battle: 'Boosts all your damage a little and blunts the boss\'s special attacks.',
+  },
+  FTH: {
+    id: 'FTH', name: 'Faith', short: 'FTH', blurb: 'Bible reading and study', color: 'var(--stat-fth)',
+    about: 'Reading and studying Scripture: understanding a passage and thinking about how it applies to your day.',
+    battle: 'Stronger healing each turn, a little holy damage, and a chance to get back up once when you fall.',
+  },
 };
 
 const PHYS_SAFETY = 'Stop if you feel sharp pain. Good form beats more reps.';
@@ -197,9 +225,87 @@ export const QUESTS: QuestDef[] = [
     ],
   },
   {
-    id: 'prayer-acts', stat: 'FTH', kind: 'timer', title: 'Guided prayer', unit: 'seconds',
-    how: 'Pray for {n} seconds, moving through Adoration, Confession, Thanksgiving and Supplication (requests for yourself and others).',
-    curve: { base: 90, growth: 1.03, min: 60, max: 600 },
+    id: 'read-psalm-23', stat: 'FTH', kind: 'quiz', title: 'Reading: Psalm 23',
+    how: 'Read the psalm slowly, all the way through. Then answer without looking back.',
+    passage:
+      '1 The LORD is my shepherd; I shall not want.\n' +
+      '2 He maketh me to lie down in green pastures: he leadeth me beside the still waters.\n' +
+      '3 He restoreth my soul: he leadeth me in the paths of righteousness for his name\'s sake.\n' +
+      '4 Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.\n' +
+      '5 Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over.\n' +
+      '6 Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever.',
+    source: 'Psalm 23 (KJV)',
+    questions: [
+      { q: 'What picture of God opens the psalm?', options: ['A king', 'A shepherd', 'A warrior', 'A builder'], answer: 1, tier: 1 },
+      { q: 'Why does the writer fear no evil in the dark valley?', options: ['The valley is short', 'His enemies are gone', '"Thou art with me"', 'He carries a rod'], answer: 2, tier: 1 },
+      { q: 'Where is the table prepared?', options: ['Beside still waters', 'In the house of the LORD', 'In the presence of his enemies', 'In green pastures'], answer: 2, tier: 2 },
+      { q: 'In verse 4 the writer stops talking about God ("he") and talks to God ("thou"). Where does that happen?', options: ['In the green pastures', 'In the valley of the shadow of death', 'At the table', 'In the house of the LORD'], answer: 1, why: 'The shift happens in the darkest moment of the psalm.', tier: 3 },
+    ],
+  },
+  {
+    id: 'read-wise-builder', stat: 'FTH', kind: 'quiz', title: 'Reading: the two builders',
+    how: 'Read the passage slowly, all the way through. Then answer without looking back.',
+    passage:
+      '24 Therefore whosoever heareth these sayings of mine, and doeth them, I will liken him unto a wise man, which built his house upon a rock:\n' +
+      '25 And the rain descended, and the floods came, and the winds blew, and beat upon that house; and it fell not: for it was founded upon a rock.\n' +
+      '26 And every one that heareth these sayings of mine, and doeth them not, shall be likened unto a foolish man, which built his house upon the sand:\n' +
+      '27 And the rain descended, and the floods came, and the winds blew, and beat upon that house; and it fell: and great was the fall of it.',
+    source: 'Matthew 7:24-27 (KJV)',
+    questions: [
+      { q: 'What makes the first builder wise?', options: ['He builds quickly', 'He hears these sayings and does them', 'He builds a bigger house', 'He avoids the storm'], answer: 1, tier: 1 },
+      { q: 'Which house faced the storm?', options: ['Only the house on sand', 'Only the house on rock', 'Both houses', 'Neither house'], answer: 2, why: 'Both faced the same rain, floods and wind. Only the foundation differed.', tier: 2 },
+      { q: 'The foolish builder also heard the sayings. What was missing?', options: ['Understanding them', 'Doing them', 'Remembering them', 'Teaching them'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'read-lost-sheep', stat: 'FTH', kind: 'quiz', title: 'Reading: the lost sheep',
+    how: 'Read the parable slowly, all the way through. Then answer without looking back.',
+    passage:
+      '4 What man of you, having an hundred sheep, if he lose one of them, doth not leave the ninety and nine in the wilderness, and go after that which is lost, until he find it?\n' +
+      '5 And when he hath found it, he layeth it on his shoulders, rejoicing.\n' +
+      '6 And when he cometh home, he calleth together his friends and neighbours, saying unto them, Rejoice with me; for I have found my sheep which was lost.\n' +
+      '7 I say unto you, that likewise joy shall be in heaven over one sinner that repenteth, more than over ninety and nine just persons, which need no repentance.',
+    source: 'Luke 15:4-7 (KJV)',
+    questions: [
+      { q: 'How long does the shepherd search?', options: ['Until nightfall', 'Until he finds it', 'Three days', 'Until the others wander'], answer: 1, tier: 1 },
+      { q: 'How does he carry the sheep home?', options: ['On his shoulders, rejoicing', 'By a rope', 'With his staff', 'His neighbours carry it'], answer: 0, tier: 1 },
+      { q: 'What does the lost sheep stand for in verse 7?', options: ['A lost possession', 'One sinner who repents', 'The ninety and nine', 'The shepherd\'s friends'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'read-james-1', stat: 'FTH', kind: 'quiz', title: 'Reading: James 1:2-5',
+    how: 'Read the passage slowly, all the way through. Then answer without looking back.',
+    passage:
+      '2 My brethren, count it all joy when ye fall into divers temptations;\n' +
+      '3 Knowing this, that the trying of your faith worketh patience.\n' +
+      '4 But let patience have her perfect work, that ye may be perfect and entire, wanting nothing.\n' +
+      '5 If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.',
+    source: 'James 1:2-5 (KJV)',
+    questions: [
+      { q: 'According to verse 3, what does the trying of faith produce?', options: ['Fear', 'Patience', 'Riches', 'Doubt'], answer: 1, tier: 1 },
+      { q: 'What should someone who lacks wisdom do?', options: ['Study harder alone', 'Ask of God', 'Wait for trials to end', 'Ask the elders'], answer: 1, tier: 1 },
+      { q: '"Upbraideth not" means God gives...', options: ['Only to the wise', 'Without scolding the one who asks', 'Slowly', 'Only after testing'], answer: 1, tier: 3 },
+    ],
+  },
+  {
+    id: 'study-philippians-4', stat: 'FTH', kind: 'reflection', title: 'Study: Philippians 4:6-7',
+    how: 'Read the passage twice, then study it with the questions. Take two or three minutes.',
+    passage:
+      '6 Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.\n' +
+      '7 And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.',
+    source: 'Philippians 4:6-7 (KJV). "Be careful for nothing" means "do not be anxious about anything."',
+    prompt: 'Observe: what is the instruction in verse 6, and what is the promise in verse 7? Notice the word "keep": it is a guard\'s word.\n\nApply: name one worry you are carrying right now. What would it look like to hand it over, with thanks?',
+  },
+  {
+    id: 'study-1-cor-13', stat: 'FTH', kind: 'reflection', title: 'Study: 1 Corinthians 13:4-7',
+    how: 'Read the passage twice, then study it with the questions. Take two or three minutes.',
+    passage:
+      '4 Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up,\n' +
+      '5 Doth not behave itself unseemly, seeketh not her own, is not easily provoked, thinketh no evil;\n' +
+      '6 Rejoiceth not in iniquity, but rejoiceth in the truth;\n' +
+      '7 Beareth all things, believeth all things, hopeth all things, endureth all things.',
+    source: '1 Corinthians 13:4-7 (KJV). "Charity" here is love; "vaunteth" means boasts.',
+    prompt: 'Observe: count what love does and what love does not do. Which list is longer?\n\nApply: pick the one line that is hardest for you this week. Who is one person you could show it to today?',
   },
 ];
 

@@ -9,9 +9,10 @@ npm run dev      # then open the Network URL it prints on your iPhone (same Wi-F
 npm run build    # static files in dist/, deployable to any HTTPS host
 ```
 
-Screens: onboarding (choose stats, quick placement), camp (stats, class, boss, satchel),
-quests (reps, timer, box breathing, reading/verse quizzes, generated number patterns,
-reflections), automated boss fights with live gear/item buttons, daily check-in,
+Screens: camp (stats, class, boss, satchel; no onboarding, the first measured quest per stat
+calibrates), a page per stat (tap its bar), the Guide (`#/help`, built from game data),
+equipment, quests (reps, timer, box breathing, reading and Bible study quizzes, generated
+number patterns, reflections), automated boss fights with live gear/item buttons, daily check-in,
 Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug panel
 (time travel, XP, items, reset).
 
