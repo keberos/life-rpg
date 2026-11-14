@@ -146,3 +146,12 @@ hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.12); margin: 4px 
 .rarity-rare { border-color: #5aa9ff; box-shadow: 0 0 12px rgba(90, 169, 255, 0.35); }
 .rarity-epic { border-color: #b98cff; box-shadow: 0 0 14px rgba(185, 140, 255, 0.45); }
 .rarity-legendary { border-color: #f2c14e; box-shadow: 0 0 18px rgba(242, 193, 78, 0.55); }
+
+/* Equipment */
+.option-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; font-family: inherit; font-weight: 500; }
+.option-row:disabled { opacity: 0.5; }
+.small-text { font-size: 13px; color: var(--ink-2); }
+.r-common { color: #e8e4f4; }
+.r-rare { color: #7ab8ff; }
+.r-epic { color: #c9a2ff; }
+.r-legendary { color: #f2c14e; }

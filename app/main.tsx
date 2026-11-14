@@ -8,6 +8,7 @@ import '@fontsource/pixelify-sans/latin-500.css';
 import '@fontsource/pixelify-sans/latin-700.css';
 import './styles.css';
 import { BossScreen } from './ui/BossScreen.tsx';
+import { Equipment } from './ui/Equipment.tsx';
 import { Home } from './ui/Home.tsx';
 import { CheckIn, Debug, Intercept, Menu, SaveScreen, ShortcutGuide, Skipped } from './ui/Menu.tsx';
 import { QuestScreen } from './ui/QuestScreen.tsx';
@@ -39,6 +40,7 @@ function App() {
       return <QuestScreen key={hash} stat={stat} />;
     }
     case 'boss': return <BossScreen />;
+    case 'gear': return <Equipment />;
     case 'menu': return <Menu />;
     case 'checkin': return <CheckIn />;
     case 'shortcut': return <ShortcutGuide />;

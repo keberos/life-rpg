@@ -12,13 +12,6 @@ export function Home() {
   const items = corePack.battleItems.filter((i) => (g.items[i.id] ?? 0) > 0);
   const { boss } = g;
 
-  const cycleClass = () => {
-    if (g.unlocked.length < 2) return;
-    const i = g.unlocked.findIndex((c) => c.id === g.activeClass.id);
-    const next = g.unlocked[(i + 1) % g.unlocked.length];
-    store.log({ type: 'chooseClass', classId: next.id });
-  };
-
   return (
     <div class="stack">
       <div class="topbar">
@@ -31,7 +24,7 @@ export function Home() {
 
       <Win>
         <div class="row" style={{ alignItems: 'flex-start', gap: '14px' }}>
-          <button class="iconbtn" style={{ padding: 0 }} onClick={cycleClass} aria-label="Change class">
+          <button class="iconbtn" style={{ padding: 0 }} onClick={() => go('#/gear')} aria-label="Open equipment">
             <Hero classId={g.activeClass.id} scale={6} gear={g.equipped.map((x) => x.id)} />
           </button>
           <div class="grow stack" style={{ gap: '6px' }}>
@@ -39,7 +32,7 @@ export function Home() {
               <h2>{g.activeClass.name}</h2>
               <span class="pixel">Lv {g.totalLevel}</span>
             </div>
-            {g.unlocked.length > 1 && <span class="faint">Tap the hero to switch class ({g.unlocked.length} unlocked)</span>}
+            <span class="faint">Tap your hero for gear and class{g.unlocked.length > 1 ? ` (${g.unlocked.length} classes unlocked)` : ''}</span>
             {enabled.map((s) => <StatBar key={s} stat={s} level={g.levels[s]} progress={g.levelProgress[s]} />)}
           </div>
         </div>
@@ -88,10 +81,9 @@ export function Home() {
             <span class="muted">Satchel</span>
             <span>{items.length ? items.map((i) => `${i.name} ×${g.items[i.id]}`).join(', ') : <span class="faint">empty (quests drop items)</span>}</span>
           </div>
-          <div class="row between">
-            <span class="muted">Gear</span>
-            <span>{g.equipped.length ? g.equipped.map((x) => x.name).join(', ') : <span class="faint">none yet (quests and bosses drop gear)</span>}</span>
-          </div>
+          <button class="btn ghost small" onClick={() => go('#/gear')}>
+            Equipment: {g.equipped.length ? g.equipped.map((x) => x.name).join(', ') : 'none yet'} ›
+          </button>
           {g.questsToday > 0 && !g.checkedInToday && (
             <button class="btn ghost small" onClick={() => go('#/checkin')}>Done for today? 10-second check-in</button>
           )}

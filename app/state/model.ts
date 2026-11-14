@@ -5,9 +5,12 @@ import { corePack } from '../../src/content/core-pack.ts';
 import { unlockedClasses } from '../../src/engine/classes.ts';
 import { levelFromXp, xpForLevel, type QuestOutcome, type RelativeDifficulty } from '../../src/engine/progression.ts';
 import { emptyStats } from '../../src/engine/stats.ts';
-import { STAT_IDS, type BossDef, type ClassDef, type GearDef, type StatBlock, type StatId } from '../../src/engine/types.ts';
+import { STAT_IDS, type BossDef, type ClassDef, type GearDef, type GearSlot, type StatBlock, type StatId } from '../../src/engine/types.ts';
+
 import type { Feedback } from '../../src/engine/calibration.ts';
 import type { Omen } from '../../src/engine/combat.ts';
+
+export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
 
 export const DAY = 86_400_000;
 export const SEASON_WEEKS = 8;
@@ -29,6 +32,8 @@ export type LogEvent = Base & (
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
+  /** Player's pick for a slot; null = wear nothing there. Overrides auto-equip. */
+  | { type: 'equip'; slot: GearSlot; gearId: string | null }
   | { type: 'checkin'; fun: number; worthIt: boolean; note?: string }
   | { type: 'intercept'; accepted: boolean }
   | { type: 'debugTime'; days: number }
@@ -103,6 +108,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const owned = new Set<string>();
   const items: Record<string, number> = {};
   let classChoice: string | null = null;
+  const slotChoice = new Map<GearSlot, string | null>();
   let questsToday = 0;
   let questsTotal = 0;
   let checkedInToday = false;
@@ -135,6 +141,9 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
       case 'chooseClass':
         classChoice = e.classId;
         break;
+      case 'equip':
+        slotChoice.set(e.slot, e.gearId);
+        break;
       case 'checkin':
         if (dayKeyOf(e.at) === dayKey) checkedInToday = true;
         break;
@@ -160,6 +169,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const totalLevel = STAT_IDS.reduce((n, s) => n + levels[s], 0);
 
   const ownedGear = corePack.gear.filter((g) => owned.has(g.id));
+  // Auto-equip the best piece per slot, unless the player picked one (or chose none).
   const bestBySlot = new Map<string, GearDef>();
   for (const g of ownedGear) {
     const cur = bestBySlot.get(g.slot);
@@ -181,7 +191,15 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     now, dayKey, week,
     seasonOver: week > SEASON_WEEKS,
     xp, levels, levelProgress, ratings, calibrated, daysSinceTrained, totalLevel,
-    ownedGear, equipped: [...bestBySlot.values()], items,
+    ownedGear, equipped: GEAR_SLOTS.flatMap((slot) => {
+      if (slotChoice.has(slot)) {
+        const pick = ownedGear.find((g) => g.id === slotChoice.get(slot));
+        if (pick && pick.slot === slot) return [pick];
+        if (slotChoice.get(slot) === null) return [];
+      }
+      const best = bestBySlot.get(slot);
+      return best ? [best] : [];
+    }), items,
     unlocked, activeClass,
     boss: { def, tier, defeated, foughtToday, nextBossWeek },
     questsToday, questsTotal, checkedInToday,
