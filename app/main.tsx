@@ -4,8 +4,6 @@ import { STAT_IDS, type StatId } from '../src/engine/types.ts';
 import { grantStarterKit } from './state/logic.ts';
 import { store, useGame } from './state/store.ts';
 // Fonts are bundled with the app (no third-party requests from the phone).
-import '@fontsource/pixelify-sans/latin-500.css';
-import '@fontsource/pixelify-sans/latin-700.css';
 import './styles.css';
 import { BossScreen } from './ui/BossScreen.tsx';
 import { BottomNav } from './ui/components.tsx';
