@@ -24,7 +24,7 @@ Updated 2026-11-15 (relics done). Order follows "prove the whole loop first": an
 ## Phase 3: Real-life playtest (when you're ready)
 
 8. **Install on the iPhone** and test the Shortcuts interception for real: the "reach for the scroll, get a quest" moment.
-9. **In-app playtest notes** stored on the phone, with an export.
+9. ✅ **In-app playtest notes:** "Jot a playtest note" on camp, quest results and boss results; Menu → Playtest report summarizes play and lists every note, with Copy report.
 10. **Play for 2–3 weeks.**
 
 ## Phase 4: Refine from the playtest
@@ -52,4 +52,4 @@ Updated 2026-11-15 (relics done). Order follows "prove the whole loop first": an
 - Detailed armor and shields.
 - Quiz quality pass, plus a 17-quest variety batch.
 
-**Next up:** step 7 is a maybe (skip unless days feel empty), so the real next step is the iPhone playtest (Phase 3).
+**Next up:** the iPhone playtest (steps 8 and 10). Everything that can be built without the phone is done.

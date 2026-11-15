@@ -9,6 +9,7 @@ import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
 import { HelpTip } from './Help.tsx';
 import { Icon } from './icons.tsx';
+import { JotNote } from './Playtest.tsx';
 import { Boss, Hero } from './sprites.tsx';
 
 const OMEN_TEXT = { favorable: 'The omens are favorable.', uncertain: 'The omens are uncertain.', ominous: 'The omens are ominous...' };
@@ -187,6 +188,7 @@ export function BossScreen() {
               </div>
             )}
             <button class="btn primary" onClick={() => go('#/')}>Back to camp</button>
+            <JotNote where={`boss: ${boss.def.name} (${v.win ? 'won' : 'lost'})`} />
           </div>
         </Win>
       )}

@@ -5,6 +5,7 @@ import { THEME_BONUS } from '../content/seasons.ts';
 import { SEASON_WEEKS } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatBar, StatChip, Win, go } from './components.tsx';
+import { JotNote } from './Playtest.tsx';
 import { goalName, goalProgress } from './GoalScreen.tsx';
 import { HelpTip } from './Help.tsx';
 import { Icon } from './icons.tsx';
@@ -121,6 +122,7 @@ export function Home() {
               <button class="btn ghost small" onClick={() => go('#/checkin')}>Daily check-in</button>
             )}
           </div>
+          <JotNote where="camp" />
         </div>
       </Win>
     </div>

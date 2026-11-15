@@ -52,6 +52,8 @@ export type LogEvent = Base & (
   /** Player's pick for a slot; null = wear nothing there. Overrides auto-equip. */
   | { type: 'equip'; slot: GearSlot; gearId: string | null }
   | { type: 'checkin'; fun: number; worthIt: boolean; note?: string }
+  /** A playtest note jotted in the moment; `where` is the screen it came from. Stays on the phone. */
+  | { type: 'note'; text: string; where: string }
   | { type: 'intercept'; accepted: boolean }
   | { type: 'debugTime'; days: number }
   | { type: 'debugXp'; stat: StatId; xp: number }

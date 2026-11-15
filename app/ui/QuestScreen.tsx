@@ -8,6 +8,7 @@ import { STAT_INFO, questById, shuffleOptions, type QuestDef, type QuizQuestion 
 import { amountFor, calibrationHowText, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
+import { JotNote } from './Playtest.tsx';
 import { ExerciseArt, ExerciseGuideView } from './ExerciseGuide.tsx';
 
 type Phase = 'brief' | 'run' | 'rate' | 'done';
@@ -151,6 +152,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             )}
             <button class="btn primary" onClick={() => { setQuest(suggestQuest(store.state(), enabled, undefined, quest.id)); setDifficulty('normal'); setResult(null); setScore(undefined); setPhase('brief'); }}>Another quest</button>
             <button class="btn ghost" onClick={() => go('#/')}>Back to camp</button>
+            <JotNote key={quest.id} where={`quest: ${quest.title}`} />
           </div>
         </Win>
       )}

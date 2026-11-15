@@ -14,6 +14,7 @@ import { CheckIn, Debug, Intercept, Menu, SaveScreen, ShortcutGuide, Skipped } f
 import { QuestScreen } from './ui/QuestScreen.tsx';
 import { GoalScreen } from './ui/GoalScreen.tsx';
 import { Reliquary } from './ui/Reliquary.tsx';
+import { PlaytestReport } from './ui/Playtest.tsx';
 import { SeasonScreen } from './ui/SeasonScreen.tsx';
 
 function useHash() {
@@ -30,7 +31,7 @@ function useHash() {
 }
 
 // Hub screens get the bottom action bar; quests and fights stay full-screen.
-const NAV_ROUTES = new Set(['', 'gear', 'help', 'menu', 'stat', 'goal', 'checkin', 'save', 'shortcut', 'relics']);
+const NAV_ROUTES = new Set(['', 'gear', 'help', 'menu', 'stat', 'goal', 'checkin', 'save', 'shortcut', 'relics', 'report']);
 
 function App() {
   useGame(); // re-render on save changes
@@ -60,6 +61,7 @@ function Screen({ hash }: { hash: string }) {
     case 'gear': return <Equipment />;
     case 'goal': return <GoalScreen />;
     case 'relics': return <Reliquary />;
+    case 'report': return <PlaytestReport />;
     case 'season': return <SeasonScreen />;
     case 'help': return <Guide topic={arg} />;
     case 'stat': return STAT_IDS.includes(arg as StatId) ? <StatScreen stat={arg as StatId} /> : <Home />;
