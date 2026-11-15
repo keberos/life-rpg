@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
+import { fastForward, formatReport, PLAY_STYLES, SEASON_DAYS, type PlayStyleId } from '../state/fastforward.ts';
 import { grantStarterKit } from '../state/logic.ts';
 import { DAY, SEASON_WEEKS } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
@@ -157,6 +158,7 @@ export function Debug() {
         <button class="btn small" onClick={() => store.log(...corePack.battleItems.map((i) => ({ type: 'loot' as const, kind: 'item' as const, id: i.id, source: 'debug' })))}>+1 each item</button>
         <button class="btn small" onClick={() => store.log(...corePack.gear.map((x) => ({ type: 'loot' as const, kind: 'gear' as const, id: x.id, source: 'debug' })))}>All gear</button>
       </div>
+      <FastForward />
       <Win quiet>
         <div class="stack" style={{ gap: '4px' }}>
           {STAT_IDS.map((s) => (
@@ -173,5 +175,39 @@ export function Debug() {
         <button class="btn ghost" onClick={() => setConfirm(true)}>Reset save…</button>
       )}
     </div>
+  );
+}
+
+/** Debug: play simulated days through the real game logic to feel and tune a whole season. */
+function FastForward() {
+  const g = useGame();
+  const [style, setStyle] = useState<PlayStyleId>('daily');
+  const [autoFight, setAutoFight] = useState(true);
+  const [report, setReport] = useState('');
+  const run = (days: number, stopAtBoss = false) => setReport(formatReport(fastForward({ style, days, autoFight, stopAtBoss })));
+  const toSeasonEnd = Math.max(1, Math.ceil((g.season.start + SEASON_DAYS * DAY - g.now) / DAY) + 1);
+  return (
+    <Win quiet title="Fast-forward">
+      <div class="stack">
+        <p class="faint prose">Plays simulated days into this save: quests, drops, class pick{autoFight ? ', boss fights' : ''}. Export a backup first if this save matters.</p>
+        <div class="row wrap">
+          {PLAY_STYLES.map((s) => (
+            <button key={s.id} class={`btn small ${style === s.id ? 'primary' : 'ghost'}`} onClick={() => setStyle(s.id)}>{s.name}</button>
+          ))}
+        </div>
+        <p class="faint prose">{PLAY_STYLES.find((s) => s.id === style)!.desc}</p>
+        <label class="row" style={{ gap: '8px' }}>
+          <input type="checkbox" checked={autoFight} onChange={(e) => setAutoFight((e.target as HTMLInputElement).checked)} />
+          <span>Fight bosses automatically (once odds reach 60%)</span>
+        </label>
+        <div class="row wrap">
+          <button class="btn small" onClick={() => run(1)}>Play 1 day</button>
+          <button class="btn small" onClick={() => run(7)}>Play 1 week</button>
+          {!autoFight && <button class="btn small" onClick={() => run(SEASON_DAYS, true)}>Play until a boss is winnable</button>}
+          <button class="btn small" onClick={() => run(toSeasonEnd)}>Play to season end</button>
+        </div>
+        {report && <pre class="ff-report">{report}</pre>}
+      </div>
+    </Win>
   );
 }

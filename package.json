@@ -11,6 +11,7 @@
     "sprites": "node art-kit/cli/export-app.ts",
     "exercises": "node art-kit/cli/export-exercises.ts",
     "sim": "node sim/simulate.ts",
+    "season": "node --no-warnings sim/season.ts",
     "test": "vitest run",
     "tune": "node sim/tune.ts",
     "explain": "node sim/explain.ts",

@@ -4,7 +4,8 @@ import { corePack } from '../../src/content/core-pack.ts';
 import { paramFor, placementRating, updateRating, type Feedback } from '../../src/engine/calibration.ts';
 import { questXp, levelFromXp, type QuestOutcome, type RelativeDifficulty } from '../../src/engine/progression.ts';
 import { makeRng } from '../../src/engine/rng.ts';
-import type { Rarity, StatId } from '../../src/engine/types.ts';
+import type { FightView } from '../../src/engine/combat.ts';
+import type { BattleItemDef, Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
 import { THEME_BONUS } from '../content/seasons.ts';
 import { rollDrop, type Drop } from './drops.ts';
@@ -163,4 +164,35 @@ export function bossLoot(state: GameState, win: boolean): string[] {
   store.log({ type: 'loot', kind: 'item', id: item.id, source: src });
   names.push(item.name);
   return names;
+}
+
+/** How many battle items you can carry into one fight. */
+export const SATCHEL_SIZE = 3;
+
+/** Pack the satchel: one of each item type first, then repeats. */
+export function packSatchel(items: Record<string, number>): BattleItemDef[] {
+  const out: BattleItemDef[] = [];
+  const left = { ...items };
+  while (out.length < SATCHEL_SIZE) {
+    const before = out.length;
+    for (const it of corePack.battleItems) {
+      if (out.length < SATCHEL_SIZE && (left[it.id] ?? 0) > 0) {
+        out.push(it);
+        left[it.id]--;
+      }
+    }
+    if (out.length === before) break;
+  }
+  return out;
+}
+
+/** Log a finished fight: spent items, the result, and the loot. Returns the loot names. */
+export function recordFight(state: GameState, satchel: BattleItemDef[], v: FightView): string[] {
+  // Buttons are gear actives first, then the satchel in order.
+  const firstItem = v.buttons.length - satchel.length;
+  satchel.forEach((it, k) => {
+    if (v.buttons[firstItem + k].charges === 0) store.log({ type: 'useItem', id: it.id });
+  });
+  store.log({ type: 'boss', bossId: state.boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed, classId: state.activeClass.id });
+  return bossLoot(state, v.win);
 }

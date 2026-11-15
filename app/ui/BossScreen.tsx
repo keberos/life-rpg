@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { corePack } from '../../src/content/core-pack.ts';
 import { createFight, fight as simulate, type Fight, type FightEvent } from '../../src/engine/combat.ts';
 import { makeRng } from '../../src/engine/rng.ts';
 import type { BattleItemDef } from '../../src/engine/types.ts';
-import { bossLoot } from '../state/logic.ts';
+import { packSatchel, recordFight } from '../state/logic.ts';
 import { mastersClass } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
 import { HelpTip } from './Help.tsx';
 import { Icon } from './icons.tsx';
 import { Boss, Hero } from './sprites.tsx';
-
-/** How many battle items you can carry into one fight. */
-export const SATCHEL_SIZE = 3;
 
 const OMEN_TEXT = { favorable: 'The omens are favorable.', uncertain: 'The omens are uncertain.', ominous: 'The omens are ominous...' };
 
@@ -30,21 +26,7 @@ export function BossScreen() {
   const [, force] = useState(0);
 
   // Pack the satchel: one of each item type first, then repeats.
-  const satchel = useMemo<BattleItemDef[]>(() => {
-    const out: BattleItemDef[] = [];
-    const left = { ...g.items };
-    while (out.length < SATCHEL_SIZE) {
-      const before = out.length;
-      for (const it of corePack.battleItems) {
-        if (out.length < SATCHEL_SIZE && (left[it.id] ?? 0) > 0) {
-          out.push(it);
-          left[it.id]--;
-        }
-      }
-      if (out.length === before) break;
-    }
-    return out;
-  }, []);
+  const satchel = useMemo<BattleItemDef[]>(() => packSatchel(g.items), []);
 
   const canFight = !boss.defeated && !boss.foughtToday && !g.seasonOver;
 
@@ -95,14 +77,8 @@ export function BossScreen() {
 
   const onEnd = (f: Fight, _evs: FightEvent[]) => {
     const v = f.view();
-    // Spent items: buttons are gear actives first, then the satchel in order.
-    const firstItem = v.buttons.length - satchel.length;
-    satchel.forEach((it, k) => {
-      if (v.buttons[firstItem + k].charges === 0) store.log({ type: 'useItem', id: it.id });
-    });
     if (v.win && mastersClass(boss.def.id, g.activeClass.id) && !g.lifetime.masteredClasses.includes(g.activeClass.id)) setMastered(g.activeClass.name);
-    store.log({ type: 'boss', bossId: boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed, classId: g.activeClass.id });
-    setLoot(bossLoot(g, v.win));
+    setLoot(recordFight(g, satchel, v));
   };
 
   const v = fight?.view();

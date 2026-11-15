@@ -291,3 +291,6 @@ button.stat.tappable { width: 100%; background: none; border: none; padding: 2px
 .vs { align-self: center; margin: -10px 0; z-index: 1; font-size: 22px; font-weight: 700; color: var(--accent); background: var(--outline); border: 3px solid #ffb3a0; padding: 0 10px; transform: rotate(-4deg); text-shadow: 2px 2px 0 #a83a3a; }
 .odds-pips { display: flex; gap: 4px; }
 .odds-pips i { width: 26px; height: 10px; background: #2a2650; border: 2px solid var(--outline); }
+
+/* Debug fast-forward report */
+.ff-report { font: 11px/1.4 ui-monospace, Consolas, monospace; white-space: pre; overflow-x: auto; margin: 0; padding: 8px; background: rgba(0,0,0,0.35); color: var(--read, #e8e6f0); }

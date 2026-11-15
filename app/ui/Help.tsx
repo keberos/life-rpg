@@ -10,7 +10,7 @@ import { QUESTS, STAT_INFO } from '../content/quests.ts';
 import { DROP_CHANCE, PITY_AFTER } from '../state/drops.ts';
 import { SEASON_WEEKS, bossWeek } from '../state/model.ts';
 import { useGame } from '../state/store.ts';
-import { SATCHEL_SIZE } from './BossScreen.tsx';
+import { SATCHEL_SIZE } from '../state/logic.ts';
 import { StatBar, TopBar, Win, go } from './components.tsx';
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;

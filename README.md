@@ -22,6 +22,7 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/state/model.ts` | Save file = profile + append-only event log; all progress is derived from the log |
 | `app/state/store.ts` | localStorage persistence, export/import |
 | `app/state/logic.ts` | Quest picking, completion (XP + calibration), loot |
+| `app/state/fastforward.ts` | Season fast-forward: plays simulated days through the real game logic (Debug screen, `npm run season`) |
 | `app/content/legacy.ts` | Legacy starting perks; seasons, the lifetime record and mastery are derived in `model.ts` |
 | `app/content/seasons.ts` | Season themes (bonus XP on two stats, from Season 2) and season goals (a class or boss to aim for) |
 | `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
@@ -38,6 +39,7 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `src/sim/scenarios.ts` | Builds, gear loadouts and win-rate helpers shared by the sim and tests |
 | `sim/simulate.ts` | Balance report: thousands of fights per cell |
 | `sim/tune.ts` | Finds boss HP/attack for a target win rate |
+| `sim/season.ts` | Season pacing report: whole simulated seasons per play style (`npm run season`, writes nothing; output kept in `season-report.txt`) |
 | `test/rules.test.ts` | The design rules as tests (no lockouts, every stat helps, honor-system XP, calibration) |
 
 ## Commands
