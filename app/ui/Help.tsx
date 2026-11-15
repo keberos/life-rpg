@@ -104,9 +104,8 @@ const TOPICS = [
 
 function Section({ id, title, children }: { id: string; title: string; children: preact.ComponentChildren }) {
   return (
-    <Win quiet>
-      <div id={`help-${id}`} class="stack help-section" style={{ gap: '8px' }}>
-        <h3>{title}</h3>
+    <Win quiet title={title}>
+      <div id={`help-${id}`} class="stack help-section prose" style={{ gap: '8px', paddingTop: '4px' }}>
         {children}
       </div>
     </Win>
@@ -121,7 +120,7 @@ export function Guide({ topic }: { topic?: string }) {
 
   return (
     <div class="stack">
-      <TopBar onBack={() => history.length > 1 ? history.back() : go('#/menu')} title="Guide" />
+      <TopBar title="Guide" />
 
       <div class="row wrap" style={{ gap: '6px' }}>
         {TOPICS.map(([id, title]) => (

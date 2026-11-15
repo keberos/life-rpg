@@ -64,51 +64,47 @@ export function Equipment() {
 
   return (
     <div class="stack">
-      <TopBar onBack={() => go('#/')} title="Equipment" />
+      <TopBar title="Hero" />
 
-      <Win>
-        <div class="stack center" style={{ alignItems: 'center', gap: '4px' }}>
-          <Hero classId={g.activeClass.id} scale={9} gear={equippedIds} />
-          <h2>{g.activeClass.name}</h2>
+      <Win title={g.activeClass.name}>
+        <div class="stack center" style={{ alignItems: 'center', gap: '6px' }}>
+          <div class="hero-stand"><Hero classId={g.activeClass.id} scale={9} gear={equippedIds} /></div>
+          <span class="lv-badge">LV {g.totalLevel}</span>
         </div>
       </Win>
 
       <h3>Gear</h3>
-      {GEAR_SLOTS.map((slot) => {
+      <div class="gear-grid">
+        {GEAR_SLOTS.map((slot) => {
+          const worn = g.equipped.find((x) => x.slot === slot);
+          const count = g.ownedGear.filter((x) => x.slot === slot).length;
+          return (
+            <button key={slot} class={`gear-slot ${open === slot ? 'on' : ''} ${worn ? `rarity-${worn.rarity}` : ''}`} onClick={() => setOpen(open === slot ? null : slot)}>
+              <span class="faint">{SLOT_LABEL[slot]}{count > 1 ? ` · ${count}` : ''}</span>
+              {worn ? <b class={`r-${worn.rarity}`}>{worn.name}</b> : <span class="empty">Empty</span>}
+            </button>
+          );
+        })}
+      </div>
+      {open && (() => {
+        const slot = open;
         const worn = g.equipped.find((x) => x.slot === slot);
         const owned = g.ownedGear.filter((x) => x.slot === slot);
         return (
-          <Win quiet key={slot}>
-            <div class="stack" style={{ gap: '6px' }}>
-              <div class="row between">
-                <span class="faint">{SLOT_LABEL[slot]}</span>
-                {owned.length > 0 && (
-                  <button class="btn ghost small" onClick={() => setOpen(open === slot ? null : slot)}>{open === slot ? 'Close' : 'Change'}</button>
-                )}
-              </div>
-              {worn ? (
-                <>
-                  <b class={`r-${worn.rarity}`}>{worn.name} <span class="faint">· {worn.rarity}</span></b>
-                  <GearDetails g={worn} />
-                </>
-              ) : (
-                <span class="muted">{owned.length ? 'Nothing worn' : 'Nothing found yet. Quests and bosses drop gear.'}</span>
-              )}
-              {open === slot && (
-                <div class="stack" style={{ gap: '6px' }}>
-                  {owned.map((x) => (
-                    <button key={x.id} class={`btn ghost option-row ${worn?.id === x.id ? 'selected' : ''}`} onClick={() => pick(slot, x.id)}>
-                      <b class={`r-${x.rarity}`}>{x.name}</b> <span class="faint">· {x.rarity}</span>
-                      <GearDetails g={x} />
-                    </button>
-                  ))}
-                  <button class={`btn ghost small ${!worn ? 'selected' : ''}`} onClick={() => pick(slot, null)}>Wear nothing here</button>
-                </div>
-              )}
+          <Win quiet title={SLOT_LABEL[slot]}>
+            <div class="stack" style={{ gap: '6px', paddingTop: '4px' }}>
+              {owned.length === 0 && <span class="muted">Nothing found yet. Quests and bosses drop gear.</span>}
+              {owned.map((x) => (
+                <button key={x.id} class={`btn ghost option-row ${worn?.id === x.id ? 'selected' : ''}`} onClick={() => pick(slot, x.id)}>
+                  <b class={`r-${x.rarity}`}>{x.name}</b> <span class="faint">· {x.rarity}{worn?.id === x.id ? ' · worn' : ''}</span>
+                  <GearDetails g={x} />
+                </button>
+              ))}
+              {owned.length > 0 && <button class={`btn ghost small ${!worn ? 'selected' : ''}`} onClick={() => pick(slot, null)}>Wear nothing here</button>}
             </div>
           </Win>
         );
-      })}
+      })()}
 
       <h3>Class</h3>
       <div class="stack" style={{ gap: '6px' }}>

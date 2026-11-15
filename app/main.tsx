@@ -8,6 +8,7 @@ import '@fontsource/pixelify-sans/latin-500.css';
 import '@fontsource/pixelify-sans/latin-700.css';
 import './styles.css';
 import { BossScreen } from './ui/BossScreen.tsx';
+import { BottomNav } from './ui/components.tsx';
 import { Equipment } from './ui/Equipment.tsx';
 import { Guide, StatScreen } from './ui/Help.tsx';
 import { Home } from './ui/Home.tsx';
@@ -29,9 +30,23 @@ function useHash() {
   return hash;
 }
 
+// Hub screens get the bottom action bar; quests and fights stay full-screen.
+const NAV_ROUTES = new Set(['', 'gear', 'help', 'menu', 'stat', 'goal', 'checkin', 'save', 'shortcut']);
+
 function App() {
   useGame(); // re-render on save changes
   const hash = useHash();
+  const [route] = hash.replace(/^#\/?/, '').split('/');
+  const nav = NAV_ROUTES.has(route);
+  return (
+    <>
+      <div key={hash} class={`screen ${nav ? 'has-nav' : ''}`}><Screen hash={hash} /></div>
+      {nav && <BottomNav route={route === 'stat' ? '' : route} />}
+    </>
+  );
+}
+
+function Screen({ hash }: { hash: string }) {
   const parts = hash.replace(/^#\/?/, '').split('/');
   const [route, arg, arg2] = parts;
 

@@ -5,25 +5,32 @@ import { grantStarterKit } from '../state/logic.ts';
 import { DAY, SEASON_WEEKS } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { TopBar, Win, go } from './components.tsx';
+import { Icon } from './icons.tsx';
 
 export function Menu() {
   const g = useGame();
+  const mastered = g.lifetime.masteredClasses.map((id) => corePack.classes.find((c) => c.id === id)?.name ?? id);
   return (
     <div class="stack">
-      <TopBar onBack={() => go('#/')} title="Menu" />
-      <button class="btn" onClick={() => go('#/help')}>Guide: how it all works</button>
-      <button class="btn" onClick={() => go('#/checkin')}>Daily check-in</button>
-      <button class="btn" onClick={() => go('#/shortcut')}>Set up the scroll catcher</button>
-      <button class="btn" onClick={() => go('#/save')}>Backup and restore</button>
-      <button class="btn ghost" onClick={() => go('#/debug')}>Debug panel</button>
-      <Win quiet>
-        <div class="stack" style={{ gap: '4px' }}>
-          <span class="faint">Season {g.season.number} · quests this season: {g.questsTotal}</span>
-          <span class="faint">Lifetime: {g.lifetime.questsTotal} quests · {g.lifetime.bossesBeaten} bosses beaten · {g.lifetime.seasonsCompleted} seasons finished</span>
-          {g.lifetime.masteredClasses.length > 0 && <span class="faint">Classes mastered: {g.lifetime.masteredClasses.map((id) => corePack.classes.find((c) => c.id === id)?.name ?? id).join(', ')}</span>}
-          <span class="faint">Scroll urges turned into quests: {g.interceptsAccepted} (skipped {g.interceptsSkipped})</span>
+      <TopBar title="Menu" />
+      <div class="tiles">
+        <button class="btn ghost tile" onClick={() => go('#/checkin')}><Icon name="flag" size={28} />Daily check-in</button>
+        <button class="btn ghost tile" onClick={() => go('#/shortcut')}><Icon name="sword" size={28} />Scroll catcher</button>
+        <button class="btn ghost tile" onClick={() => go('#/help')}><Icon name="guide" size={28} />Guide</button>
+        <button class="btn ghost tile" onClick={() => go('#/save')}><Icon name="bag" size={28} />Backup</button>
+      </div>
+      <Win quiet title="Hero record">
+        <div class="record">
+          <span>Season {g.season.number} quests</span><b>{g.questsTotal}</b>
+          <span>Lifetime quests</span><b>{g.lifetime.questsTotal}</b>
+          <span>Bosses beaten</span><b>{g.lifetime.bossesBeaten}</b>
+          <span>Seasons finished</span><b>{g.lifetime.seasonsCompleted}</b>
+          <span>Scroll urges turned into quests</span><b>{g.interceptsAccepted}</b>
+          <span>Urges skipped</span><b>{g.interceptsSkipped}</b>
+          {mastered.length > 0 && <><span>Classes mastered</span><b>{mastered.join(', ')}</b></>}
         </div>
       </Win>
+      <button class="btn ghost small" onClick={() => go('#/debug')}>Debug panel</button>
     </div>
   );
 }

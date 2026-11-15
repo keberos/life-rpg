@@ -8,6 +8,7 @@ import { mastersClass } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
 import { HelpTip } from './Help.tsx';
+import { Icon } from './icons.tsx';
 import { Boss, Hero } from './sprites.tsx';
 
 /** How many battle items you can carry into one fight. */
@@ -110,34 +111,37 @@ export function BossScreen() {
     <div class="stack">
       <TopBar onBack={() => go('#/')} title={`Boss ${boss.tier}/4`} />
 
-      <Win>
-        <div class="stack center" style={{ alignItems: 'center' }}>
-          <h2>{boss.def.name}</h2>
+      <Win tone="danger" title={boss.def.name}>
+        <div class="stack center" style={{ alignItems: 'center', paddingTop: '6px' }}>
           <Boss bossId={boss.def.id} scale={10} className={flash === 'hit' ? 'shake' : ''} />
           {v && <div style={{ width: '100%' }}><HpBar value={v.bossHp} max={v.bossMaxHp} color="var(--boss-hp)" /></div>}
           {!fight && (
             <div class="row wrap" style={{ gap: '4px', justifyContent: 'center' }}>
-              <span class="faint">Weak to</span>
               {boss.def.weakTo.map((s) => <StatChip key={s} stat={s} />)}
-              <span class="faint">· {boss.def.special.name} every {boss.def.special.every} turns</span>
+              <span class="faint">{boss.def.special.name} every {boss.def.special.every} turns</span>
               <HelpTip topic="bosses" label="How bosses work" />
             </div>
           )}
         </div>
       </Win>
 
-      <Win>
+      {!fight && <div class="vs">VS</div>}
+      <Win title={g.activeClass.name}>
         <div class="row" style={{ gap: '12px' }}>
           <Hero classId={g.activeClass.id} scale={4} action={heroAction} gear={g.equipped.map((x) => x.id)} />
           <div class="grow stack" style={{ gap: '6px' }}>
-            <div class="row between"><h3>{g.activeClass.name}</h3><span class="pixel">Lv {g.totalLevel}</span></div>
+            <div class="row between"><span class="lv-badge">LV {g.totalLevel}</span></div>
             {v ? (
               <>
                 <HpBar value={v.hp} max={v.maxHp} color="var(--hp)" shield={v.shield} />
                 <span class="faint">{Math.round(v.hp)} / {v.maxHp} HP{v.shield > 0 ? ` · ${Math.round(v.shield)} shield` : ''}{v.specialNext && !v.over ? ` · ${boss.def.special.name} incoming!` : ''}</span>
               </>
             ) : (
-              <span class="faint">Gear: {g.equipped.map((x) => x.name).join(', ') || 'none'} · Satchel: {satchel.map((x) => x.name).join(', ') || 'empty'}</span>
+              <div class="slots">
+                {g.equipped.map((x) => <span key={x.id} class={`slot r-${x.rarity}`}>{x.name}</span>)}
+                {satchel.map((x, k) => <span key={k} class="slot">{x.name}</span>)}
+                {!g.equipped.length && !satchel.length && <span class="faint">No gear or items yet</span>}
+              </div>
             )}
           </div>
         </div>
@@ -147,8 +151,8 @@ export function BossScreen() {
         canFight ? (
           <>
             {odds && <OddsLine win={odds.win} />}
-            <p class="muted center">The fight plays out on its own. Tap your gear and items at the right moment to tilt it.</p>
-            <button class="btn primary big" onClick={start}>Fight!</button>
+            <button class="btn fight big glow" onClick={start}><Icon name="sword" size={22} /> Fight!</button>
+            <p class="faint center">Auto-battle. Tap gear and items at the right moment.</p>
           </>
         ) : (
           <p class="muted center">{boss.defeated ? 'Already defeated this season.' : 'You fought today. Train and come back tomorrow.'}</p>
@@ -205,11 +209,16 @@ function OddsLine({ win }: { win: number }) {
     : win >= 0.45 ? ['Even fight', 'var(--accent)', 'Could go either way. Good timing with items helps.']
     : win >= 0.15 ? ['Long shot', 'var(--ink-2)', 'Possible with luck. A few more quests in its weak stats would help.']
     : ['Not ready yet', 'var(--bad)', 'Train its weak stats and gather gear first. Trying still earns a little loot.'];
+  // A five-pip threat meter: more lit pips = better odds.
+  const lit = Math.max(1, Math.min(5, Math.ceil(win * 5)));
   return (
-    <div class="stack center" style={{ gap: '2px' }}>
-      <span class="pixel" style={{ color }}>{label}</span>
-      <span class="faint">{hint}</span>
-    </div>
+    <Win quiet title="Odds">
+      <div class="stack center" style={{ gap: '4px', alignItems: 'center', paddingTop: '4px' }}>
+        <div class="odds-pips" aria-label={label}>{Array.from({ length: 5 }, (_, i) => <i key={i} style={i < lit ? { background: color } : undefined} />)}</div>
+        <span class="pixel" style={{ color }}>{label}</span>
+        <span class="faint">{hint}</span>
+      </div>
+    </Win>
   );
 }
 
