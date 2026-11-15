@@ -284,6 +284,223 @@ export const QUESTS: QuestDef[] = [
     prompt: 'What are you feeling right now? Go past "fine" or "stressed": try restless, lonely, curious, dreading, hopeful, irritated. What might it be telling you?',
   },
 
+  // ---- Playtest batch: STR ----
+  {
+    id: 'reverse-lunges', stat: 'STR', kind: 'reps', title: 'Reverse lunges', unit: 'reps',
+    how: 'Do {n} reverse lunges, alternating legs. Step back, lower slowly, drive up through the front heel.',
+    curve: { base: 8, growth: 1.06, min: 4, max: 60 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'reverse-lunges',
+      steps: [
+        "Stand tall, feet hip-width apart.",
+        "Take a long step back with one foot.",
+        "Lower until both knees are bent and the back knee nearly touches the floor. Front knee stays over the ankle.",
+        "Push through your front heel to stand back up. Switch legs. Each leg counts as one.",
+      ],
+      easier: "Hold a chair or wall, and only go part of the way down.",
+    },
+  },
+  {
+    id: 'calf-raises', stat: 'STR', kind: 'reps', title: 'Slow calf raises', unit: 'reps',
+    how: 'Do {n} calf raises: 2 seconds up onto your toes, a short pause, 2 seconds down.',
+    curve: { base: 12, growth: 1.05, min: 8, max: 80 }, safety: PHYS_SAFETY,
+    guide: {
+      steps: [
+        "Stand tall with a hand on a wall or chair for balance.",
+        "Rise onto the balls of your feet for a slow count of 2.",
+        "Pause at the top and squeeze.",
+        "Lower your heels for a slow count of 2.",
+      ],
+      easier: "Smaller raises, both feet. Harder: one foot at a time.",
+    },
+  },
+  {
+    id: 'shoulder-taps', stat: 'STR', kind: 'reps', title: 'Plank shoulder taps', unit: 'reps',
+    how: 'From the top of a push-up, tap each hand to the opposite shoulder. Do {n} taps total, hips steady.',
+    curve: { base: 10, growth: 1.05, min: 6, max: 60 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'shoulder-taps',
+      steps: [
+        "Start at the top of a push-up, hands under your shoulders.",
+        "Widen your feet a little for balance.",
+        "Lift one hand and tap the opposite shoulder, then put it back down.",
+        "Switch hands. Keep your hips from rocking side to side.",
+      ],
+      easier: "Knees on the floor, or hands on a countertop.",
+    },
+  },
+
+  // ---- Playtest batch: AGI ----
+  {
+    id: 'heel-toe-walk', stat: 'AGI', kind: 'reps', title: 'Heel-to-toe walk', unit: 'reps',
+    how: 'Walk a straight line, heel touching toe with every step. Take {n} steps, then turn and walk back.',
+    curve: { base: 12, growth: 1.05, min: 8, max: 60 },
+    safety: 'Walk beside a wall or counter you can touch.',
+    guide: {
+      art: 'heel-toe-walk',
+      steps: [
+        "Stand next to a wall or counter.",
+        "Put one foot directly in front of the other, heel touching the toes of the back foot.",
+        "Look ahead, not down, and keep your arms loose or out to the sides.",
+        "Step slowly. Each step counts as one.",
+      ],
+      easier: "Leave a small gap between heel and toe.",
+    },
+  },
+  {
+    id: 'clock-reach', stat: 'AGI', kind: 'reps', title: 'Clock reach', unit: 'reps',
+    how: 'Balance on one leg and reach the other foot to 12, 3 and 6 o\'clock on an imaginary clock. Do {n} taps, then switch legs.',
+    curve: { base: 9, growth: 1.05, min: 6, max: 45 },
+    safety: 'Keep a wall or chair within reach.',
+    guide: {
+      art: 'clock-reach',
+      steps: [
+        "Stand on one leg near a wall or chair, standing knee slightly soft.",
+        "Picture a clock on the floor around you.",
+        "Lightly tap the free foot forward (12), out to the side (3), then behind you (6). Each tap counts.",
+        "Return to the middle between taps without putting weight on that foot. Then switch legs.",
+      ],
+      easier: "Shorter reaches, or hold the wall with one finger.",
+    },
+  },
+  {
+    id: 'deep-squat-hold', stat: 'AGI', kind: 'timer', title: 'Deep squat hold', unit: 'seconds',
+    how: 'Sink into a deep, comfortable squat and stay there for {n} seconds. Heels down if you can, chest up.',
+    curve: { base: 20, growth: 1.05, min: 15, max: 180 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'deep-squat-hold',
+      steps: [
+        "Feet a bit wider than your hips, toes turned out.",
+        "Lower your hips as far as is comfortable.",
+        "Press your elbows gently against your inner knees and lift your chest.",
+        "Breathe slowly and let your hips relax a little more each breath.",
+      ],
+      easier: "Hold a door frame or table, or sit your hips on a low step.",
+    },
+  },
+
+  // ---- Playtest batch: STA ----
+  {
+    id: 'step-jacks', stat: 'STA', kind: 'timer', title: 'Step jacks', unit: 'seconds',
+    how: 'Step one foot out while your arms sweep overhead, then back in. Alternate sides, brisk pace, for {n} seconds.',
+    curve: { base: 30, growth: 1.04, min: 20, max: 240 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'step-jacks',
+      steps: [
+        "Stand tall, arms by your sides.",
+        "Step one foot out to the side as both arms sweep up overhead.",
+        "Bring the foot back in as the arms come down.",
+        "Alternate sides at a brisk pace. Harder: jump both feet out (jumping jacks).",
+      ],
+      easier: "Arms only to shoulder height, slower pace.",
+    },
+  },
+  {
+    id: 'shadow-boxing', stat: 'STA', kind: 'timer', title: 'Shadow boxing', unit: 'seconds',
+    how: 'Fists up, light on your feet. Throw steady punches at the air for {n} seconds, never locking your elbows.',
+    curve: { base: 30, growth: 1.04, min: 20, max: 240 }, safety: 'Don\'t snap your elbows straight. Keep punches smooth.',
+    guide: {
+      art: 'shadow-boxing',
+      steps: [
+        "Stand with one foot a half step ahead, knees soft, fists by your cheeks.",
+        "Punch straight out with the front hand, then bring it back to your face.",
+        "Punch with the back hand, turning your hips and back heel with it.",
+        "Keep moving: bounce lightly, mix in fast pairs. Don't fully lock your elbows.",
+      ],
+      easier: "Stay flat-footed and punch at half speed.",
+    },
+  },
+  {
+    id: 'mountain-climbers', stat: 'STA', kind: 'timer', title: 'Mountain climbers', unit: 'seconds',
+    how: 'From the top of a push-up, drive your knees toward your chest one at a time for {n} seconds.',
+    curve: { base: 20, growth: 1.04, min: 15, max: 150 }, safety: PHYS_SAFETY,
+    guide: {
+      art: 'mountain-climbers',
+      steps: [
+        "Start at the top of a push-up, hands under your shoulders.",
+        "Pull one knee toward your chest.",
+        "Switch legs, stepping or running the feet.",
+        "Keep your hips low and your shoulders over your hands.",
+      ],
+      easier: "Hands on a couch or counter, and step instead of run.",
+    },
+  },
+
+  // ---- Playtest batch: INT ----
+  {
+    id: 'reading-blue-sky', stat: 'INT', kind: 'quiz', title: 'Reading: why the sky is blue',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'Sunlight looks white, but it is a mix of every color. As it passes through the air, it bumps into gas molecules far smaller than its wavelength. ' +
+      'These tiny molecules scatter short wavelengths, like blue and violet, much more strongly than long ones, like red. ' +
+      'So blue light gets bounced around the whole sky and reaches your eyes from every direction. There is even more violet scattered, ' +
+      'but sunlight carries less of it and our eyes are less sensitive to it, so the sky looks blue. At sunset, light crosses much more air ' +
+      'before it reaches you. Most of the blue is scattered away along the path, leaving the reds and oranges.',
+    questions: [
+      { q: 'Which light do air molecules scatter most strongly?', options: ['Long wavelengths like red', 'Short wavelengths like blue and violet', 'All colors equally', 'Only white light'], answer: 1, tier: 1 },
+      { q: 'Why does the sky look blue rather than violet?', options: ['Violet is not scattered', 'Clouds absorb violet', 'Sunlight has less violet, and our eyes are less sensitive to it', 'Violet only appears at night'], answer: 2, tier: 2 },
+      { q: 'Why are sunsets red and orange?', options: ['The sun cools down in the evening', 'Light crosses more air, so most of the blue is scattered away', 'Dust turns the light red', 'Air molecules get bigger at night'], answer: 1, tier: 1 },
+    ],
+  },
+  {
+    id: 'reading-octopus', stat: 'INT', kind: 'quiz', title: 'Reading: octopus camouflage',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'An octopus can change color in less than a second. Its skin holds thousands of tiny elastic sacs of pigment called chromatophores. ' +
+      'Each sac is ringed by small muscles wired to the nervous system. When the muscles pull, the sac stretches wide and its color shows; ' +
+      'when they relax, it shrinks to a dot. Beneath these sacs, other cells reflect light to add shimmer and white. ' +
+      'Octopuses can also change texture, raising small bumps in their skin to match rock or seaweed. Color and texture together let them disappear against the seafloor.',
+    questions: [
+      { q: 'What are chromatophores?', options: ['Light-making organs', 'Elastic sacs of pigment in the skin', 'Bumps that change texture', 'Special eyes in the skin'], answer: 1, tier: 1 },
+      { q: 'What makes a chromatophore show its color?', options: ['It fills with ink', 'Muscles stretch it wide', 'It heats up', 'It absorbs seawater'], answer: 1, tier: 2 },
+      { q: 'Besides color, what else can an octopus change to blend in?', options: ['Its size', 'Its skin texture', 'Its number of arms', 'Its temperature'], answer: 1, tier: 1 },
+    ],
+  },
+  {
+    id: 'reading-longitude', stat: 'INT', kind: 'quiz', title: 'Reading: the longitude problem',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'For centuries, sailors could find their latitude, how far north or south they were, from the height of the sun or stars. ' +
+      'Longitude, how far east or west, was much harder. The Earth turns 360 degrees in 24 hours, or 15 degrees every hour. ' +
+      'So if a navigator knew the time back at the home port and compared it with local noon at sea, the difference gave the longitude. ' +
+      'The catch was keeping accurate home time on a rolling, damp ship. Pendulum clocks failed at sea. In the 1700s, a clockmaker named John Harrison ' +
+      'spent decades building sea clocks steady enough to do it, and his work helped make long voyages far safer.',
+    questions: [
+      { q: 'How many degrees does the Earth turn each hour?', options: ['10', '15', '24', '30'], answer: 1, tier: 1 },
+      { q: 'What did a navigator compare to find longitude?', options: ['The height of two stars', 'Home-port time with local noon', 'The ship\'s speed with the wind', 'Two compass readings'], answer: 1, tier: 2 },
+      { q: 'Why did ordinary pendulum clocks fail at sea?', options: ['Salt rusted the numbers', 'The ship\'s rolling and damp threw them off', 'Sailors forgot to wind them', 'They ran too fast in the sun'], answer: 1, tier: 2 },
+    ],
+  },
+
+  // ---- Playtest batch: WIS ----
+  {
+    id: 'thinking-traps', stat: 'WIS', kind: 'quiz', title: 'Spot the thinking trap',
+    how: 'Our minds take shortcuts that make things feel worse than they are. Name the trap in each thought.',
+    passage:
+      'Catastrophizing: jumping to the worst possible outcome.\n' +
+      'Mind reading: assuming you know what others think.\n' +
+      'All-or-nothing: seeing only total success or total failure.\n' +
+      'Should statements: rigid rules about how you or others must be.',
+    questions: [
+      { q: '"My boss said \'let\'s talk tomorrow.\' I\'m definitely getting fired."', options: ['Should statements', 'Catastrophizing', 'All-or-nothing', 'Mind reading'], answer: 1, tier: 1 },
+      { q: '"They didn\'t reply to my text. They must think I\'m annoying."', options: ['Mind reading', 'Should statements', 'Catastrophizing', 'All-or-nothing'], answer: 0, tier: 1 },
+      { q: '"I skipped one workout, so the whole week is ruined."', options: ['Mind reading', 'Catastrophizing', 'All-or-nothing', 'Should statements'], answer: 2, tier: 2 },
+      { q: '"I should never feel nervous. Strong people don\'t."', options: ['All-or-nothing', 'Should statements', 'Mind reading', 'Catastrophizing'], answer: 1, tier: 2, why: 'A rigid rule about how you must be. Everyone feels nervous sometimes.' },
+    ],
+  },
+  {
+    id: 'evening-review', stat: 'WIS', kind: 'reflection', title: 'The evening review',
+    how: 'Seneca ended each day by quietly reviewing it, not to scold himself, but to learn. Take two minutes.',
+    source: 'Idea drawn from Seneca, On Anger 3.36',
+    prompt: 'Look back over today. What did you do well? Where did you fall short of who you want to be? What is one thing you will do differently tomorrow?',
+  },
+  {
+    id: 'rehearse-hard-thing', stat: 'WIS', kind: 'reflection', title: 'Rehearse the hard thing',
+    how: 'The Stoics pictured setbacks in advance so they would meet them calmly instead of being caught off guard. Take two minutes.',
+    source: 'Idea drawn from Seneca\'s letters (premeditatio malorum)',
+    prompt: 'Think of something coming up that could go badly. Picture it going wrong in a realistic way. How do you want to respond if it does? What can you do now to make it less likely?',
+  },
+
   // ---------------- FTH ----------------
   {
     id: 'verse-proverbs-3', stat: 'FTH', kind: 'quiz', title: 'Proverbs 3:5-6',

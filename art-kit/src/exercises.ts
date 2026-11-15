@@ -72,4 +72,61 @@ export const EXERCISE_POSES: Record<string, ExerciseArt> = {
       P({ legR: 90, kneeR: 95, armL: 60, elbowL: 70, armR: -30, elbowR: 40 }),
     ],
   },
+  // ---- Playtest batch ----
+  'reverse-lunges': {
+    dir: 'right',
+    frames: [
+      P({ armL: 10, armR: 10, elbowL: 20, elbowR: 20 }),
+      P({ legL: 60, kneeL: 75, legR: -40, kneeR: 95, armL: 10, armR: 10, elbowL: 30, elbowR: 30, bob: -0.35 }),
+    ],
+  },
+  'shoulder-taps': {
+    dir: 'downRight',
+    frames: [
+      P({ pitch: 72, armL: 72, armR: 72, elbowL: 0, elbowR: 0, armOut: 0.15, legOut: 6 }),
+      P({ pitch: 72, armL: 72, armR: 40, elbowL: 0, elbowR: 140, armOut: 0.15, legOut: 6 }),
+    ],
+  },
+  'heel-toe-walk': {
+    dir: 'right',
+    frames: [
+      P({ legL: 14, legR: -14, armOut: 45, elbowL: 10, elbowR: 10 }),
+      P({ legR: 14, legL: -14, armOut: 45, elbowL: 10, elbowR: 10 }),
+    ],
+  },
+  'clock-reach': {
+    dir: 'right',
+    frames: [
+      P({ legL: 50, kneeL: 0, kneeR: 15, armOut: 45, bend: 10 }),
+      P({ legL: -40, kneeL: 0, kneeR: 20, armOut: 45, bend: 20 }),
+    ],
+  },
+  'deep-squat-hold': {
+    dir: 'right',
+    frames: [
+      P({ legL: 110, legR: 110, kneeL: 150, kneeR: 150, bend: 30, armL: 45, armR: 45, elbowL: 60, elbowR: 60 }),
+      P({ legL: 110, legR: 110, kneeL: 150, kneeR: 150, bend: 26, armL: 45, armR: 45, elbowL: 60, elbowR: 60, bob: 0.03 }),
+    ],
+  },
+  'step-jacks': {
+    dir: 'down',
+    frames: [
+      P({ armOut: 10 }),
+      P({ armL: 175, armR: 175, armOut: 25, elbowL: 0, elbowR: 0, legOut: 14 }),
+    ],
+  },
+  'shadow-boxing': {
+    dir: 'downRight',
+    frames: [
+      P({ armL: 90, elbowL: 5, armR: 50, elbowR: 120, twist: 15, legOut: 6, kneeL: 15, kneeR: 15 }),
+      P({ armR: 90, elbowR: 5, armL: 50, elbowL: 120, twist: -15, legOut: 6, kneeL: 15, kneeR: 15 }),
+    ],
+  },
+  'mountain-climbers': {
+    dir: 'right',
+    frames: [
+      P({ pitch: 70, armL: 70, armR: 70, elbowL: 0, elbowR: 0, armOut: 0.15, legL: 50, kneeL: 70 }),
+      P({ pitch: 70, armL: 70, armR: 70, elbowL: 0, elbowR: 0, armOut: 0.15, legR: 50, kneeR: 70 }),
+    ],
+  },
 };
