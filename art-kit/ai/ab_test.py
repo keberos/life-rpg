@@ -17,12 +17,7 @@ prompt = f'{STYLE}, {LOOK[cls]}'
 
 
 def ref_image():
-    im = Image.open(ref).convert('RGBA')
-    S = im.height
-    fr = im.crop((ref_frame * S, 0, ref_frame * S + S, S)) if im.width > S else im
-    bg = Image.new('RGBA', fr.size, rp.BG + (255,))
-    bg.alpha_composite(fr)
-    return bg.convert('RGB').resize((512, 512), Image.NEAREST)
+    return rp.load_ref(ref, ref_frame)
 
 
 VARIANTS = [

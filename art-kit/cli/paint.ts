@@ -2,8 +2,12 @@
 // local SDXL venv. Needs LIFE_RPG_SD = the folder holding `venv/` and `models/`
 // (set it in .claude/settings.local.json "env", or your shell). Fully offline.
 //
-//   npm run paint -- bodies [classes|all] [two-pass|frame] [seed]
+//   npm run paint -- bodies [classes|all] [two-pass|frame] [seed] [--ref] [--pixeloe]
 //       raw art-kit bodies (npm run sprites) -> public/sprites/body
+//       --ref: IP-Adapter copies each class's approved frame (art-kit/ai/refs.json)
+//       --pixeloe: PixelOE downscale instead of 8x8 block mode
+//   npm run paint -- refs [out.png] [classes|all]
+//       contact sheet of painted idle frames, to pick each class's reference
 //   npm run paint -- compare <out.png> <body>:<weapon> ...
 //       stack body + weapon layers like the app does, scaled up, one row each
 //       e.g. ranger-swing:ranger-dagger-swing monk-punch:
@@ -34,9 +38,10 @@ const script: Record<string, [string, string[]]> = {
   create: ['repaint.py', ['create', ...args]],
   download: ['download.py', args],
   ab: ['ab_test.py', args],
+  refs: ['ref_sheet.py', ['public/sprites/body', args[0] ?? 'design/ref-pick.png', ...args.slice(1)]],
 };
 if (!cmd || !script[cmd]) {
-  console.error('Usage: npm run paint -- bodies|compare|create|ab|download ...  (see art-kit/cli/paint.ts)');
+  console.error('Usage: npm run paint -- bodies|compare|create|ab|refs|download ...  (see art-kit/cli/paint.ts)');
   process.exit(1);
 }
 const [file, argv] = script[cmd];

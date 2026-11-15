@@ -1,0 +1,4 @@
+{
+  "_about": "Approved IP-Adapter reference per class (npm run paint -- bodies ... --ref). path: a painted strip + frame (128 px frame index), or a single image without frame. Pick frames from npm run paint -- refs.",
+  "ranger": { "path": "design/paint-ab-ref.png" }
+}

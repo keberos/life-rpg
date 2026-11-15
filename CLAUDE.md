@@ -13,7 +13,7 @@ hero who fights seasonal bosses. README.md has the file map and commands.
   say so and test it.
 - Prefer existing tools and libraries over building from scratch; check first.
 - Specialist agents live in `.claude/agents/` (art-pipeline, content-writer, balance,
-  ship-check). The lead (main session) plans, integrates, talks to the owner and does
+  playtest, ship-check). The lead (main session) plans, integrates, talks to the owner and does
   every commit and push.
 
 ## Game design rules (tests in test/rules.test.ts enforce most)
@@ -46,6 +46,9 @@ hero who fights seasonal bosses. README.md has the file map and commands.
   throwaway Chrome profile, a season fast-forwarded by the game's simulator) into
   `out/shots/`, and fails on page errors. Use it to see UI changes without the
   browser pane.
+- `npm run loop` plays the loop by tapping the real UI from an empty save (fake
+  clock, own server on :5175) into `out/loop/`. Run it after any change to a
+  screen in the urge → quest → reward → camp → boss flow.
 
 ## Art
 

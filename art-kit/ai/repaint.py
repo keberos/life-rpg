@@ -39,6 +39,19 @@ REF_SCALE = 0.4
 DOWN = 'mode'
 
 
+def load_ref(path, frame=None):
+    """Reference image for the IP-Adapter: a painted strip (one 128 px frame of it,
+    default 1) or a single image, flattened onto the paint background, 512 px."""
+    im = Image.open(path).convert('RGBA')
+    S = im.height
+    if im.width > S:
+        f = 1 if frame is None else frame
+        im = im.crop((f * S, 0, f * S + S, S))
+    bg = Image.new('RGBA', im.size, BG + (255,))
+    bg.alpha_composite(im)
+    return bg.convert('RGB').resize((512, 512), Image.NEAREST)
+
+
 def ipa_kwargs():
     return {'ip_adapter_image': REF} if REF is not None else {}
 

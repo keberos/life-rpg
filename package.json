@@ -19,7 +19,8 @@
     "tune": "node sim/tune.ts",
     "tune:forms": "node --no-warnings sim/tune-forms.ts",
     "explain": "node sim/explain.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "loop": "node scripts/loop.ts"
   },
   "engines": {
     "node": ">=23.6"

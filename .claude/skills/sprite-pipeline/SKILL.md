@@ -52,6 +52,12 @@ outline. The art-kit silhouette mask is kept.
   paints one strip four ways (A two-pass, B + IP-Adapter, C + IP-Adapter + PixelOE,
   D + PixelOE) and writes `<out dir>/compare.png`. Use it before changing defaults.
 
+For a full batch, `npm run paint -- bodies [classes|all] --ref [--pixeloe]` turns these on:
+`--ref` uses each class's approved reference from `art-kit/ai/refs.json`
+(`{"path": strip, "frame": n}` or a single image); classes without one paint as plain
+two-pass. `npm run paint -- refs [out.png]` draws every class's idle frames, labeled
+"swing 2" and so on, so the owner can pick a reference; the current pick is outlined.
+
 Options in `repaint.py`: `REF` (an approved frame the **IP-Adapter** copies the
 outfit/identity from; `REF_SCALE` 0.3–0.5), `DOWN = 'mode' | 'pixeloe'` (PixelOE's
 contrast-aware downscale). With the IP-Adapter on, the pipeline offloads models
