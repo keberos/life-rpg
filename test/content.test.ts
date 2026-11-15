@@ -1,7 +1,7 @@
 // Content pack sanity: catches typos in quest data before they reach the phone.
 import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { QUESTS } from '../app/content/quests.ts';
+import { QUESTS, shuffleOptions } from '../app/content/quests.ts';
 import { STAT_IDS } from '../src/engine/types.ts';
 
 describe('quest content', () => {
@@ -25,6 +25,32 @@ describe('quest content', () => {
         expect(qq.answer, `${q.id}: ${qq.q}`).toBeLessThan(qq.options.length);
       }
     }
+  });
+
+  it('quiz options are distinct and the right one is not a giveaway by length', () => {
+    for (const q of QUESTS) for (const qq of q.questions ?? []) {
+      const tag = `${q.id}: ${qq.q}`;
+      expect(qq.options.length, tag).toBeGreaterThanOrEqual(3);
+      expect(new Set(qq.options).size, tag).toBe(qq.options.length);
+      const right = qq.options[qq.answer].length;
+      const longestWrong = Math.max(...qq.options.filter((_, i) => i !== qq.answer).map((o) => o.length));
+      // Short one-word recall answers are exempt; anything longer must not stand out.
+      if (right > 15) expect(right / longestWrong, tag).toBeLessThanOrEqual(1.6);
+    }
+  });
+
+  it('shuffling options keeps the right answer and moves it around', () => {
+    const q = QUESTS.find((x) => x.questions)!.questions![0];
+    const spots = new Set<number>();
+    let seed = 1;
+    const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 40; i++) {
+      const s = shuffleOptions(q, rng);
+      expect(s.options[s.answer]).toBe(q.options[q.answer]);
+      expect([...s.options].sort()).toEqual([...q.options].sort());
+      spots.add(s.answer);
+    }
+    expect(spots.size).toBeGreaterThan(2);
   });
 
   it('reps and timer quests have a sane curve and use {n}', () => {

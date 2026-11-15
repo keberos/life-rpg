@@ -267,8 +267,8 @@ export const QUESTS: QuestDef[] = [
     passage: 'Epictetus taught that some things are up to us (our judgments, choices and efforts) and some are not (other people\'s opinions, the weather, outcomes). Peace comes from putting full effort into the first and accepting the second.',
     source: 'Paraphrased from Epictetus, Enchiridion 1',
     questions: [
-      { q: 'You prepared well, but the interview went to someone else. What was up to you?', options: ['Who got the job', 'Your preparation and how you respond now', 'The interviewer\'s mood', 'Nothing at all'], answer: 1, tier: 1 },
-      { q: 'A driver cuts you off. The Stoic first move is to...', options: ['Chase them to make a point', 'Notice your judgment ("this is an outrage") and choose your response', 'Pretend you are not annoyed', 'Decide to never drive again'], answer: 1, tier: 2 },
+      { q: 'You prepared well, but the interview went to someone else. What was up to you?', options: ['Who got the job', 'Your preparation and your response now', 'Whether they noticed your strengths', 'How the other candidates did'], answer: 1, tier: 1 },
+      { q: 'A driver cuts you off. The Stoic first move is to...', options: ['Honk so they learn a lesson', 'Notice your judgment and choose a response', 'Push the anger down and act calm', 'Remind yourself most drivers are worse'], answer: 1, why: 'The Stoics did not deny feelings. The first step is catching the judgment ("this is an outrage") before acting on it.', tier: 2 },
       { q: 'Which is fully up to you?', options: ['Whether people like your work', 'Whether it rains on your run', 'Whether you keep a promise you made', 'Whether your plan succeeds'], answer: 2, tier: 1 },
     ],
   },
@@ -438,8 +438,8 @@ export const QUESTS: QuestDef[] = [
       'before it reaches you. Most of the blue is scattered away along the path, leaving the reds and oranges.',
     questions: [
       { q: 'Which light do air molecules scatter most strongly?', options: ['Long wavelengths like red', 'Short wavelengths like blue and violet', 'All colors equally', 'Only white light'], answer: 1, tier: 1 },
-      { q: 'Why does the sky look blue rather than violet?', options: ['Violet is not scattered', 'Clouds absorb violet', 'Sunlight has less violet, and our eyes are less sensitive to it', 'Violet only appears at night'], answer: 2, tier: 2 },
-      { q: 'Why are sunsets red and orange?', options: ['The sun cools down in the evening', 'Light crosses more air, so most of the blue is scattered away', 'Dust turns the light red', 'Air molecules get bigger at night'], answer: 1, tier: 1 },
+      { q: 'Why does the sky look blue rather than violet?', options: ['Violet is scattered less than blue, so less of it reaches us', 'High clouds absorb most of the violet before we see it', 'Sunlight has less violet, and our eyes are less sensitive to it', 'Violet light is too faint for air molecules to scatter'], answer: 2, tier: 2 },
+      { q: 'Why are sunsets red and orange?', options: ['The sun gives off redder light near the horizon', 'Light crosses more air, so most of the blue is scattered away', 'Red light is scattered more at low angles', 'The air cools and changes color in the evening'], answer: 1, tier: 1 },
     ],
   },
   {
@@ -451,9 +451,9 @@ export const QUESTS: QuestDef[] = [
       'when they relax, it shrinks to a dot. Beneath these sacs, other cells reflect light to add shimmer and white. ' +
       'Octopuses can also change texture, raising small bumps in their skin to match rock or seaweed. Color and texture together let them disappear against the seafloor.',
     questions: [
-      { q: 'What are chromatophores?', options: ['Light-making organs', 'Elastic sacs of pigment in the skin', 'Bumps that change texture', 'Special eyes in the skin'], answer: 1, tier: 1 },
+      { q: 'What are chromatophores?', options: ['Light-making organs', 'Elastic sacs of pigment in the skin', 'Bumps that change texture', 'Glands that release ink'], answer: 1, tier: 1 },
       { q: 'What makes a chromatophore show its color?', options: ['It fills with ink', 'Muscles stretch it wide', 'It heats up', 'It absorbs seawater'], answer: 1, tier: 2 },
-      { q: 'Besides color, what else can an octopus change to blend in?', options: ['Its size', 'Its skin texture', 'Its number of arms', 'Its temperature'], answer: 1, tier: 1 },
+      { q: 'Besides color, what else can an octopus change to blend in?', options: ['Its size', 'Its skin texture', 'How much light it gives off', 'Its body temperature'], answer: 1, tier: 1 },
     ],
   },
   {
@@ -468,7 +468,7 @@ export const QUESTS: QuestDef[] = [
     questions: [
       { q: 'How many degrees does the Earth turn each hour?', options: ['10', '15', '24', '30'], answer: 1, tier: 1 },
       { q: 'What did a navigator compare to find longitude?', options: ['The height of two stars', 'Home-port time with local noon', 'The ship\'s speed with the wind', 'Two compass readings'], answer: 1, tier: 2 },
-      { q: 'Why did ordinary pendulum clocks fail at sea?', options: ['Salt rusted the numbers', 'The ship\'s rolling and damp threw them off', 'Sailors forgot to wind them', 'They ran too fast in the sun'], answer: 1, tier: 2 },
+      { q: 'Why did ordinary pendulum clocks fail at sea?', options: ['Salt air jammed the gears', 'The ship\'s rolling and damp threw them off', 'Iron on board pulled the pendulum', 'They were too large to fit below deck'], answer: 1, tier: 2 },
     ],
   },
 
@@ -511,10 +511,10 @@ export const QUESTS: QuestDef[] = [
       'He measured the shadow\'s angle at about one fiftieth of a full circle. If the Earth was round, that angle was the slice of the globe between the two towns. ' +
       'So the Earth\'s full circumference had to be about fifty times the distance from Alexandria to Syene. His answer landed remarkably close to the real size.',
     questions: [
-      { q: 'What did the sun do at noon in Syene that caught his attention?', options: ['It set early', 'It shone straight down a deep well', 'It looked larger', 'It cast a long shadow'], answer: 1, tier: 1 },
-      { q: 'What was different in Alexandria at the same moment?', options: ['It was night', 'A pole cast a short shadow', 'The well was dry', 'The sun was hidden'], answer: 1, tier: 1 },
-      { q: 'Why multiply the distance between the towns by fifty?', options: ['There were fifty towns on the road', 'The shadow angle was one fiftieth of a circle', 'The pole was fifty feet tall', 'He walked it fifty times'], answer: 1, tier: 2 },
-      { q: 'What assumption did the whole method depend on?', options: ['The sun is very close', 'The Earth is round', 'The towns are on the equator', 'Wells point at the sun'], answer: 1, why: 'On a flat Earth both places would see the same shadow.', tier: 3 },
+      { q: 'What did the sun do at noon in Syene that caught his attention?', options: ['It set earlier than in Alexandria', 'It shone straight down a deep well', 'It looked larger than usual', 'Poles cast unusually long shadows'], answer: 1, tier: 1 },
+      { q: 'What was different in Alexandria at the same moment?', options: ['The sun was straight overhead there too', 'A vertical pole cast a short shadow', 'Shadows pointed north instead of south', 'The sun was already setting'], answer: 1, tier: 1 },
+      { q: 'Why multiply the distance between the towns by fifty?', options: ['The shadow was one fiftieth of the pole\'s height', 'The shadow angle was one fiftieth of a circle', 'The well was fifty cubits deep', 'Syene was fifty days\' walk away'], answer: 1, tier: 2 },
+      { q: 'What assumption did the whole method depend on?', options: ['The sun is close enough to measure', 'The Earth is round', 'Both towns are near the equator', 'Shadows are the same length everywhere'], answer: 1, why: 'On a flat Earth both places would see the same shadow.', tier: 3 },
     ],
   },
   {
@@ -527,9 +527,9 @@ export const QUESTS: QuestDef[] = [
       'The struggle to pull an answer out is part of what makes it stick.',
     questions: [
       { q: 'When did most of the forgetting happen?', options: ['After a month', 'Within the first day', 'Only after sleep', 'Evenly over a week'], answer: 1, tier: 1 },
-      { q: 'Which kept a list in memory longest?', options: ['One long cramming session', 'Reviews spread over several days', 'Reading it aloud once', 'Never reviewing it'], answer: 1, tier: 1 },
+      { q: 'Which kept a list in memory longest?', options: ['One long cramming session', 'Reviews spread over several days', 'Rereading it many times in one evening', 'Copying it out by hand once'], answer: 1, tier: 1 },
       { q: 'According to later research, what beats rereading?', options: ['Highlighting', 'Quizzing yourself', 'Reading faster', 'Copying it out'], answer: 1, tier: 2 },
-      { q: 'Why does answering these questions without looking back help?', options: ['It saves time', 'The effort of recalling strengthens memory', 'It is more fun', 'It shows the right answer sooner'], answer: 1, tier: 2 },
+      { q: 'Why does answering these questions without looking back help?', options: ['It checks that you read carefully', 'The effort of recalling strengthens memory', 'Rereading would take longer', 'Short passages are easier to remember'], answer: 1, tier: 2 },
     ],
   },
   {
@@ -541,10 +541,10 @@ export const QUESTS: QuestDef[] = [
       'While it was being built, the arch rested on a temporary wooden frame. The last stone set was the keystone at the very top. ' +
       'Once it was in, the frame could be pulled away and the arch held itself up. The supports at each end had to be heavy, because an arch also pushes outward.',
     questions: [
-      { q: 'What held the stones up while the arch was being built?', options: ['Mortar alone', 'A temporary wooden frame', 'Iron rods', 'The keystone'], answer: 1, tier: 1 },
-      { q: 'Which stone was placed last?', options: ['The base stone', 'The keystone at the top', 'A side stone', 'Any of them'], answer: 1, tier: 1 },
-      { q: 'Why did the end supports need to be heavy?', options: ['To look impressive', 'Because an arch pushes outward', 'To hold the wooden frame', 'Because the keystone is heaviest'], answer: 1, tier: 2 },
-      { q: 'What does the wedge shape do?', options: ['Makes the stones lighter', 'Turns weight into a squeeze around the curve', 'Lets water drain', 'Makes cutting easier'], answer: 1, tier: 3 },
+      { q: 'What held the stones up while the arch was being built?', options: ['Fresh mortar between the stones', 'A temporary wooden frame', 'Iron rods hidden inside', 'Ropes from a crane above'], answer: 1, tier: 1 },
+      { q: 'Which stone was placed last?', options: ['The first stone at the base', 'The keystone at the top', 'The two stones at the sides', 'Whichever stone fit best'], answer: 1, tier: 1 },
+      { q: 'Why did the end supports need to be heavy?', options: ['To carry the wooden frame', 'Because an arch also pushes outward', 'To stop the arch sinking into the ground', 'Because the keystone is the heaviest stone'], answer: 1, tier: 2 },
+      { q: 'What does the wedge shape do?', options: ['Lets each stone carry only its own weight', 'Turns weight into a squeeze around the curve', 'Pushes the weight up into the keystone', 'Makes the arch lighter than a flat beam'], answer: 1, tier: 3 },
     ],
   },
   {
@@ -556,10 +556,10 @@ export const QUESTS: QuestDef[] = [
       'No single butterfly makes the full round trip. In spring the travelers head north and lay eggs, and it takes several generations to reach the northern range again. ' +
       'They steer using the sun, and an internal clock, partly kept in their antennae, corrects for the sun moving across the sky.',
     questions: [
-      { q: 'Where do eastern monarchs spend the winter?', options: ['Florida beaches', 'Mountains of central Mexico', 'Southern Canada', 'The Caribbean'], answer: 1, tier: 1 },
+      { q: 'Where do eastern monarchs spend the winter?', options: ['The coast of southern Florida', 'Mountains of central Mexico', 'Forests along the Gulf Coast', 'Islands in the Caribbean'], answer: 1, tier: 1 },
       { q: 'How long can the migrating generation live?', options: ['A few days', 'A few weeks', 'Around eight months', 'Several years'], answer: 2, tier: 1 },
-      { q: 'How many butterflies make the full round trip?', options: ['Most of them', 'Only the leaders', 'None', 'About half'], answer: 2, why: 'It takes several generations to get back north.', tier: 2 },
-      { q: 'What is the internal clock for?', options: ['Knowing when to sleep', 'Correcting for the sun moving across the sky', 'Timing when to lay eggs', 'Counting the miles'], answer: 1, tier: 3 },
+      { q: 'How many butterflies make the full round trip?', options: ['Most of them', 'Only the strongest', 'None', 'About half'], answer: 2, why: 'It takes several generations to get back north.', tier: 2 },
+      { q: 'What is the internal clock for?', options: ['Telling the butterflies when to rest each night', 'Correcting for the sun moving across the sky', 'Timing when to lay eggs on the way north', 'Knowing when autumn has arrived to leave'], answer: 1, tier: 3 },
     ],
   },
   {
@@ -571,9 +571,9 @@ export const QUESTS: QuestDef[] = [
       'The bacteria give off acids, which add the sour taste and help the bread keep. ' +
       'Bakers "feed" a starter by throwing out some of it and adding fresh flour and water, and some starters have been kept going for decades.',
     questions: [
-      { q: 'What makes the bread rise?', options: ['Acid from bacteria', 'Gas from yeast trapped by gluten', 'Heat from the oven alone', 'Salt'], answer: 1, tier: 1 },
-      { q: 'Where does the sour taste come from?', options: ['Vinegar added by the baker', 'Acids from the bacteria', 'Old flour', 'The yeast\'s gas'], answer: 1, tier: 1 },
-      { q: 'What does "feeding" a starter involve?', options: ['Adding sugar', 'Removing some and adding fresh flour and water', 'Warming it in the oven', 'Adding store-bought yeast'], answer: 1, tier: 2 },
+      { q: 'What makes the bread rise?', options: ['Acid from the bacteria', 'Gas from yeast trapped by gluten', 'Steam from the water as it bakes', 'Air folded in while kneading'], answer: 1, tier: 1 },
+      { q: 'Where does the sour taste come from?', options: ['Vinegar added by the baker', 'Acids from the bacteria', 'Flour that has started to spoil', 'The yeast\'s gas'], answer: 1, tier: 1 },
+      { q: 'What does "feeding" a starter involve?', options: ['Adding a spoonful of sugar', 'Removing some and adding fresh flour and water', 'Stirring in a little of the last loaf', 'Adding fresh store-bought yeast'], answer: 1, tier: 2 },
     ],
   },
   {
@@ -611,9 +611,9 @@ export const QUESTS: QuestDef[] = [
     how: 'Pick the response that helps the other person feel heard.',
     passage: 'When someone shares a problem, we often jump to fixing it, comparing it with our own, or cheering them up. Feeling heard usually has to come first: say back what you heard, then ask what they need.',
     questions: [
-      { q: 'A friend says, "Work has been brutal this week." The best first reply is...', options: ['"You think that\'s bad? My week..."', '"Just quit, honestly."', '"That sounds exhausting. What\'s been the hardest part?"', '"Cheer up, it\'s almost the weekend!"'], answer: 2, tier: 1 },
+      { q: 'A friend says, "Work has been brutal this week." The best first reply is...', options: ['"Oh no, same here. Mine\'s been crazy too."', '"Have you talked to your manager about it?"', '"That sounds exhausting. What\'s been the hardest part?"', '"At least the weekend is almost here."'], answer: 2, tier: 1 },
       { q: 'Someone says, "They planned the trip without even asking me." Which reply reflects what you heard?', options: ['"I\'m sure they didn\'t mean it."', '"So you felt left out?"', '"You should plan your own trip."', '"That happened to me once too."'], answer: 1, tier: 1 },
-      { q: 'When is advice most welcome?', options: ['Right away, to save time', 'When they ask, or once they feel heard', 'Never', 'Only if you\'ve been through the same thing'], answer: 1, tier: 2 },
+      { q: 'When is advice most welcome?', options: ['As soon as you can see the fix', 'When they ask, or once they feel heard', 'When the problem is serious', 'When you have been through the same thing'], answer: 1, why: 'Fixing, comparing and silver linings are all kind instincts, but they skip the part where the person feels understood.', tier: 2 },
     ],
   },
   {
@@ -622,9 +622,9 @@ export const QUESTS: QuestDef[] = [
     passage: 'Seneca argued that life is not short; we make it short by wasting it. People guard their money and property carefully, yet hand out their hours to anyone who asks, as if time cost nothing. Used well, he said, a life is long enough for great things.',
     source: 'Paraphrased from Seneca, On the Shortness of Life',
     questions: [
-      { q: 'What is Seneca\'s main claim?', options: ['Life is too short to do anything', 'Life is long enough if we use it well', 'Time is money', 'Only the old are wise'], answer: 1, tier: 1 },
+      { q: 'What is Seneca\'s main claim?', options: ['Life is too short, so we must hurry', 'Life is long enough if we use it well', 'Time is worth more than money', 'Slowing down makes life feel longer'], answer: 1, tier: 1 },
       { q: 'What did he say people guard carefully while giving away their time?', options: ['Their health', 'Their money and property', 'Their friends', 'Their reputation'], answer: 1, tier: 1 },
-      { q: 'You catch yourself reaching to scroll. A Seneca-style question is...', options: ['"What am I missing online?"', '"Is this how I would choose to spend these minutes?"', '"How long until bed?"', '"Who else is wasting time?"'], answer: 1, tier: 2 },
+      { q: 'Why, in Seneca\'s view, do people waste time so easily?', options: ['Work leaves them too little of it', 'They treat it as if it cost nothing', 'Life is naturally too short', 'They rest more than they should'], answer: 1, tier: 2 },
     ],
   },
   {
@@ -646,9 +646,9 @@ export const QUESTS: QuestDef[] = [
     passage: 'Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.',
     source: 'Proverbs 3:5-6 (KJV)',
     questions: [
-      { q: 'What are we told not to lean on?', options: ['Other people', 'Our own understanding', 'Riches', 'Tradition'], answer: 1, tier: 1 },
+      { q: 'What are we told not to lean on?', options: ['The counsel of others', 'Our own understanding', 'Our own strength', 'The riches of this world'], answer: 1, tier: 1 },
       { q: 'What is promised to those who acknowledge him in all their ways?', options: ['Wealth', 'Long life', 'He shall direct their paths', 'Victory over enemies'], answer: 2, tier: 1 },
-      { q: 'Fill the gap: "Trust in the LORD with ___ thine heart"', options: ['some of', 'all', 'part of', 'the whole of'], answer: 1, tier: 2 },
+      { q: 'What comes right after "Trust in the LORD with all thine heart"?', options: ['"in all thy ways acknowledge him"', '"and lean not unto thine own understanding"', '"and he shall direct thy paths"', '"and fear not"'], answer: 1, tier: 2 },
     ],
   },
   {
@@ -667,7 +667,7 @@ export const QUESTS: QuestDef[] = [
     passage: 'Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.',
     source: 'Joshua 1:9 (KJV)',
     questions: [
-      { q: 'What reason is given for not being afraid?', options: ['Joshua\'s army is large', 'The LORD is with him wherever he goes', 'The land is already won', 'Moses will return'], answer: 1, tier: 1 },
+      { q: 'What reason is given for not being afraid?', options: ['Joshua\'s army is large and ready', 'The LORD is with him wherever he goes', 'The land has already been won', 'Moses has blessed his leadership'], answer: 1, tier: 1 },
       { q: 'Fill the gap: "Be strong and of a good ___"', options: ['heart', 'courage', 'spirit', 'faith'], answer: 1, tier: 1 },
     ],
   },
@@ -714,7 +714,7 @@ export const QUESTS: QuestDef[] = [
       '7 I say unto you, that likewise joy shall be in heaven over one sinner that repenteth, more than over ninety and nine just persons, which need no repentance.',
     source: 'Luke 15:4-7 (KJV)',
     questions: [
-      { q: 'How long does the shepherd search?', options: ['Until nightfall', 'Until he finds it', 'Three days', 'Until the others wander'], answer: 1, tier: 1 },
+      { q: 'How long does the shepherd search?', options: ['Until nightfall', 'Until he finds it', 'Three days', 'Until the ninety and nine are safe'], answer: 1, tier: 1 },
       { q: 'How does he carry the sheep home?', options: ['On his shoulders, rejoicing', 'By a rope', 'With his staff', 'His neighbours carry it'], answer: 0, tier: 1 },
       { q: 'What does the lost sheep stand for in verse 7?', options: ['A lost possession', 'One sinner who repents', 'The ninety and nine', 'The shepherd\'s friends'], answer: 1, tier: 2 },
     ],
@@ -731,7 +731,7 @@ export const QUESTS: QuestDef[] = [
     questions: [
       { q: 'According to verse 3, what does the trying of faith produce?', options: ['Fear', 'Patience', 'Riches', 'Doubt'], answer: 1, tier: 1 },
       { q: 'What should someone who lacks wisdom do?', options: ['Study harder alone', 'Ask of God', 'Wait for trials to end', 'Ask the elders'], answer: 1, tier: 1 },
-      { q: '"Upbraideth not" means God gives...', options: ['Only to the wise', 'Without scolding the one who asks', 'Slowly', 'Only after testing'], answer: 1, tier: 3 },
+      { q: '"Upbraideth not" means God gives...', options: ['Only to those who are already wise', 'Without scolding the one who asks', 'Slowly, a little at a time', 'Only after a time of testing'], answer: 1, tier: 3 },
     ],
   },
   {
@@ -788,8 +788,8 @@ export const QUESTS: QuestDef[] = [
       '6 For the LORD knoweth the way of the righteous: but the way of the ungodly shall perish.',
     source: 'Psalm 1 (KJV)',
     questions: [
-      { q: 'What is the blessed man compared to?', options: ['A rock', 'A tree planted by rivers of water', 'A shepherd', 'A city on a hill'], answer: 1, tier: 1 },
-      { q: 'What are the ungodly compared to?', options: ['Chaff the wind drives away', 'Sand', 'Smoke', 'A withered tree'], answer: 0, tier: 1 },
+      { q: 'What is the blessed man compared to?', options: ['A house built upon a rock', 'A tree planted by rivers of water', 'A shepherd watching his flock', 'A city set on a hill'], answer: 1, tier: 1 },
+      { q: 'What are the ungodly compared to?', options: ['Chaff the wind drives away', 'A house built on sand', 'Smoke that vanishes', 'Grass that withers'], answer: 0, tier: 1 },
       { q: 'Verse 1 moves from walking, to standing, to...', options: ['running', 'sitting', 'falling', 'kneeling'], answer: 1, why: 'Walk, stand, sit: each step settles in deeper.', tier: 2 },
       { q: 'When does the tree bring forth its fruit?', options: ['Every day', 'In his season', 'After the storm', 'In the morning'], answer: 1, tier: 3 },
     ],
@@ -804,10 +804,10 @@ export const QUESTS: QuestDef[] = [
       '31 But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.',
     source: 'Isaiah 40:28-31 (KJV)',
     questions: [
-      { q: 'Who shall renew their strength?', options: ['The young men', 'They that wait upon the LORD', 'The strong', 'Those who rest'], answer: 1, tier: 1 },
+      { q: 'Who shall renew their strength?', options: ['The young men of Israel', 'They that wait upon the LORD', 'Those who are already strong', 'Those who rest from their work'], answer: 1, tier: 1 },
       { q: 'What bird appears in verse 31?', options: ['A dove', 'An eagle', 'A sparrow', 'A raven'], answer: 1, tier: 1 },
       { q: 'Who does verse 30 say will faint and fall?', options: ['The ungodly', 'Even the youths and young men', 'The old', 'The enemies of Israel'], answer: 1, tier: 2 },
-      { q: 'Verse 31 ends with flying, then running, then walking. What does that order suggest?', options: ['Strength is running out', 'Strength for the ordinary, daily pace too', 'Walking is best', 'Eagles cannot walk'], answer: 1, tier: 3 },
+      { q: 'Verse 31 ends with flying, then running, then walking. What does that order suggest?', options: ['Strength is running out by the end', 'Strength for the ordinary, daily pace too', 'Flying is only for the young', 'It follows a bird from flight to landing'], answer: 1, tier: 3 },
     ],
   },
   {
@@ -822,10 +822,10 @@ export const QUESTS: QuestDef[] = [
       '35 And on the morrow when he departed, he took out two pence, and gave them to the host, and said unto him, Take care of him: and whatsoever thou spendest more, when I come again, I will repay thee.',
     source: 'Luke 10:30-35 (KJV)',
     questions: [
-      { q: 'Who passed by on the other side?', options: ['A priest and a Levite', 'Two Samaritans', 'The thieves', 'The innkeeper'], answer: 0, tier: 1 },
+      { q: 'Who passed by on the other side?', options: ['A priest and a Levite', 'A priest and a Samaritan', 'A Levite and a lawyer', 'Two Pharisees'], answer: 0, tier: 1 },
       { q: 'What did the Samaritan pour on the wounds?', options: ['Water', 'Oil and wine', 'Honey', 'Salt'], answer: 1, tier: 1 },
-      { q: 'How much did he give the host?', options: ['Two pence', 'Ten pieces of silver', 'A talent', 'Nothing'], answer: 0, tier: 2 },
-      { q: 'What did he promise on top of the payment?', options: ['To return the man home', 'To repay whatever more the host spent', 'To find the thieves', 'To stay the night'], answer: 1, tier: 2 },
+      { q: 'How much did he give the host?', options: ['Two pence', 'Ten pieces of silver', 'A talent', 'Thirty pieces of silver'], answer: 0, tier: 2 },
+      { q: 'What did he promise on top of the payment?', options: ['To take the man home when he returned', 'To repay whatever more the host spent', 'To bring the thieves to justice', 'To pay for a doctor to visit him'], answer: 1, tier: 2 },
     ],
   },
   {
@@ -838,3 +838,13 @@ export const QUESTS: QuestDef[] = [
 ];
 
 export const questById = (id: string) => QUESTS.find((q) => q.id === id);
+
+/** Shuffle a question's options so the right answer isn't always in the same spot. */
+export function shuffleOptions(q: QuizQuestion, rng: () => number): QuizQuestion {
+  const order = q.options.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return { ...q, options: order.map((i) => q.options[i]), answer: order.indexOf(q.answer) };
+}

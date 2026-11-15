@@ -4,7 +4,7 @@ import type { QuestOutcome, RelativeDifficulty } from '../../src/engine/progress
 import { makeRng } from '../../src/engine/rng.ts';
 import type { StatId } from '../../src/engine/types.ts';
 import { patternQuestions } from '../content/patterns.ts';
-import { STAT_INFO, questById, type QuestDef, type QuizQuestion } from '../content/quests.ts';
+import { STAT_INFO, questById, shuffleOptions, type QuestDef, type QuizQuestion } from '../content/quests.ts';
 import { amountFor, calibrationHowText, canCalibrate, completeQuest, howText, recordPlacement, suggestQuest, type QuestResult } from '../state/logic.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
@@ -374,10 +374,10 @@ function BreathRunner({ cycles, onDone }: { cycles: number; onDone: (o: QuestOut
 function QuizRunner({ quest, rating, onDone, onScore }: { quest: QuestDef; rating: number; onDone: (o: QuestOutcome) => void; onScore: (s: string) => void }) {
   const questions = useMemo<QuizQuestion[]>(() => {
     const rng = makeRng(Date.now() >>> 0);
-    if (quest.kind === 'pattern') return patternQuestions(rating, rng);
+    if (quest.kind === 'pattern') return patternQuestions(rating, rng).map((q) => shuffleOptions(q, rng));
     const tier = rating < 8 ? 1 : rating < 16 ? 2 : 3;
     const pool = (quest.questions ?? []).filter((q) => q.tier <= tier);
-    return pool.length ? pool : quest.questions ?? [];
+    return (pool.length ? pool : quest.questions ?? []).map((q) => shuffleOptions(q, rng));
   }, [quest.id]);
   const [reading, setReading] = useState(!!quest.passage);
   const [i, setI] = useState(0);
