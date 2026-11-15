@@ -21,26 +21,27 @@ LOOK = {
     'spellblade': 'young spellblade, swept white hair, long black coat with silver trim, light trousers, boots, purple scarf',
 }
 
-raw, out = sys.argv[1], sys.argv[2]
-only = sys.argv[3].split(',') if len(sys.argv) > 3 and sys.argv[3] != 'all' else None
-mode = sys.argv[4] if len(sys.argv) > 4 else 'two-pass'
-seed = int(sys.argv[5]) if len(sys.argv) > 5 else 23
-os.makedirs(out, exist_ok=True)
-pipe = build_repaint_pipe()
-t0 = time.time()
-for f in sorted(glob.glob(os.path.join(raw, '*.png'))):
-    name = os.path.basename(f)
-    cls = name.split('-')[0]
-    if only and cls not in only:
-        continue
-    prompt = f'{STYLE}, {LOOK[cls]}'
-    dest = os.path.join(out, name)
-    if mode == 'frame':
-        repaint(f, dest, prompt, 0.6, 7, 28, pipe=pipe)
-    else:
-        sheet = dest + '.sheet.png'
-        repaint_sheet(f, sheet, prompt, 0.6, seed, 28, pipe=pipe)
-        refine(f, sheet, dest, prompt, 0.45, 7, 28, pipe=pipe)
-        os.remove(sheet)
-    print(f'{name} ({time.time() - t0:.0f}s)', flush=True)
-print('done')
+if __name__ == '__main__':
+    raw, out = sys.argv[1], sys.argv[2]
+    only = sys.argv[3].split(',') if len(sys.argv) > 3 and sys.argv[3] != 'all' else None
+    mode = sys.argv[4] if len(sys.argv) > 4 else 'two-pass'
+    seed = int(sys.argv[5]) if len(sys.argv) > 5 else 23
+    os.makedirs(out, exist_ok=True)
+    pipe = build_repaint_pipe()
+    t0 = time.time()
+    for f in sorted(glob.glob(os.path.join(raw, '*.png'))):
+        name = os.path.basename(f)
+        cls = name.split('-')[0]
+        if only and cls not in only:
+            continue
+        prompt = f'{STYLE}, {LOOK[cls]}'
+        dest = os.path.join(out, name)
+        if mode == 'frame':
+            repaint(f, dest, prompt, 0.6, 7, 28, pipe=pipe)
+        else:
+            sheet = dest + '.sheet.png'
+            repaint_sheet(f, sheet, prompt, 0.6, seed, 28, pipe=pipe)
+            refine(f, sheet, dest, prompt, 0.45, 7, 28, pipe=pipe)
+            os.remove(sheet)
+        print(f'{name} ({time.time() - t0:.0f}s)', flush=True)
+    print('done')

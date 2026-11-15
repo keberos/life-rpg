@@ -48,11 +48,22 @@ Post-process (in `repaint.py`): 8×8 block mode-downscale to the exact grid, one
 k-means palette shared by all frames (no flicker), lone-pixel cleanup, 1 px
 outline. The art-kit silhouette mask is kept.
 
-## Known issues / ideas
+- `npm run paint -- ab <raw strip> <weapon layer|-> <out dir> <reference|-> [frame]`
+  paints one strip four ways (A two-pass, B + IP-Adapter, C + IP-Adapter + PixelOE,
+  D + PixelOE) and writes `<out dir>/compare.png`. Use it before changing defaults.
+
+Options in `repaint.py`: `REF` (an approved frame the **IP-Adapter** copies the
+outfit/identity from; `REF_SCALE` 0.3–0.5), `DOWN = 'mode' | 'pixeloe'` (PixelOE's
+contrast-aware downscale). With the IP-Adapter on, the pipeline offloads models
+between steps to fit 16 GB, about 30% slower.
+
+## Known issues
 
 - Free back arm looks like a club in the crouching swing frames (motion clip).
-- Candidates to try: IP-Adapter (paint from one approved reference frame, best
-  consistency) and PixelOE contrast-aware downscaling (sharper eyes/outlines).
+
+## Seeing it in the app
+
+`npm run shots` screenshots the real app at phone size into `out/shots/`.
 
 ## Checks
 

@@ -2,6 +2,7 @@ node_modules/
 *.log
 dist/
 art-kit/out/
+out/
 .claude/*
 !.claude/agents/
 !.claude/skills/

@@ -9,6 +9,8 @@
 //       e.g. ranger-swing:ranger-dagger-swing monk-punch:
 //   npm run paint -- create <out.png> "<prompt>" [seed] [size] [colors]
 //       text-to-image on a plain background (bosses, no art-kit model)
+//   npm run paint -- ab <raw strip> <weapon layer|-> <out dir> <reference png|-> [frame]
+//       A/B four paint settings (two-pass, + IP-Adapter, + PixelOE) on one strip
 //   npm run paint -- download
 //       fetch the models (~10 GB, Hugging Face) into LIFE_RPG_SD/models
 import { spawnSync } from 'node:child_process';
@@ -31,9 +33,10 @@ const script: Record<string, [string, string[]]> = {
   compare: ['stack.py', ['public', ...args]],
   create: ['repaint.py', ['create', ...args]],
   download: ['download.py', args],
+  ab: ['ab_test.py', args],
 };
 if (!cmd || !script[cmd]) {
-  console.error('Usage: npm run paint -- bodies|compare|create|download ...  (see art-kit/cli/paint.ts)');
+  console.error('Usage: npm run paint -- bodies|compare|create|ab|download ...  (see art-kit/cli/paint.ts)');
   process.exit(1);
 }
 const [file, argv] = script[cmd];

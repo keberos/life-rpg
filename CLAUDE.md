@@ -42,6 +42,10 @@ hero who fights seasonal bosses. README.md has the file map and commands.
 - Dev server: `npm run dev` (port 5173). Test on **http://127.0.0.1:5173**, never
   `localhost:5173` (that origin holds the owner's real save).
 - Check at phone size (375×812) for layout changes.
+- `npm run shots` screenshots the main screens headless (own server on :5174, a
+  throwaway Chrome profile, a season fast-forwarded by the game's simulator) into
+  `out/shots/`, and fails on page errors. Use it to see UI changes without the
+  browser pane.
 
 ## Art
 

@@ -30,6 +30,19 @@ NEG = 'blurry, 3d render, realistic, photo, smooth gradient, text, watermark, si
 BG = (122, 128, 144)
 
 
+# Options (set by callers before painting):
+#   REF       PIL image the IP-Adapter copies identity/outfit from (None = off)
+#   REF_SCALE IP-Adapter strength (0.3-0.5 keeps our pose and gear in charge)
+#   DOWN      'mode' (8x8 block mode, ours) or 'pixeloe' (contrast-aware, PixelOE)
+REF = None
+REF_SCALE = 0.4
+DOWN = 'mode'
+
+
+def ipa_kwargs():
+    return {'ip_adapter_image': REF} if REF is not None else {}
+
+
 def load_common():
     vae = AutoencoderKL.from_pretrained(os.path.join(ROOT, 'vae-fp16-fix'), torch_dtype=torch.float16)
     return vae
@@ -41,7 +54,10 @@ def lora(pipe, w=1.1):
 
 
 def to_grid(img: np.ndarray, size: int) -> np.ndarray:
-    """1024 -> size: each output pixel is the most common color in its UP x UP block (no blending)."""
+    """Big render -> size x size. 'mode': each pixel is the most common color in its block
+    (no blending). 'pixeloe': PixelOE's contrast-aware downscale (keeps thin dark lines)."""
+    if DOWN == 'pixeloe':
+        return pixeloe_grid(img, size)
     h = img.shape[0] // size
     out = np.zeros((size, size, 3), np.uint8)
     for y in range(size):
@@ -98,11 +114,35 @@ def outline(rgba: np.ndarray) -> np.ndarray:
     return out
 
 
-def build_repaint_pipe():
+def pixeloe_grid(img: np.ndarray, size: int) -> np.ndarray:
+    from pixeloe.torch.pixelize import pixelize
+    t = torch.from_numpy(img).permute(2, 0, 1)[None].float().div(255).cuda()
+    out = pixelize(t, pixel_size=img.shape[0] // size, thickness=1, mode='contrast', do_color_match=True, do_quant=False, no_post_upscale=True)
+    out = (out[0].permute(1, 2, 0).clamp(0, 1) * 255).byte().cpu().numpy()
+    if out.shape[0] != size:
+        out = cv2.resize(out, (size, size), interpolation=cv2.INTER_NEAREST)
+    return out
+
+
+def build_repaint_pipe(ip_adapter=False):
     vae = load_common()
     cn = ControlNetModel.from_pretrained(os.path.join(ROOT, 'controlnet-canny'), variant='fp16', torch_dtype=torch.float16)
-    pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(os.path.join(ROOT, 'sdxl-base'), controlnet=cn, vae=vae, variant='fp16', torch_dtype=torch.float16).to('cuda')
+    extra = {}
+    if ip_adapter:
+        from transformers import CLIPVisionModelWithProjection
+        extra['image_encoder'] = CLIPVisionModelWithProjection.from_pretrained(os.path.join(ROOT, 'ip-adapter', 'models', 'image_encoder'), torch_dtype=torch.float16)
+    pipe = StableDiffusionXLControlNetImg2ImgPipeline.from_pretrained(os.path.join(ROOT, 'sdxl-base'), controlnet=cn, vae=vae, variant='fp16', torch_dtype=torch.float16, **extra)
+    if ip_adapter:
+        # The image encoder adds ~1.3 GB: keep each model on the GPU only while it runs,
+        # and decode in tiles, so wide sheets still fit in 16 GB.
+        pipe.enable_model_cpu_offload()
+        pipe.vae.enable_tiling()
+    else:
+        pipe = pipe.to('cuda')
     lora(pipe)
+    if ip_adapter:
+        pipe.load_ip_adapter(os.path.join(ROOT, 'ip-adapter'), subfolder='sdxl_models', weight_name='ip-adapter-plus_sdxl_vit-h.safetensors')
+        pipe.set_ip_adapter_scale(REF_SCALE)
     pipe.set_progress_bar_config(disable=True)
     return pipe
 
@@ -125,7 +165,7 @@ def repaint(strip_path, out_path, prompt, strength=0.6, seed=7, colors=28, pipe=
         g = torch.Generator('cuda').manual_seed(seed)
         img = pipe(prompt=prompt, negative_prompt=NEG, image=Image.fromarray(big), control_image=ctrl,
                    strength=strength, num_inference_steps=30, guidance_scale=6.5,
-                   controlnet_conditioning_scale=0.55, generator=g).images[0]
+                   controlnet_conditioning_scale=0.55, generator=g, **ipa_kwargs()).images[0]
         frames.append(to_grid(np.array(img), S))
         masks.append(mask)
         print('frame', i, flush=True)
@@ -197,7 +237,7 @@ def repaint_sheet(strip_path, out_path, prompt, strength=0.6, seed=7, colors=28,
     g = torch.Generator('cuda').manual_seed(seed)
     img = np.array(pipe(prompt=prompt + ', character sheet, same character in every pose', negative_prompt=NEG, image=Image.fromarray(big),
                         control_image=Image.fromarray(np.stack([edges] * 3, -1)), strength=strength, num_inference_steps=30,
-                        guidance_scale=6.5, controlnet_conditioning_scale=0.55, width=cols * T, height=rows * T, generator=g).images[0])
+                        guidance_scale=6.5, controlnet_conditioning_scale=0.55, width=cols * T, height=rows * T, generator=g, **ipa_kwargs()).images[0])
     frames = []
     for i in range(n):
         r, c = divmod(i, cols)
@@ -232,7 +272,7 @@ def refine(raw_path, painted_path, out_path, prompt, strength=0.35, seed=7, colo
         start = cv2.resize(pp, (S * UP, S * UP), interpolation=cv2.INTER_NEAREST)
         g = torch.Generator('cuda').manual_seed(seed)
         img = pipe(prompt=prompt, negative_prompt=NEG, image=Image.fromarray(start), control_image=Image.fromarray(np.stack([edges] * 3, -1)),
-                   strength=strength, num_inference_steps=30, guidance_scale=6.5, controlnet_conditioning_scale=0.7, generator=g).images[0]
+                   strength=strength, num_inference_steps=30, guidance_scale=6.5, controlnet_conditioning_scale=0.7, generator=g, **ipa_kwargs()).images[0]
         frames.append(to_grid(np.array(img), S))
         masks.append(mask)
     frames = shared_palette(frames, masks, colors)

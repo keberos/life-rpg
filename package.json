@@ -11,6 +11,7 @@
     "sprites": "node art-kit/cli/export-modular.ts",
     "paint": "node art-kit/cli/paint.ts",
     "ship-check": "node .claude/hooks/ship-check.ts --full",
+    "shots": "node scripts/shots.ts",
     "exercises": "node art-kit/cli/export-exercises.ts",
     "sim": "node sim/simulate.ts",
     "season": "node --no-warnings sim/season.ts",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
     "@types/node": "^26.6.6",
+    "playwright-core": "^1.65.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"
