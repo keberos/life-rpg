@@ -9,6 +9,10 @@ describe('quest content', () => {
     expect(new Set(QUESTS.map((q) => q.id)).size).toBe(QUESTS.length);
   });
 
+  it('mind stats have enough readings to last a 3-week playtest', () => {
+    for (const s of ['INT', 'WIS', 'FTH'] as const) expect(QUESTS.filter((q) => q.stat === s).length, s).toBeGreaterThanOrEqual(10);
+  });
+
   it('every stat has at least 6 quests for the playtest', () => {
     for (const s of STAT_IDS) expect(QUESTS.filter((q) => q.stat === s).length, s).toBeGreaterThanOrEqual(6);
   });

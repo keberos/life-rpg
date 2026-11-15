@@ -60,7 +60,18 @@ export function suggestQuest(state: GameState, enabled: StatId[], stat?: StatId,
   const pool = QUESTS.filter((q) => q.stat === pickStat && q.id !== avoid && q.id !== lastQuestId);
   const fallback = QUESTS.filter((q) => q.stat === pickStat);
   const list = pool.length ? pool : fallback;
-  return list[Math.floor(rng() * list.length)];
+  return freshest(list, rng);
+}
+
+/** Prefer quests not done in a while: pick randomly among the least recently done half (never-done first). */
+function freshest(list: QuestDef[], rng: () => number): QuestDef {
+  const lastDone = new Map<string, number>();
+  for (const e of store.get().events) if (e.type === 'quest') lastDone.set(e.questId, e.at);
+  const sorted = list
+    .map((q) => ({ q, at: lastDone.get(q.id) ?? -Infinity, r: rng() }))
+    .sort((a, b) => a.at - b.at || a.r - b.r);
+  const fresh = sorted.slice(0, Math.max(1, Math.ceil(sorted.length / 2)));
+  return fresh[Math.floor(rng() * fresh.length)].q;
 }
 
 /** How much the season's theme and goal pull the quest picker toward a stat. */

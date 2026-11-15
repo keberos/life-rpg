@@ -501,6 +501,144 @@ export const QUESTS: QuestDef[] = [
     prompt: 'Think of something coming up that could go badly. Picture it going wrong in a realistic way. How do you want to respond if it does? What can you do now to make it less likely?',
   },
 
+  // ---- Variety batch: INT ----
+  {
+    id: 'reading-eratosthenes', stat: 'INT', kind: 'quiz', title: 'Reading: measuring the Earth',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'Around 240 BC, a librarian in Alexandria named Eratosthenes heard that in the southern town of Syene, at noon on the longest day of the year, ' +
+      'the sun shone straight down a deep well and lit the water at the bottom. In Alexandria, at the same moment, a vertical pole still cast a short shadow. ' +
+      'He measured the shadow\'s angle at about one fiftieth of a full circle. If the Earth was round, that angle was the slice of the globe between the two towns. ' +
+      'So the Earth\'s full circumference had to be about fifty times the distance from Alexandria to Syene. His answer landed remarkably close to the real size.',
+    questions: [
+      { q: 'What did the sun do at noon in Syene that caught his attention?', options: ['It set early', 'It shone straight down a deep well', 'It looked larger', 'It cast a long shadow'], answer: 1, tier: 1 },
+      { q: 'What was different in Alexandria at the same moment?', options: ['It was night', 'A pole cast a short shadow', 'The well was dry', 'The sun was hidden'], answer: 1, tier: 1 },
+      { q: 'Why multiply the distance between the towns by fifty?', options: ['There were fifty towns on the road', 'The shadow angle was one fiftieth of a circle', 'The pole was fifty feet tall', 'He walked it fifty times'], answer: 1, tier: 2 },
+      { q: 'What assumption did the whole method depend on?', options: ['The sun is very close', 'The Earth is round', 'The towns are on the equator', 'Wells point at the sun'], answer: 1, why: 'On a flat Earth both places would see the same shadow.', tier: 3 },
+    ],
+  },
+  {
+    id: 'reading-spacing', stat: 'INT', kind: 'quiz', title: 'Reading: how memory sticks',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'In the 1880s, Hermann Ebbinghaus memorized lists of nonsense syllables and tracked how fast he forgot them. Most of the loss came quickly, within the first day, then slowed down. ' +
+      'He also found that reviewing a list spread over several days kept it in memory far longer than the same amount of practice crammed into one sitting. ' +
+      'Later research added a second lesson: trying to recall something, like quizzing yourself, strengthens memory more than simply rereading it. ' +
+      'The struggle to pull an answer out is part of what makes it stick.',
+    questions: [
+      { q: 'When did most of the forgetting happen?', options: ['After a month', 'Within the first day', 'Only after sleep', 'Evenly over a week'], answer: 1, tier: 1 },
+      { q: 'Which kept a list in memory longest?', options: ['One long cramming session', 'Reviews spread over several days', 'Reading it aloud once', 'Never reviewing it'], answer: 1, tier: 1 },
+      { q: 'According to later research, what beats rereading?', options: ['Highlighting', 'Quizzing yourself', 'Reading faster', 'Copying it out'], answer: 1, tier: 2 },
+      { q: 'Why does answering these questions without looking back help?', options: ['It saves time', 'The effort of recalling strengthens memory', 'It is more fun', 'It shows the right answer sooner'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'reading-arch', stat: 'INT', kind: 'quiz', title: 'Reading: the stone arch',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'A flat stone beam over a doorway can snap under its own weight. Roman builders spanned wide gaps with arches instead. ' +
+      'An arch is made of wedge-shaped stones, and each wedge pushes against its neighbors, turning the weight above into a squeeze that travels around the curve and down into the supports. ' +
+      'While it was being built, the arch rested on a temporary wooden frame. The last stone set was the keystone at the very top. ' +
+      'Once it was in, the frame could be pulled away and the arch held itself up. The supports at each end had to be heavy, because an arch also pushes outward.',
+    questions: [
+      { q: 'What held the stones up while the arch was being built?', options: ['Mortar alone', 'A temporary wooden frame', 'Iron rods', 'The keystone'], answer: 1, tier: 1 },
+      { q: 'Which stone was placed last?', options: ['The base stone', 'The keystone at the top', 'A side stone', 'Any of them'], answer: 1, tier: 1 },
+      { q: 'Why did the end supports need to be heavy?', options: ['To look impressive', 'Because an arch pushes outward', 'To hold the wooden frame', 'Because the keystone is heaviest'], answer: 1, tier: 2 },
+      { q: 'What does the wedge shape do?', options: ['Makes the stones lighter', 'Turns weight into a squeeze around the curve', 'Lets water drain', 'Makes cutting easier'], answer: 1, tier: 3 },
+    ],
+  },
+  {
+    id: 'reading-monarchs', stat: 'INT', kind: 'quiz', title: 'Reading: the monarch migration',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'Each autumn, monarch butterflies from eastern North America fly south, some as far as 3,000 miles, to spend winter clustered on fir trees in the mountains of central Mexico. ' +
+      'The butterflies that make this trip are special: summer monarchs live only a few weeks, but the migrating generation can live around eight months. ' +
+      'No single butterfly makes the full round trip. In spring the travelers head north and lay eggs, and it takes several generations to reach the northern range again. ' +
+      'They steer using the sun, and an internal clock, partly kept in their antennae, corrects for the sun moving across the sky.',
+    questions: [
+      { q: 'Where do eastern monarchs spend the winter?', options: ['Florida beaches', 'Mountains of central Mexico', 'Southern Canada', 'The Caribbean'], answer: 1, tier: 1 },
+      { q: 'How long can the migrating generation live?', options: ['A few days', 'A few weeks', 'Around eight months', 'Several years'], answer: 2, tier: 1 },
+      { q: 'How many butterflies make the full round trip?', options: ['Most of them', 'Only the leaders', 'None', 'About half'], answer: 2, why: 'It takes several generations to get back north.', tier: 2 },
+      { q: 'What is the internal clock for?', options: ['Knowing when to sleep', 'Correcting for the sun moving across the sky', 'Timing when to lay eggs', 'Counting the miles'], answer: 1, tier: 3 },
+    ],
+  },
+  {
+    id: 'reading-sourdough', stat: 'INT', kind: 'quiz', title: 'Reading: the living loaf',
+    how: 'Read the passage once, then answer without looking back.',
+    passage:
+      'A sourdough starter is just flour and water, but it is alive. Wild yeast and bacteria settle in and feed on the flour. ' +
+      'The yeast give off carbon dioxide gas, and stretchy gluten in the dough traps the bubbles, which is what makes the bread rise. ' +
+      'The bacteria give off acids, which add the sour taste and help the bread keep. ' +
+      'Bakers "feed" a starter by throwing out some of it and adding fresh flour and water, and some starters have been kept going for decades.',
+    questions: [
+      { q: 'What makes the bread rise?', options: ['Acid from bacteria', 'Gas from yeast trapped by gluten', 'Heat from the oven alone', 'Salt'], answer: 1, tier: 1 },
+      { q: 'Where does the sour taste come from?', options: ['Vinegar added by the baker', 'Acids from the bacteria', 'Old flour', 'The yeast\'s gas'], answer: 1, tier: 1 },
+      { q: 'What does "feeding" a starter involve?', options: ['Adding sugar', 'Removing some and adding fresh flour and water', 'Warming it in the oven', 'Adding store-bought yeast'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'logic-puzzles', stat: 'INT', kind: 'quiz', title: 'Brain teasers',
+    how: 'Each puzzle has a tempting wrong answer. Slow down before you pick.',
+    passage: 'Take your time. The first answer that jumps out is often the trap.',
+    questions: [
+      { q: 'A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much is the ball?', options: ['10 cents', '5 cents', '1 cent', '15 cents'], answer: 1, why: 'Ball 5 cents, bat $1.05: together $1.10.', tier: 1 },
+      { q: 'All bloops are razzies, and all razzies are lazzies. Are all bloops lazzies?', options: ['Yes', 'No', 'Only some', 'You can\'t tell'], answer: 0, tier: 1 },
+      { q: 'In a race, you pass the runner in second place. What place are you in now?', options: ['First', 'Second', 'Third', 'Depends on the race'], answer: 1, why: 'You took their spot. The leader is still ahead.', tier: 1 },
+      { q: 'If 5 machines take 5 minutes to make 5 widgets, how long do 100 machines take to make 100 widgets?', options: ['100 minutes', '20 minutes', '5 minutes', '1 minute'], answer: 2, why: 'Each machine makes one widget in 5 minutes.', tier: 2 },
+      { q: 'A lily patch doubles in size every day. It covers the whole lake on day 48. On what day did it cover half?', options: ['Day 24', 'Day 47', 'Day 36', 'Day 46'], answer: 1, tier: 2 },
+      { q: 'A farmer has 17 sheep. All but 9 run away. How many are left?', options: ['8', '9', '17', '0'], answer: 1, tier: 3 },
+    ],
+  },
+
+  // ---- Variety batch: WIS ----
+  {
+    id: 'spot-the-bias', stat: 'WIS', kind: 'quiz', title: 'Spot the bias',
+    how: 'Everyone\'s judgment has blind spots. Name the one behind each thought.',
+    passage:
+      'Sunk cost: sticking with something because of what you already put in.\n' +
+      'Confirmation bias: noticing only the evidence that agrees with you.\n' +
+      'Spotlight effect: overestimating how much others notice you.\n' +
+      'Anchoring: leaning too hard on the first number you hear.',
+    questions: [
+      { q: '"This movie is awful, but I paid for the ticket, so I\'m staying to the end."', options: ['Anchoring', 'Sunk cost', 'Spotlight effect', 'Confirmation bias'], answer: 1, tier: 1 },
+      { q: '"Everyone saw me trip on the stairs. They\'ll be talking about it all week."', options: ['Spotlight effect', 'Sunk cost', 'Anchoring', 'Confirmation bias'], answer: 0, tier: 1 },
+      { q: '"The first one I saw was $900, so this $600 one is a steal."', options: ['Confirmation bias', 'Spotlight effect', 'Anchoring', 'Sunk cost'], answer: 2, tier: 2 },
+      { q: '"I only read the reviews that say I picked the right phone."', options: ['Sunk cost', 'Anchoring', 'Spotlight effect', 'Confirmation bias'], answer: 3, tier: 2 },
+    ],
+  },
+  {
+    id: 'listen-first', stat: 'WIS', kind: 'quiz', title: 'Listen first',
+    how: 'Pick the response that helps the other person feel heard.',
+    passage: 'When someone shares a problem, we often jump to fixing it, comparing it with our own, or cheering them up. Feeling heard usually has to come first: say back what you heard, then ask what they need.',
+    questions: [
+      { q: 'A friend says, "Work has been brutal this week." The best first reply is...', options: ['"You think that\'s bad? My week..."', '"Just quit, honestly."', '"That sounds exhausting. What\'s been the hardest part?"', '"Cheer up, it\'s almost the weekend!"'], answer: 2, tier: 1 },
+      { q: 'Someone says, "They planned the trip without even asking me." Which reply reflects what you heard?', options: ['"I\'m sure they didn\'t mean it."', '"So you felt left out?"', '"You should plan your own trip."', '"That happened to me once too."'], answer: 1, tier: 1 },
+      { q: 'When is advice most welcome?', options: ['Right away, to save time', 'When they ask, or once they feel heard', 'Never', 'Only if you\'ve been through the same thing'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'seneca-time', stat: 'WIS', kind: 'quiz', title: 'Seneca on time',
+    how: 'Read the idea, then answer.',
+    passage: 'Seneca argued that life is not short; we make it short by wasting it. People guard their money and property carefully, yet hand out their hours to anyone who asks, as if time cost nothing. Used well, he said, a life is long enough for great things.',
+    source: 'Paraphrased from Seneca, On the Shortness of Life',
+    questions: [
+      { q: 'What is Seneca\'s main claim?', options: ['Life is too short to do anything', 'Life is long enough if we use it well', 'Time is money', 'Only the old are wise'], answer: 1, tier: 1 },
+      { q: 'What did he say people guard carefully while giving away their time?', options: ['Their health', 'Their money and property', 'Their friends', 'Their reputation'], answer: 1, tier: 1 },
+      { q: 'You catch yourself reaching to scroll. A Seneca-style question is...', options: ['"What am I missing online?"', '"Is this how I would choose to spend these minutes?"', '"How long until bed?"', '"Who else is wasting time?"'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'obstacle-way', stat: 'WIS', kind: 'reflection', title: 'The obstacle is the way',
+    how: 'Marcus Aurelius wrote that what blocks our path can become the path: an obstacle is a chance to practice patience, courage or creativity. Take two minutes.',
+    source: 'Idea drawn from Marcus Aurelius, Meditations 5.20',
+    prompt: 'What is one thing standing in your way right now? What strength could it train in you if you let it? What is the smallest next step through it, not around it?',
+  },
+  {
+    id: 'three-good-things', stat: 'WIS', kind: 'reflection', title: 'Three good things',
+    how: 'A well-studied habit: noticing specific good things trains your attention to find them. Take two minutes.',
+    prompt: 'Name three good things from the last day, however small: a kind word, a good meal, something that went right. For each one, why did it happen? Did you have a hand in it?',
+  },
+
   // ---------------- FTH ----------------
   {
     id: 'verse-proverbs-3', stat: 'FTH', kind: 'quiz', title: 'Proverbs 3:5-6',
@@ -615,6 +753,87 @@ export const QUESTS: QuestDef[] = [
       '7 Beareth all things, believeth all things, hopeth all things, endureth all things.',
     source: '1 Corinthians 13:4-7 (KJV). "Charity" here is love; "vaunteth" means boasts.',
     prompt: 'Observe: count what love does and what love does not do. Which list is longer?\n\nApply: pick the one line that is hardest for you this week. Who is one person you could show it to today?',
+  },
+  // ---- Variety batch: FTH ----
+  {
+    id: 'verse-psalm-46-10', stat: 'FTH', kind: 'quiz', title: 'Psalm 46:10',
+    how: 'Read the verse slowly, twice. Then answer.',
+    passage: 'Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth.',
+    source: 'Psalm 46:10 (KJV)',
+    questions: [
+      { q: 'What is the first command in the verse?', options: ['Be strong', 'Be still', 'Be glad', 'Be ready'], answer: 1, tier: 1 },
+      { q: 'Fill the gap: "Be still, and ___ that I am God"', options: ['believe', 'know', 'say', 'see'], answer: 1, tier: 1 },
+    ],
+  },
+  {
+    id: 'verse-lamentations-3', stat: 'FTH', kind: 'quiz', title: 'Lamentations 3:22-23',
+    how: 'Read the verses slowly, twice. Then answer.',
+    passage: 'It is of the LORD\'s mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.',
+    source: 'Lamentations 3:22-23 (KJV)',
+    questions: [
+      { q: 'How often are his compassions new?', options: ['Every year', 'Every morning', 'Every sabbath', 'Every season'], answer: 1, tier: 1 },
+      { q: 'Fill the gap: "great is thy ___"', options: ['mercy', 'power', 'faithfulness', 'glory'], answer: 2, tier: 1 },
+      { q: 'Why are "we not consumed"?', options: ['Because we are strong', 'Because of the LORD\'s mercies', 'Because the trouble ended', 'Because of our prayers'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'read-psalm-1', stat: 'FTH', kind: 'quiz', title: 'Reading: Psalm 1',
+    how: 'Read the psalm slowly, all the way through. Then answer without looking back.',
+    passage:
+      '1 Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful.\n' +
+      '2 But his delight is in the law of the LORD; and in his law doth he meditate day and night.\n' +
+      '3 And he shall be like a tree planted by the rivers of water, that bringeth forth his fruit in his season; his leaf also shall not wither; and whatsoever he doeth shall prosper.\n' +
+      '4 The ungodly are not so: but are like the chaff which the wind driveth away.\n' +
+      '5 Therefore the ungodly shall not stand in the judgment, nor sinners in the congregation of the righteous.\n' +
+      '6 For the LORD knoweth the way of the righteous: but the way of the ungodly shall perish.',
+    source: 'Psalm 1 (KJV)',
+    questions: [
+      { q: 'What is the blessed man compared to?', options: ['A rock', 'A tree planted by rivers of water', 'A shepherd', 'A city on a hill'], answer: 1, tier: 1 },
+      { q: 'What are the ungodly compared to?', options: ['Chaff the wind drives away', 'Sand', 'Smoke', 'A withered tree'], answer: 0, tier: 1 },
+      { q: 'Verse 1 moves from walking, to standing, to...', options: ['running', 'sitting', 'falling', 'kneeling'], answer: 1, why: 'Walk, stand, sit: each step settles in deeper.', tier: 2 },
+      { q: 'When does the tree bring forth its fruit?', options: ['Every day', 'In his season', 'After the storm', 'In the morning'], answer: 1, tier: 3 },
+    ],
+  },
+  {
+    id: 'read-isaiah-40', stat: 'FTH', kind: 'quiz', title: 'Reading: Isaiah 40:28-31',
+    how: 'Read the passage slowly, all the way through. Then answer without looking back.',
+    passage:
+      '28 Hast thou not known? hast thou not heard, that the everlasting God, the LORD, the Creator of the ends of the earth, fainteth not, neither is weary? there is no searching of his understanding.\n' +
+      '29 He giveth power to the faint; and to them that have no might he increaseth strength.\n' +
+      '30 Even the youths shall faint and be weary, and the young men shall utterly fall:\n' +
+      '31 But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.',
+    source: 'Isaiah 40:28-31 (KJV)',
+    questions: [
+      { q: 'Who shall renew their strength?', options: ['The young men', 'They that wait upon the LORD', 'The strong', 'Those who rest'], answer: 1, tier: 1 },
+      { q: 'What bird appears in verse 31?', options: ['A dove', 'An eagle', 'A sparrow', 'A raven'], answer: 1, tier: 1 },
+      { q: 'Who does verse 30 say will faint and fall?', options: ['The ungodly', 'Even the youths and young men', 'The old', 'The enemies of Israel'], answer: 1, tier: 2 },
+      { q: 'Verse 31 ends with flying, then running, then walking. What does that order suggest?', options: ['Strength is running out', 'Strength for the ordinary, daily pace too', 'Walking is best', 'Eagles cannot walk'], answer: 1, tier: 3 },
+    ],
+  },
+  {
+    id: 'read-good-samaritan', stat: 'FTH', kind: 'quiz', title: 'Reading: the good Samaritan',
+    how: 'Read the parable slowly, all the way through. Then answer without looking back.',
+    passage:
+      '30 And Jesus answering said, A certain man went down from Jerusalem to Jericho, and fell among thieves, which stripped him of his raiment, and wounded him, and departed, leaving him half dead.\n' +
+      '31 And by chance there came down a certain priest that way: and when he saw him, he passed by on the other side.\n' +
+      '32 And likewise a Levite, when he was at the place, came and looked on him, and passed by on the other side.\n' +
+      '33 But a certain Samaritan, as he journeyed, came where he was: and when he saw him, he had compassion on him,\n' +
+      '34 And went to him, and bound up his wounds, pouring in oil and wine, and set him on his own beast, and brought him to an inn, and took care of him.\n' +
+      '35 And on the morrow when he departed, he took out two pence, and gave them to the host, and said unto him, Take care of him: and whatsoever thou spendest more, when I come again, I will repay thee.',
+    source: 'Luke 10:30-35 (KJV)',
+    questions: [
+      { q: 'Who passed by on the other side?', options: ['A priest and a Levite', 'Two Samaritans', 'The thieves', 'The innkeeper'], answer: 0, tier: 1 },
+      { q: 'What did the Samaritan pour on the wounds?', options: ['Water', 'Oil and wine', 'Honey', 'Salt'], answer: 1, tier: 1 },
+      { q: 'How much did he give the host?', options: ['Two pence', 'Ten pieces of silver', 'A talent', 'Nothing'], answer: 0, tier: 2 },
+      { q: 'What did he promise on top of the payment?', options: ['To return the man home', 'To repay whatever more the host spent', 'To find the thieves', 'To stay the night'], answer: 1, tier: 2 },
+    ],
+  },
+  {
+    id: 'study-micah-6-8', stat: 'FTH', kind: 'reflection', title: 'Study: Micah 6:8',
+    how: 'Read the verse twice, then study it with the questions. Take two or three minutes.',
+    passage: 'He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?',
+    source: 'Micah 6:8 (KJV)',
+    prompt: 'Observe: there are three requirements. Notice the verbs: do, love, walk. One is an action, one a desire, one a daily path.\n\nApply: which of the three is hardest for you right now? What would one small step in it look like today?',
   },
 ];
 
