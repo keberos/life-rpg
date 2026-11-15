@@ -49,6 +49,8 @@ export interface Joints {
   hipL: V3; hipR: V3; kneeL: V3; kneeR: V3; ankleL: V3; ankleR: V3; footL: V3; footR: V3;
   /** Unit direction of each forearm (elbow -> hand), for attaching weapons and shields. */
   forearmL: V3; forearmR: V3;
+  /** Blade direction out of each fist, when known (borrowed motion). */
+  gripL?: V3; gripR?: V3;
   build: number;
   hs: number; // head scale
   shoulderW: number;

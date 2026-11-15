@@ -3,6 +3,7 @@
 // detail, then smoothing, outline, contour, cleanup and aura passes.
 import { MATERIALS, OUTLINE_DARK, mixHex, rgba, vividRamp } from './materials.ts';
 import { ANIM_FRAMES, animPose, solve, type AnimName, type Pose } from './rig.ts';
+import { clipFrame, jointsFromMotion } from './motion.ts';
 import { add, dot, mul, norm, rotY, sub, v, type V3 } from './sdf.ts';
 import { STYLES, type Style } from './styles.ts';
 import { lookParts, type Look, type Part } from './wardrobe.ts';
@@ -32,6 +33,8 @@ export interface RenderOpts {
   frame?: number;
   /** A one-off pose instead of an animation frame (exercise guides). */
   pose?: Pose;
+  /** Borrowed motion: a clip (art-kit/src/motion) at a 0..1 point. Overrides anim/pose. */
+  motion?: { clip: string; t: number; turn?: number };
   quality?: Quality;
   size?: number;
   pixelsPerUnit?: number;
@@ -62,7 +65,10 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const pitch = ((opts.pitchDeg ?? style.pitchDeg) * Math.PI) / 180;
   const crisp = style.render === 'crisp';
 
-  const joints = solve({ build: look.build ?? 1, height: look.height ?? 1, ...style.body }, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
+  const bodyDims = { build: look.build ?? 1, height: look.height ?? 1, ...style.body };
+  const joints = opts.motion
+    ? jointsFromMotion(bodyDims, clipFrame(opts.motion.clip, opts.motion.t), { turn: opts.motion.turn })
+    : solve(bodyDims, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
   const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0 });
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
@@ -70,7 +76,8 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
     const pc = toChar(pw);
     let best = Infinity, idx = -1;
     for (let i = 0; i < parts.length; i++) {
-      const d = parts[i].sdf(pc);
+      // Nothing goes through the floor (long robes pool on the ground in a deep crouch).
+      const d = Math.max(parts[i].sdf(pc), -0.15 - pc[1]);
       if (d < best) [best, idx] = [d, i];
     }
     return [best, idx];

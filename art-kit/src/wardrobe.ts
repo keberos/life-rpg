@@ -455,7 +455,7 @@ export const ITEMS: Record<string, ItemDef> = {
   sword: {
     anchor: 'handR', mat: 'steel', mat2: 'gold',
     fn: (j, m, m2) => {
-      const dir = norm(add(j.forearmR, v(0, 0.55, 1.15)));
+      const dir = j.gripR ?? norm(add(j.forearmR, v(0, 0.55, 1.15)));
       const side = norm([dir[2], 0, -dir[0]] as V3);
       const h = j.handR;
       return [

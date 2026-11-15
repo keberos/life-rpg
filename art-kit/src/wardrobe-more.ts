@@ -4,7 +4,7 @@ import { add, capsule, ellipsoid, inflate, intersect, lerp3, mul, norm, roundBox
 import { ITEMS, above, band, below, folds, legSdf, sleeve, torsoSdf, type ItemDef, type Part } from './wardrobe.ts';
 
 /** Direction a one-handed weapon points from the right hand (same as the sword). */
-const gripDir = (j: Joints) => norm(add(j.forearmR, v(0, 0.55, 1.15)));
+const gripDir = (j: Joints) => j.gripR ?? norm(add(j.forearmR, v(0, 0.55, 1.15)));
 const sideOf = (dir: V3) => norm([dir[2], 0, -dir[0]] as V3);
 /** Studs/rivets in a grid on the front. */
 const rivets = (spacing: number): NonNullable<Part['paint']> => (pc) => {

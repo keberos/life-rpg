@@ -39,6 +39,7 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `src/sim/scenarios.ts` | Builds, gear loadouts and win-rate helpers shared by the sim and tests |
 | `sim/simulate.ts` | Balance report: thousands of fights per cell |
 | `sim/tune.ts` | Finds boss HP/attack for a target win rate |
+| `art-kit/src/motion.ts` | Borrowed motion: CC0 clip joint positions (exported by `art-kit/blender/export_motion.py`) drive our own rig |
 | `sim/season.ts` | Season pacing report: whole simulated seasons per play style (`npm run season`, writes nothing; output kept in `season-report.txt`) |
 | `test/rules.test.ts` | The design rules as tests (no lockouts, every stat helps, honor-system XP, calibration) |
 
@@ -65,3 +66,7 @@ stats (they count 1.3x). Boss specials can't be interrupted by stuns. A per-figh
 so better stats tilt the odds instead of deciding them. The player steps in by pressing
 class abilities (each class has two, plus a signature passive; Adventurers have none), gear
 actives (epic+) or scarce battle items. Classes unlock at stat thresholds and must be chosen.
+
+## Credits
+
+Hero attack motion (joint positions only) comes from the Quaternius Universal Animation Library, CC0 / public domain: <https://quaternius.com>. The characters, outfits and art are drawn by our own art kit (`art-kit/`).
