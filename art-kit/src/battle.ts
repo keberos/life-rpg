@@ -6,7 +6,7 @@ import { renderLook, type Image } from './render.ts';
 import type { Look } from './wardrobe.ts';
 
 /** Attack keyframes (clip, 0..1 point) per kind of attack. */
-const ATTACKS = {
+export const ATTACKS = {
   // wind-up behind the head, downward slash, follow-through, recover with the blade out front
   swing: [['Sword_Attack', 0.2], ['Sword_Attack', 0.35], ['Sword_Attack', 0.5], ['Sword_Attack', 0.7]],
   // guard, cross, extended, recover

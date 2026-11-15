@@ -48,7 +48,15 @@ export interface RenderOpts {
   basic?: boolean;
   /** Rendering style preset: proportions, palette, outlines, faces, idle pose. */
   style?: Style['name'];
+  /**
+   * Modular battle sprites: 'body' leaves out everything held in the hands;
+   * 'held' keeps only the held items' visible pixels (what's in front of the body),
+   * so the app can stack weapon and shield layers over a class body.
+   */
+  layer?: 'body' | 'held' | 'heldR' | 'heldL';
 }
+
+const isHeld = (p: Part) => p.anchor === 'handR' || p.anchor === 'handL';
 
 export interface Image { w: number; h: number; data: Uint8ClampedArray }
 
@@ -77,7 +85,8 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const joints = style.render === 'crisp' && !opts.pose && look.items.some((i) => SHIELD_IDS.has(i.id)) ? shieldGuard(posed) : posed;
   // Toward the camera in character space, so flat weapons can show their broad side.
   const viewChar = rotY([0, Math.sin(pitch), Math.cos(pitch)], -yaw);
-  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp', view: viewChar });
+  const allParts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp', view: viewChar });
+  const parts: Part[] = opts.layer === 'body' ? allParts.filter((p) => !isHeld(p)) : allParts;
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
   const scene = (pw: V3): [number, number] => {
@@ -364,6 +373,23 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
     }
     const mouth = toWorld(v(0.15, -2.0, 2.35)), pm = project(mouth);
     if (visible(mouth, pm.col, pm.row)) for (let c = 0; c < G.mouth.length; c++) put(pm.col + (lookRight ? c : -c), pm.row, 'M');
+  }
+
+  // ---- Held layer: keep only held items' visible pixels and their outline. ----
+  if (opts.layer === 'held' || opts.layer === 'heldR' || opts.layer === 'heldL') {
+    const want = (p: Part) => (opts.layer === 'heldR' ? p.anchor === 'handR' : opts.layer === 'heldL' ? p.anchor === 'handL' : isHeld(p));
+    const held = (i: number) => !!samples[i] && want(parts[samples[i]!.part]);
+    for (let i = 0; i < N; i++) {
+      if (!solid[i]) continue;
+      let keepIt = held(i);
+      if (!samples[i]) {
+        let bestJ = -1;
+        for (const jj of nb4(i)) if (samples[jj] && (bestJ < 0 || depth[jj] < depth[bestJ])) bestJ = jj;
+        keepIt = bestJ >= 0 && held(bestJ);
+      }
+      if (!keepIt) { data[i * 4 + 3] = 0; solid[i] = 0; }
+    }
+    return { w: size, h: size, data };
   }
 
   // ---- Pass 5b: crisp faces. Designed pixel eyes, brows and mouth stamped where the

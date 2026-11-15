@@ -27,7 +27,7 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/content/seasons.ts` | Season themes (bonus XP on two stats, from Season 2) and season goals (a class or boss to aim for) |
 | `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
 | `art-kit/src/exercises.ts` | Exercise guide poses; `npm run exercises` renders them to `public/exercises/` |
-| `app/art/` | Hero look from class + equipped gear, rendered by the art kit in a worker and cached, so earned gear shows on the character |
+| `public/sprites/body/`, `public/sprites/held/` | Modular battle sprites: an AI-painted body strip per class × attack kind, with the weapon layer stacked on top by the app (no shields are drawn) (`art-kit/src/held-gear.ts` picks the layers) |
 | `app/ui/` | Preact screens; `sprites.tsx` holds placeholder pixel art |
 
 ## What's here (phase 0: engine + battle simulator)
@@ -54,7 +54,10 @@ npm run tune -- 0.42    # suggest boss numbers for a 42% no-buttons win rate
 npm run explain -- 2    # derived combat numbers per build vs boss #2 (why a build wins/loses)
 npm test
 npm run typecheck
+npm run sprites         # art kit: raw class bodies (art-kit/out/modular/body) + weapon layers (public/sprites/held)
 ```
+
+Hero bodies are then repainted as 2D pixel art by a local, offline SDXL pipeline (SDXL base 1.0, the fp16-fix VAE, ControlNet canny and the Pixel Art XL LoRA), using the art-kit frame as the start image and edge guide, then snapped back to the exact pixel grid with one shared palette. The silhouette is kept from the art kit, so weapon layers stay aligned. The pipeline lives outside this repo.
 
 Needs Node 23.6+ (runs `.ts` directly, no build step).
 
@@ -71,4 +74,4 @@ actives (epic+) or scarce battle items. Classes unlock at stat thresholds and mu
 
 ## Credits
 
-Hero attack motion (joint positions only) comes from the Quaternius Universal Animation Library, CC0 / public domain: <https://quaternius.com>. The characters, outfits and art are drawn by our own art kit (`art-kit/`).
+Hero attack motion (joint positions only) comes from the Quaternius Universal Animation Library, CC0 / public domain: <https://quaternius.com>. The characters, outfits and gear are designed and posed by our own art kit (`art-kit/`); hero bodies are repainted by AI (see Commands), steered and picked by a human.

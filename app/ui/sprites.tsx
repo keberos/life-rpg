@@ -1,7 +1,7 @@
 // Sprites. Heroes come from the art kit; bosses are still hand-placed placeholders
 // (each row a string, each character a palette color, '.' transparent).
 import { useEffect, useState } from 'preact/hooks';
-import { useHeroSprite } from '../art/useHeroSprite.ts';
+import { heroLayers } from '../../art-kit/src/held-gear.ts';
 
 type Palette = Record<string, string>;
 
@@ -23,17 +23,21 @@ function Pixels({ rows, palette, scale = 6, className }: { rows: string[]; palet
 }
 
 // Hero sprites are pre-rendered by the art kit (npm run sprites) into
-// public/sprites/<classId>.png: frames 0-3 breathing stance, 4-7 attack.
+// public/sprites/body/<class>-<kind>.png + held/<weapon>-<kind>.png: frames 0-3 breathing stance, 4-7 attack.
 const FRAME = 128; // art-kit BATTLE_FRAME
 /** Screen size of `scale` 1, in CSS px per 5 scale units (kept from the 96 px era so layouts hold). */
 const BASE = 96;
 const STRIP = 8;
 const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sage', 'cleric', 'spellblade']);
 
-/** `gear` = equipped gear ids: the hero is rendered wearing them (cached). Without it, the class's stock strip. */
-export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[] }) {
+/**
+ * The hero is a stack of pre-made layers: the class body (its standard outfit) and
+ * the weapon on top. The art for each layer is painted ahead of
+ * time; the app only stacks them, so new gear needs one new layer, not new heroes.
+ */
+export function Hero({ classId, scale = 6, action = 'idle', gear = [] }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[] }) {
   const id = KNOWN.has(classId) ? classId : 'adventurer';
-  const sprite = useHeroSprite(id, gear);
+  const layers = heroLayers(id, gear);
   // Whole screen pixels per art pixel: at in-between sizes (say 3.6x) some art pixels
   // come out 3 screen pixels wide and some 4, which makes edges and faces look jagged.
   const dpr = typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
@@ -55,9 +59,10 @@ export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: s
       style={{
         width: `${px}px`,
         height: `${px}px`,
-        backgroundImage: `url(${gear ? sprite.url : `./sprites/${id}.png`})`,
-        backgroundSize: `${px * STRIP}px ${px}px`,
-        backgroundPosition: `-${frame * px}px 0px`,
+        // CSS paints the first background on top, so held layers go first.
+        backgroundImage: [...layers].reverse().map((l) => `url(./${l})`).join(', '),
+        backgroundSize: layers.map(() => `${px * STRIP}px ${px}px`).join(', '),
+        backgroundPosition: layers.map(() => `-${frame * px}px 0px`).join(', '),
       }}
     />
   );

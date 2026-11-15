@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "sprites": "node art-kit/cli/export-app.ts",
+    "sprites": "node art-kit/cli/export-modular.ts",
     "exercises": "node art-kit/cli/export-exercises.ts",
     "sim": "node sim/simulate.ts",
     "season": "node --no-warnings sim/season.ts",

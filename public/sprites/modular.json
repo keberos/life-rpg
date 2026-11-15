@@ -1,0 +1,44 @@
+{
+  "size": 128,
+  "frames": {
+    "idle": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "attack": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "classes": [
+    "adventurer",
+    "warrior",
+    "paladin",
+    "ranger",
+    "monk",
+    "sage",
+    "cleric",
+    "spellblade"
+  ],
+  "kinds": [
+    "punch",
+    "swing",
+    "spell"
+  ],
+  "held": {
+    "iron-sword": "swing",
+    "twinfang": "swing",
+    "oak-staff": "spell",
+    "emberglass": "spell",
+    "warrior-axe": "swing",
+    "paladin-sword": "swing",
+    "ranger-dagger": "swing",
+    "sage-staff": "spell",
+    "cleric-mace": "swing",
+    "spellblade-blade": "swing"
+  }
+}
