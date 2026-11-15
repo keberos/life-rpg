@@ -193,7 +193,7 @@ export function beardParts(j: Joints, kind: string, mat: string): Part[] {
   return [{ sdf: union(shape, moustache), mat, paint: kind === 'stubble' ? () => ({ dl: -1, keep: true }) : strands(chin), anchor: 'head' }];
 }
 
-export function hairParts(j: Joints, style: string, mat: string): Part[] {
+export function hairParts(j: Joints, style: string, mat: string, frameFace = false): Part[] {
   if (style === 'bald') return [];
   if (style === 'mohawk') {
     const crest: Sdf[] = [];
@@ -236,6 +236,13 @@ export function hairParts(j: Joints, style: string, mat: string): Part[] {
     for (const [x, z] of [[-2.4, -1.0], [-1.2, -2.3], [0, -2.7], [1.2, -2.3], [2.4, -1.0]])
       parts.push(lock(v(x, 1.0, z), v(x * 1.25, -6.8 - Math.abs(x) * 0.4, z * 1.25 - 0.6), 1.35, 0.5));
     parts.push(lock(v(-0.4, 2.6, 2.0), v(-2.3, -0.4, 2.4), 0.9, 0.3), lock(v(0.4, 2.6, 2.0), v(2.3, -0.4, 2.4), 0.9, 0.3));
+  }
+  if (frameFace) {
+    // Frame the face like hand-drawn sprites: pointed bangs down to brow level and a
+    // lock down each cheek, so the face is a small window and the eyes dominate it.
+    for (const [x, dx] of [[-1.7, -0.2], [-0.55, 0.15], [0.6, 0.35], [1.75, 0.45]])
+      parts.push(lock(v(x, 2.7, 2.1), v(x + dx, 0.85, 2.95), 0.8, 0.22));
+    for (const s of [1, -1]) parts.push(lock(v(2.5 * s, 1.5, 1.0), v(2.3 * s, -1.7, 1.6), 0.8, 0.3));
   }
   return [{ sdf: union(...parts), mat, paint: strands(j.head), anchor: 'head' }];
 }
@@ -510,12 +517,14 @@ export interface LookOptions {
   anime?: boolean;
   /** Turn the head (and everything worn on it) around its center, radians. Battle view: body toward the enemy, face toward us. */
   headTurn?: number;
+  /** Add bangs and cheek locks so hair frames the face (crisp style). */
+  frameFace?: boolean;
 }
 
 export function lookParts(look: Look, j: Joints, opts: LookOptions = {}): Part[] {
   const brow = look.hair?.mat ?? 'hairBrown';
   const parts = bodyParts(j, look.skin ?? 'skin', brow, !!opts.anime, look.iris ?? 'irisBlue');
-  if (look.hair) parts.push(...hairParts(j, look.hair.style, look.hair.mat));
+  if (look.hair) parts.push(...hairParts(j, look.hair.style, look.hair.mat, opts.frameFace));
   if (look.beard) parts.push(...beardParts(j, look.beard, brow));
   for (const it of look.items) {
     const def = ITEMS[it.id];

@@ -69,7 +69,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const joints = opts.motion
     ? jointsFromMotion(bodyDims, clipFrame(opts.motion.clip, opts.motion.t), { turn: opts.motion.turn })
     : solve(bodyDims, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
-  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0 });
+  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp' });
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
   const scene = (pw: V3): [number, number] => {
