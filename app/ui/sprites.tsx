@@ -32,7 +32,11 @@ const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sa
 export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[] }) {
   const id = KNOWN.has(classId) ? classId : 'adventurer';
   const sprite = useHeroSprite(id, gear);
-  const px = Math.round((FRAME * scale) / 5);
+  // Whole screen pixels per art pixel: at in-between sizes (say 3.6x) some art pixels
+  // come out 3 screen pixels wide and some 4, which makes edges and faces look jagged.
+  const dpr = typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
+  const n = Math.max(1, Math.round(((FRAME * scale) / 5) * dpr / FRAME + 0.15)); // lean a little toward bigger
+  const px = (FRAME * n) / dpr;
   const frames = action === 'attack' ? [4, 5, 6, 7] : [0, 1, 2, 3];
   const [i, setI] = useState(0);
   useEffect(() => {

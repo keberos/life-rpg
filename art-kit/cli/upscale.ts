@@ -41,7 +41,7 @@ for (const im of imgs) {
   for (let y = 0; y < im.h; y++) px.set(im.px.subarray(y * im.w * 4, (y + 1) * im.w * 4), ((oy + y) * w) * 4);
   oy += im.h + 4;
 }
-const W = w * s, H = h * s, data = new Uint8ClampedArray(W * H * 4);
+const W = Math.round(w * s), H = Math.round(h * s), data = new Uint8ClampedArray(W * H * 4);
 for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
   const i = ((y / s | 0) * w + (x / s | 0)) * 4, o = (y * W + x) * 4, a = px[i + 3] / 255;
   for (let k = 0; k < 3; k++) data[o + k] = px[i + k] * a + [58, 64, 92][k] * (1 - a);
