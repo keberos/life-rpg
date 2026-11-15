@@ -1,6 +1,7 @@
 // Help, one tap away: a page per stat (tap a stat bar in camp) and the Guide (menu).
 // Numbers come from the engine and content data, so the text stays true when balance changes.
-import { THEME_BONUS } from '../content/seasons.ts';
+import { SECOND_WIND_MAX, THEME_BONUS } from '../content/seasons.ts';
+import { MAX_HELD_PER_ITEM } from '../state/drops.ts';
 import { useEffect } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import { WEAKNESS_MULT } from '../../src/engine/combat.ts';
@@ -150,6 +151,7 @@ export function Guide({ topic }: { topic?: string }) {
         <p>A quest pays by how hard it was <i>for you</i>: {x.easy} XP if easy, {x.normal} normal, {x.hard} hard. Every kind of quest pays the same, physical or not. It's on the honor system.</p>
         <p>Didn't finish? You still get {pct(FAIL_XP_SHARE)} of the XP. Effort counts, and the next one will be a little gentler.</p>
         <p><b>Rested:</b> each day a stat goes untrained adds +{pct(restedMultiplier(1) - 1)} XP to its next quest, up to +{pct(restedMultiplier(7) - 1)} after a week. Skipping a stat never costs you anything.</p>
+        <p><b>Second Wind:</b> if you play only a few times a week and fall behind a steady season pace, quests earn bonus XP (up to +{pct(SECOND_WIND_MAX)}) until you catch up. It fades as you reach the pace, so playing more always gets you further.</p>
       </Section>
 
       <Section id="calibration" title="Calibration">
@@ -161,7 +163,7 @@ export function Guide({ topic }: { topic?: string }) {
         <p>Quests can drop gear and battle items. Your first few quests drop a starter kit to get you ready for the first boss. After that, each quest has about a {pct(DROP_CHANCE)} chance, and you're guaranteed something after {PITY_AFTER} quests in a row with nothing.</p>
         <p>Gear adds stats. Rare and better gear adds a passive ability (it triggers on its own in battle). Epic and legendary gear adds an active ability you tap during the fight. Rarer gear starts dropping as you beat bosses.</p>
         <p>Gear shows on your hero. Tap your hero in camp to see and change it.</p>
-        <p><b>Battle items</b> (potions, scrolls) go in your satchel. You bring up to {SATCHEL_SIZE} into each fight. Each is used up when tapped.</p>
+        <p><b>Battle items</b> (potions, scrolls) go in your satchel. You bring up to {SATCHEL_SIZE} into each fight. Each is used up when tapped. You can hold up to {MAX_HELD_PER_ITEM} of each kind, so use them: hoarding just means new ones stop dropping.</p>
       </Section>
 
       <Section id="classes" title="Classes">

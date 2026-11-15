@@ -7,9 +7,9 @@ import { makeRng } from '../../src/engine/rng.ts';
 import type { FightView } from '../../src/engine/combat.ts';
 import type { BattleItemDef, Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
-import { THEME_BONUS } from '../content/seasons.ts';
-import { rollDrop, type Drop } from './drops.ts';
-import { dayKeyOf, type GameState } from './model.ts';
+import { secondWind, THEME_BONUS } from '../content/seasons.ts';
+import { itemsWithRoom, rollDrop, type Drop } from './drops.ts';
+import { DAY, dayKeyOf, type GameState } from './model.ts';
 import { store } from './store.ts';
 
 export const DIFFICULTY_SCALE: Record<RelativeDifficulty, number> = { easy: 0.75, normal: 1, hard: 1.3 };
@@ -92,6 +92,8 @@ export interface QuestResult {
   xp: number;
   /** Part of xp that came from the season theme. */
   themeXp: number;
+  /** Part of xp that came from Second Wind (catch-up when behind the season pace). */
+  windXp: number;
   leveledUp: boolean;
   newLevel: number;
   ratingChange: number;
@@ -114,7 +116,8 @@ export function completeQuest(
   const after = calibratedRating !== undefined ? calibratedRating : difficulty === 'easy' && feedback === 'success' ? before : updateRating(before, feedback);
   const baseXp = questXp(difficulty, outcome, state.daysSinceTrained[q.stat]);
   const themeXp = state.season.theme?.stats.includes(q.stat) ? Math.round(baseXp * THEME_BONUS) : 0;
-  const xp = baseXp + themeXp;
+  const windXp = Math.round(baseXp * secondWind(state.totalLevel, (state.now - state.season.start) / DAY));
+  const xp = baseXp + themeXp + windXp;
   const newXp = state.xp[q.stat] + xp;
   const newLevel = levelFromXp(newXp);
 
@@ -122,7 +125,7 @@ export function completeQuest(
 
   const drop = rollDrop(state, q, store.get().events, seedRng()) ?? undefined;
   if (drop) store.log({ type: 'loot', kind: drop.kind, id: drop.id, source: `quest:${q.id}` });
-  return { xp, themeXp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
+  return { xp, themeXp, windXp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
 }
 
 /** Record a calibration result (max reps / longest hold) and return the stat's new rating. */
@@ -145,7 +148,8 @@ export function grantStarterKit() {
 const TIER_RARITY: Record<number, Rarity> = { 1: 'common', 2: 'rare', 3: 'epic', 4: 'legendary' };
 
 /** Loot after a boss fight: gear on a win (rarity by boss tier), a battle item either way. */
-export function bossLoot(state: GameState, win: boolean): string[] {
+/** `state` is from before the fight (it names the boss); `heldItems` is the satchel after it. */
+export function bossLoot(state: GameState, win: boolean, heldItems = state.items): string[] {
   const rng = seedRng();
   const names: string[] = [];
   const src = `boss:${state.boss.def.id}`;
@@ -160,9 +164,13 @@ export function bossLoot(state: GameState, win: boolean): string[] {
       names.push(g.name);
     }
   }
-  const item = corePack.battleItems[Math.floor(rng() * corePack.battleItems.length)];
-  store.log({ type: 'loot', kind: 'item', id: item.id, source: src });
-  names.push(item.name);
+  // Plus a battle item you have room for.
+  const room = itemsWithRoom(heldItems);
+  if (room.length) {
+    const item = room[Math.floor(rng() * room.length)];
+    store.log({ type: 'loot', kind: 'item', id: item.id, source: src });
+    names.push(item.name);
+  }
   return names;
 }
 
@@ -194,5 +202,5 @@ export function recordFight(state: GameState, satchel: BattleItemDef[], v: Fight
     if (v.buttons[firstItem + k].charges === 0) store.log({ type: 'useItem', id: it.id });
   });
   store.log({ type: 'boss', bossId: state.boss.def.id, win: v.win, turns: v.turn, omen: v.omen, pressed: v.pressed, classId: state.activeClass.id });
-  return bossLoot(state, v.win);
+  return bossLoot(state, v.win, store.state().items);
 }

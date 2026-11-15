@@ -34,6 +34,12 @@ export const DROP_CHANCE = 0.35;
 export const PITY_AFTER = 3;
 /** Share of random drops that are gear (when there's gear left to find). */
 const GEAR_SHARE = 0.3;
+/** Battle items stay scarce: you hold at most this many of each, so drops don't pile up unused. */
+export const MAX_HELD_PER_ITEM = 2;
+
+/** Battle items you have room for, or none when every type is at the cap. */
+export const itemsWithRoom = (items: Record<string, number>) =>
+  corePack.battleItems.filter((i) => (items[i.id] ?? 0) < MAX_HELD_PER_ITEM);
 
 /** Which gear rarities can drop, by the season's current boss tier. */
 const RARITY_WEIGHTS: Record<number, Partial<Record<Rarity, number>>> = {
@@ -86,7 +92,9 @@ export function rollDrop(state: GameState, q: QuestDef, events: LogEvent[], rng:
   if (dry < PITY_AFTER && rng() > DROP_CHANCE) return null;
 
   const owned = new Set(state.ownedGear.map((x) => x.id));
-  if (rng() < GEAR_SHARE) {
+  const room = itemsWithRoom(state.items);
+  // Gear on its share of drops, or whenever the satchel has no room left.
+  if (rng() < GEAR_SHARE || !room.length) {
     const weights = RARITY_WEIGHTS[state.boss.tier] ?? RARITY_WEIGHTS[1];
     // only rarities that still have something left to find
     const avail = Object.fromEntries(
@@ -99,6 +107,7 @@ export function rollDrop(state: GameState, q: QuestDef, events: LogEvent[], rng:
       return { kind: 'gear', id: gear.id, name: gear.name, rarity };
     }
   }
-  const item = corePack.battleItems[Math.floor(rng() * corePack.battleItems.length)];
+  if (!room.length) return null;
+  const item = room[Math.floor(rng() * room.length)];
   return { kind: 'item', id: item.id, name: item.name };
 }

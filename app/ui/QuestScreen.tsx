@@ -127,6 +127,7 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
             <div class="big-number pop" style={{ color: info.color }}>+{result.xp} XP</div>
             <p class="muted">{info.name}{g.daysSinceTrained[quest.stat] >= 1 ? ' (rested bonus)' : ''}</p>
             {result.themeXp > 0 && <p class="faint">Includes +{result.themeXp} from the {g.season.theme?.name}</p>}
+            {result.windXp > 0 && <p class="faint">Includes +{result.windXp} Second Wind (catching up to the season)</p>}
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
             {result.leveledUp && g.newClasses.length > 0 && (
               <button class="btn class-banner pop" onClick={() => go('#/gear')}>

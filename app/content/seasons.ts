@@ -28,3 +28,18 @@ export type Goal = { kind: 'class'; id: string } | { kind: 'boss'; id: string };
 
 /** Lowest boss tier you can set as a goal (the first boss comes on its own). */
 export const GOAL_MIN_BOSS_TIER = 2;
+
+/**
+ * Second Wind: catch-up XP for players behind a steady season pace, so playing a
+ * few times a week still reaches the late bosses. It fades out as you reach the
+ * pace and never applies above it, so more play always means more progress.
+ */
+export const SECOND_WIND_MAX = 1; // up to +100% XP when far behind
+const SECOND_WIND_SLOPE = 2; // 25% behind the pace = +50% XP
+/** Total level a steady player has after `days` of the season (all six stats start at 1). */
+export const paceLevel = (days: number) => 6 + 125 * (1 - Math.exp(-Math.max(0, days) / 40));
+/** Bonus share of base XP for this total level at this point in the season. */
+export function secondWind(totalLevel: number, days: number): number {
+  const pace = paceLevel(days);
+  return Math.min(SECOND_WIND_MAX, Math.max(0, (SECOND_WIND_SLOPE * (pace - totalLevel)) / pace));
+}
