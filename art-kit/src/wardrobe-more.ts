@@ -279,7 +279,12 @@ const MORE: Record<string, ItemDef> = {
       const headC = add(h, mul(dir, 6.6));
       return [
         { sdf: capsule(sub(h, mul(dir, 1.2)), add(h, mul(dir, 7.6)), 0.5), mat: m2 },
-        { sdf: union(ellipsoid(add(headC, mul(side, -2.0)), v(0.6, 2.9, 2.1)), roundBox(headC, v(0.6, 1.0, 1.0), 0.3)), mat: m, paint: (pc) => (pc[1] > headC[1] + 1.6 || pc[1] < headC[1] - 1.6 ? { dl: 1 } : null) },
+        // Bearded blade: a narrow neck off the haft flaring into a tall curved edge, plus a back spike.
+        { sdf: union(
+            roundBox(add(headC, mul(side, -0.9)), v(0.5, 0.8, 0.8), 0.25),
+            subtract(ellipsoid(add(headC, mul(side, -2.5)), v(0.5, 3.3, 1.5)), ellipsoid(add(headC, mul(side, -0.5)), v(1.2, 2.5, 1.6))),
+            capsule(headC, add(headC, mul(side, 1.8)), 0.35),
+          ), mat: m },
       ];
     },
   },

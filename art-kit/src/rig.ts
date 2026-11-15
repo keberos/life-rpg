@@ -40,6 +40,8 @@ export interface Body {
 
 export const CLASSIC_BODY: Omit<Body, 'build' | 'height'> = { headScale: 1, legScale: 1, torsoScale: 1, shoulderW: 1, waistW: 1, handScale: 1, armScale: 1 };
 export const HEROIC_BODY: Omit<Body, 'build' | 'height'> = { headScale: 1.3, legScale: 1.1, torsoScale: 0.92, shoulderW: 1.14, waistW: 0.84, handScale: 1.15, armScale: 1.1 };
+/** About 4 heads tall: a readable head and hands at phone size, without toy proportions. */
+export const CRISP_BODY: Omit<Body, 'build' | 'height'> = { headScale: 1.5, legScale: 0.98, torsoScale: 0.94, shoulderW: 1.12, waistW: 0.88, handScale: 1.25, armScale: 1.04 };
 
 export interface Joints {
   pelvis: V3; chest: V3; neck: V3; head: V3;
@@ -136,7 +138,7 @@ function placeOnGround(j: Joints, pitch: number): Joints {
 }
 
 // ---------- Animations ----------
-export type AnimName = 'idle' | 'stance' | 'walk' | 'attack';
+export type AnimName = 'idle' | 'stance' | 'walk' | 'attack' | 'strike';
 
 export function animPose(anim: AnimName, frame: number): Pose {
   if (anim === 'idle') {
@@ -168,6 +170,18 @@ export function animPose(anim: AnimName, frame: number): Pose {
       sway: 0.6 + 0.3 * Math.cos(t * 2),
     };
   }
+  if (anim === 'strike') {
+    // Battle swing for the 3/4 view: the weapon goes up over the head, then out
+    // to the front (screen right) and down, so it never crosses the face.
+    const keys = [
+      { armR: D(150), elbowR: D(35), armOut: 0.8, lean: D(-6), legL: D(10), legR: D(-8), twist: D(-12), sway: -0.2, bob: 0 },
+      { armR: D(100), elbowR: D(0), armOut: 0.22, lean: D(16), legL: D(26), legR: D(-20), twist: D(24), sway: 0.9, bob: -0.6 },
+      { armR: D(55), elbowR: D(0), armOut: 0.2, lean: D(18), legL: D(26), legR: D(-20), twist: D(26), sway: 1, bob: -0.8 },
+      { armR: D(38), elbowR: D(50), armOut: 0.24, lean: D(7), legL: D(12), legR: D(-8), twist: D(16), sway: 0.4, bob: -0.3 },
+    ];
+    const k = keys[frame % keys.length];
+    return { ...REST, ...k, legOut: D(8), armL: D(20), elbowL: D(48), kneeL: D(16), kneeR: D(10), tilt: D(4) };
+  }
   // attack: wind-up, swing, follow-through, recover (right arm)
   const keys = [
     { armR: D(-50), elbowR: D(85), lean: D(-6), legL: D(12), legR: D(-10), sway: -0.2 },
@@ -179,4 +193,4 @@ export function animPose(anim: AnimName, frame: number): Pose {
   return { ...REST, ...k, legOut: D(6), armL: D(15), elbowL: D(40), kneeL: D(14), kneeR: D(8), armOut: 0.2 };
 }
 
-export const ANIM_FRAMES: Record<AnimName, number> = { idle: 2, stance: 2, walk: 6, attack: 4 };
+export const ANIM_FRAMES: Record<AnimName, number> = { idle: 2, stance: 2, walk: 6, attack: 4, strike: 4 };

@@ -13,7 +13,7 @@ export const CLASS_LOOKS: Look[] = [
   },
   {
     name: 'Ranger', hair: { style: 'ponytail', mat: 'hairBlack' }, iris: 'irisGreen', aura: 'nature',
-    items: [{ id: 'trousers', mat: 'leatherDark' }, { id: 'boots' }, { id: 'shirt', mat: 'clothForest' }, { id: 'leatherArmor' }, { id: 'belt' }, { id: 'crossStrap' }, { id: 'bracers' }, { id: 'scarf', mat: 'clothForest' }, { id: 'quiver' }, { id: 'bow' }, { id: 'dagger' }],
+    items: [{ id: 'trousers', mat: 'burlap' }, { id: 'boots' }, { id: 'shirt', mat: 'clothForest' }, { id: 'leatherArmor' }, { id: 'belt' }, { id: 'crossStrap' }, { id: 'bracers' }, { id: 'scarf', mat: 'clothForest' }, { id: 'quiver' }, { id: 'bow' }, { id: 'dagger' }],
   },
   {
     name: 'Monk', build: 1.04, hair: { style: 'bun', mat: 'hairBlack' }, iris: 'irisBrown', skin: 'skinTan', aura: 'holy',
@@ -29,7 +29,7 @@ export const CLASS_LOOKS: Look[] = [
   },
   {
     name: 'Spellblade', hair: { style: 'swept', mat: 'hairWhite' }, iris: 'irisViolet', aura: 'shadow',
-    items: [{ id: 'trousers', mat: 'clothBlack' }, { id: 'boots' }, { id: 'coat' }, { id: 'belt', mat2: 'silver' }, { id: 'scarf', mat: 'clothPurple' }, { id: 'bracers', mat: 'leatherDark', mat2: 'silver' }, { id: 'runeblade' }, { id: 'orb', mat: 'shadow', mat2: 'silver' }],
+    items: [{ id: 'trousers', mat: 'linen' }, { id: 'boots' }, { id: 'coat' }, { id: 'belt', mat2: 'silver' }, { id: 'scarf', mat: 'clothPurple' }, { id: 'bracers', mat: 'leatherDark', mat2: 'silver' }, { id: 'runeblade' }, { id: 'orb', mat: 'shadow', mat2: 'silver' }],
   },
   {
     name: 'Monarch (Legacy)', build: 1.06, hair: { style: 'flowing', mat: 'hairBlond' }, iris: 'irisAmber', aura: 'holy',

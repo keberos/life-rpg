@@ -1,12 +1,12 @@
 // Pre-renders placeholder hero sprites for the app, one strip per class:
-// frames 0-1 = battle-stance idle (3/4 view), frames 2-5 = attack (side view).
+// frames 0-1 = battle-stance idle, frames 2-5 = strike, all in the 3/4 battle view (crisp style).
 // Writes public/sprites/<classId>.png and public/sprites/manifest.json.
 // Usage: node art-kit/cli/export-app.ts
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { CLASS_LOOKS } from '../src/class-looks.ts';
 import { LOOKS } from '../src/looks.ts';
 import { encodePng, sheet } from '../src/png.ts';
-import { renderLook } from '../src/render.ts';
+import { battleFrames } from '../src/battle.ts';
 import type { Look } from '../src/wardrobe.ts';
 
 const byName = (list: Look[], n: string) => {
@@ -27,17 +27,12 @@ const CLASS_MAP: Record<string, Look> = {
   spellblade: byName(CLASS_LOOKS, 'Spellblade'),
 };
 
-const quality = 'hd' as const;
 const size = 96;
 const out = 'public/sprites';
 mkdirSync(out, { recursive: true });
 const t0 = Date.now();
 for (const [id, look] of Object.entries(CLASS_MAP)) {
-  const frames = [
-    renderLook(look, { dir: 'downRight', anim: 'stance', frame: 0, quality, style: 'jrpg' }),
-    renderLook(look, { dir: 'downRight', anim: 'stance', frame: 1, quality, style: 'jrpg' }),
-    ...[0, 1, 2, 3].map((f) => renderLook(look, { dir: 'right', anim: 'attack', frame: f, quality, style: 'jrpg' })),
-  ];
+  const frames = battleFrames(look, 'crisp');
   writeFileSync(`${out}/${id}.png`, encodePng(sheet([frames], 1)));
   console.log(`${id}.png`);
 }

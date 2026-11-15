@@ -4,7 +4,7 @@
 // looking at where on the part a pixel landed.
 import type { Joints } from './rig.ts';
 import {
-  add, capsule, ellipsoid, inflate, intersect, lerp3, mul, norm, roundBox, scaleAbout, skirt, smooth, sphere, sub, subtract, union, unscalePoint, v,
+  add, capsule, ellipsoid, inflate, intersect, lerp3, mul, norm, rotY, roundBox, scaleAbout, skirt, smooth, sphere, sub, subtract, union, unscalePoint, v,
   type Sdf, type V3,
 } from './sdf.ts';
 
@@ -503,7 +503,12 @@ export const ITEMS: Record<string, ItemDef> = {
   },
 };
 
-export interface LookOptions { weaponScale?: number; anime?: boolean }
+export interface LookOptions {
+  weaponScale?: number;
+  anime?: boolean;
+  /** Turn the head (and everything worn on it) around its center, radians. Battle view: body toward the enemy, face toward us. */
+  headTurn?: number;
+}
 
 export function lookParts(look: Look, j: Joints, opts: LookOptions = {}): Part[] {
   const brow = look.hair?.mat ?? 'hairBrown';
@@ -519,12 +524,21 @@ export function lookParts(look: Look, j: Joints, opts: LookOptions = {}): Part[]
   }
   // Scale anchored parts: heads by the body's head scale, held items by the weapon scale.
   const ws = opts.weaponScale ?? 1;
+  const turn = opts.headTurn ?? 0;
   return parts.map((p) => {
     if (!p.anchor) return p;
     const c = p.anchor === 'head' ? j.head : p.anchor === 'handR' ? j.handR : j.handL;
     const s = p.anchor === 'head' ? j.hs : ws;
-    if (s === 1) return p;
-    const paint = p.paint;
-    return { ...p, sdf: scaleAbout(p.sdf, c, s), paint: paint && ((pc: V3, n: V3) => paint(unscalePoint(pc, c, s), n)) };
+    let out = p;
+    if (s !== 1) {
+      const paint = p.paint;
+      out = { ...p, sdf: scaleAbout(p.sdf, c, s), paint: paint && ((pc: V3, n: V3) => paint(unscalePoint(pc, c, s), n)) };
+    }
+    if (p.anchor === 'head' && turn) {
+      const sdf = out.sdf, paint = out.paint;
+      const back = (q: V3): V3 => add(c, rotY(sub(q, c), -turn));
+      out = { ...out, sdf: (q) => sdf(back(q)), paint: paint && ((pc: V3, n: V3) => paint(back(pc), rotY(n, -turn))) };
+    }
+    return out;
   });
 }

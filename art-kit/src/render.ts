@@ -8,12 +8,16 @@ import { STYLES, type Style } from './styles.ts';
 import { lookParts, type Look, type Part } from './wardrobe.ts';
 import './wardrobe-more.ts'; // registers the extra gear
 
-export type Dir = 'down' | 'left' | 'right' | 'up' | 'downRight' | 'downLeft' | 'upRight' | 'upLeft';
+export type Dir = 'down' | 'left' | 'right' | 'up' | 'downRight' | 'downLeft' | 'upRight' | 'upLeft' | 'battle';
 const YAW: Record<Dir, number> = {
   down: 0, right: Math.PI / 2, left: -Math.PI / 2, up: Math.PI,
   // 3/4 views, used for battle poses
   downRight: 0.62, downLeft: -0.62, upRight: Math.PI - 0.62, upLeft: Math.PI + 0.62,
+  // Battle: turned toward the enemy (screen right) but chest and face still toward us.
+  battle: 1.15,
 };
+/** In the battle view the head turns back toward us so the face stays readable. */
+const BATTLE_HEAD_TURN = -0.6;
 
 export type Quality = 'classic' | 'hd' | 'xl';
 const PRESETS: Record<Quality, { size: number; ppu: number; feetRow: number }> = {
@@ -56,9 +60,10 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const basic = !!opts.basic;
   const style = STYLES[opts.style ?? 'classic'];
   const pitch = ((opts.pitchDeg ?? style.pitchDeg) * Math.PI) / 180;
+  const crisp = style.render === 'crisp';
 
   const joints = solve({ build: look.build ?? 1, height: look.height ?? 1, ...style.body }, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
-  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime' });
+  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0 });
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
   const scene = (pw: V3): [number, number] => {
@@ -75,6 +80,8 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const D: V3 = [0, -Math.sin(pitch), -Math.cos(pitch)];
   const R: V3 = [1, 0, 0];
   const U: V3 = [0, Math.cos(pitch), -Math.sin(pitch)];
+  // Crisp: light fixed on screen (upper left, a little toward us), so every pose is lit the same way.
+  const light = crisp ? norm(add(add(mul(R, -0.62), mul(U, 0.66)), mul(D, -0.42))) : LIGHT;
 
   const march = (sx: number, sy: number): Sample | null => {
     const origin = add(add(mul(R, sx), mul(U, sy)), mul(D, -60));
@@ -124,6 +131,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   // ---- Pass 3: shading ----
   const depth = new Float32Array(N).fill(Infinity);
   const rampOf: string[][] = [];
+  const metal: boolean[] = [];
   const rampIdx = new Map<string, number>();
   const rampId = (m: string) => {
     if (!rampIdx.has(m)) {
@@ -131,6 +139,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
       if (!mat) throw new Error(`Unknown material ${m}`);
       rampIdx.set(m, rampOf.length);
       rampOf.push(style.palette === 'vivid' ? vividRamp(mat.ramp) : [...mat.ramp]);
+      metal.push(mat.finish === 'metal');
     }
     return rampIdx.get(m)!;
   };
@@ -171,14 +180,15 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
     }
     const mat = MATERIALS[matName];
 
-    const lam = dot(n, LIGHT);
+    const lam = dot(n, light);
     let sh = 0.5 * lam + 0.5;
     if (n[1] > 0.6) sh += 0.06;
-    let lv = sh < 0.36 ? 0 : sh < 0.58 ? 1 : sh < 0.8 ? 2 : 3;
+    // Crisp keeps the darkest tone for outlines: shadow, base, and a small highlight.
+    let lv = crisp ? (sh < 0.45 ? 1 : sh < 0.86 ? 2 : 3) : sh < 0.36 ? 0 : sh < 0.58 ? 1 : sh < 0.8 ? 2 : 3;
 
     // Faces stay lit in the anime style: no hair shadow or crease darkening on the head.
     const litFace = style.face === 'anime' && part.anchor === 'head' && matName !== part.mat ? true : style.face === 'anime' && part.anchor === 'head' && part.paint !== undefined && part.mat.startsWith('skin');
-    if (!basic && mat.finish !== 'glow' && !litFace) {
+    if (!basic && !crisp && mat.finish !== 'glow' && !litFace) {
       // Ambient occlusion: how crowded the space is just off the surface.
       let occ = 0;
       for (let q = 1; q <= 3; q++) {
@@ -190,7 +200,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
       if (lam > -0.1) {
         let t = 0.35, lit = true;
         for (let q = 0; q < 40 && t < 18; q++) {
-          const d = dist(add(p, mul(LIGHT, t)));
+          const d = dist(add(p, mul(light, t)));
           if (d < 0.02) { lit = false; break; }
           t += Math.max(d, 0.05);
         }
@@ -199,18 +209,18 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
     }
 
     // Rim light on the shadow side so the figure pops off the background.
-    if (!basic && style.outline === 'selout' && mat.finish !== 'glow' && !keep[i]) {
+    if (!basic && !crisp && style.outline === 'selout' && mat.finish !== 'glow' && !keep[i]) {
       if (dot(n, RIM) > 0.5 && lam < 0.25) lv = Math.min(3, lv + 2);
     }
 
     if (mat.finish === 'metal') {
-      const h = norm(sub(LIGHT, D));
+      const h = norm(sub(light, D));
       const spec = dot(n, h);
-      lv = Math.min(lv, sh < 0.42 ? 0 : sh < 0.66 ? 1 : 2);
+      lv = crisp ? (sh < 0.5 ? 1 : 2) : Math.min(lv, sh < 0.42 ? 0 : sh < 0.66 ? 1 : 2);
       if (spec > 0.9 && lv >= 1) lv = 3;
     } else if (mat.finish === 'glow') {
       lv = Math.max(2, lv);
-    } else if (mat.finish === 'mail') {
+    } else if (mat.finish === 'mail' && !crisp) {
       if ((row + col) % 2 === 0 && lv > 0) lv -= 1;
     }
     lv = Math.max(0, Math.min(3, lv + dl));
@@ -244,7 +254,12 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const inner = new Uint8Array(N);
   for (let i = 0; i < N; i++) {
     if (ramp[i] < 0) continue;
-    for (const j of nb4(i)) if (ramp[j] >= 0 && depth[j] < depth[i] - 1.4) inner[i] = 1;
+    for (const j of nb4(i)) {
+      if (ramp[j] < 0) continue;
+      if (depth[j] < depth[i] - 1.4) inner[i] = 1;
+      // Crisp: a 1 px line where one part overlaps another of a different material (belt on tunic, sleeve on glove).
+      else if (crisp && ramp[j] !== ramp[i] && depth[j] < depth[i] - 0.15) inner[i] = 1;
+    }
   }
   const data = new Uint8ClampedArray(N * 4);
   const solid = new Uint8Array(N);
@@ -254,12 +269,18 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
       const r = rampOf[ramp[i]];
       const contour = style.outline === 'selout' ? r[0] : mixHex(r[0], OUTLINE_DARK, 0.35);
       col = inner[i] && !keep[i] ? contour : r[level[i]];
+      // Crisp: metal catches a bright line along its upper-left edge, so blades read first.
+      if (crisp && !inner[i] && metal[ramp[i]]) {
+        const up = i - size, left = i - 1;
+        if ((up >= 0 && ramp[up] !== ramp[i]) || (i % size > 0 && ramp[left] !== ramp[i])) col = r[3];
+      }
     } else {
       let bestJ = -1;
       for (const j of nb4(i)) if (ramp[j] >= 0 && (bestJ < 0 || depth[j] < depth[bestJ])) bestJ = j;
       if (bestJ >= 0) {
         const r = rampOf[ramp[bestJ]];
-        if (style.outline === 'selout') {
+        if (crisp) col = mixHex(r[0], OUTLINE_DARK, 0.3); // each part outlined in its own darkest tone
+        else if (style.outline === 'selout') {
           // Colored outline: the sprite's own dark tone, lighter on the lit (upper-left) side.
           const litSide = bestJ === i + 1 || bestJ === i + size;
           col = litSide ? mixHex(r[0], r[1], 0.35) : mixHex(r[0], OUTLINE_DARK, 0.45);
@@ -273,7 +294,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   }
 
   // ---- Pass 6: prestige aura (glow ring + a few sparkles) ----
-  if (look.aura && !basic) {
+  if (look.aura && !basic && !crisp) {
     const aura = MATERIALS[look.aura].ramp;
     const ring = new Uint8Array(N);
     for (let i = 0; i < N; i++) if (!solid[i] && nb4(i).some((j) => solid[j])) ring[i] = 1;
