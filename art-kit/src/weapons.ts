@@ -14,7 +14,7 @@ import { ITEMS, type ItemDef, type Part } from './wardrobe.ts';
 type P2 = [number, number];
 
 /** Signed distance to a closed 2D polygon (negative inside). */
-function poly2(pts: P2[]) {
+export function poly2(pts: P2[]) {
   return (x: number, y: number) => {
     let d = Infinity, s = 1;
     for (let i = 0, k = pts.length - 1; i < pts.length; k = i, i++) {
@@ -29,28 +29,28 @@ function poly2(pts: P2[]) {
     return s * Math.sqrt(d);
   };
 }
-const circle2 = (cx: number, cy: number, r: number) => (x: number, y: number) => Math.hypot(x - cx, y - cy) - r;
-const mirrorW = (pts: P2[]): P2[] => [...pts, ...[...pts].reverse().map(([x, y]) => [x, -y] as P2)];
+export const circle2 = (cx: number, cy: number, r: number) => (x: number, y: number) => Math.hypot(x - cx, y - cy) - r;
+export const mirrorW = (pts: P2[]): P2[] => [...pts, ...[...pts].reverse().map(([x, y]) => [x, -y] as P2)];
 
 const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 
 /** A weapon's own frame: u along the weapon, w across its flat, n out of the flat toward the camera. */
 interface Frame { o: V3; u: V3; w: V3; n: V3 }
-function frameAt(j: Joints, o: V3, u: V3): Frame {
+export function frameAt(j: Joints, o: V3, u: V3): Frame {
   const view = j.view ?? v(0, 0, 1);
   let n = sub(view, mul(u, dot(view, u)));
   if (len(n) < 1e-3) n = norm([u[2], 0, -u[0]]);
   n = norm(n);
   return { o, u, w: cross(n, u), n };
 }
-const local = (f: Frame, p: V3) => {
+export const local = (f: Frame, p: V3) => {
   const q = sub(p, f.o);
   return [dot(q, f.u), dot(q, f.w), dot(q, f.n)] as const;
 };
-const at = (f: Frame, x: number, y: number, z = 0): V3 => add(add(add(f.o, mul(f.u, x)), mul(f.w, y)), mul(f.n, z));
+export const at = (f: Frame, x: number, y: number, z = 0): V3 => add(add(add(f.o, mul(f.u, x)), mul(f.w, y)), mul(f.n, z));
 
 /** A 2D shape in the weapon's frame, extruded to a thin slab (half-thickness t). */
-function flat(f: Frame, shape: (x: number, y: number) => number, t: number): Sdf {
+export function flat(f: Frame, shape: (x: number, y: number) => number, t: number): Sdf {
   return (p) => {
     const [x, y, z] = local(f, p);
     const d2 = shape(x, y), dz = Math.abs(z) - t;
@@ -59,7 +59,7 @@ function flat(f: Frame, shape: (x: number, y: number) => number, t: number): Sdf
 }
 
 /** Paint in the weapon's frame (x along, y across). */
-const paintF = (f: Frame, fn: (x: number, y: number) => ReturnType<NonNullable<Part['paint']>>): Part['paint'] => (pc) => {
+export const paintF = (f: Frame, fn: (x: number, y: number) => ReturnType<NonNullable<Part['paint']>>): Part['paint'] => (pc) => {
   const [x, y] = local(f, pc);
   return fn(x, y);
 };

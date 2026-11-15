@@ -9,6 +9,7 @@ import { STYLES, type Style } from './styles.ts';
 import { lookParts, type Look, type Part } from './wardrobe.ts';
 import './wardrobe-more.ts'; // registers the extra gear
 import './weapons.ts'; // detailed weapons (override the simple ones)
+import './armor.ts'; // detailed armor and shields
 
 export type Dir = 'down' | 'left' | 'right' | 'up' | 'downRight' | 'downLeft' | 'upRight' | 'upLeft' | 'battle';
 const YAW: Record<Dir, number> = {

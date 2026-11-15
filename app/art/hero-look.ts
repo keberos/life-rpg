@@ -25,7 +25,7 @@ export const GEAR_VISUALS: Record<string, { items: ItemSpec[]; aura?: string }> 
   mossweave: { items: [{ id: 'chainmail' }, { id: 'leatherArmor', mat: 'clothForest', mat2: 'leatherDark' }] },
   'mirror-charm': { items: [{ id: 'amulet', mat: 'silver', mat2: 'arcane' }] },
   'saints-locket': { items: [{ id: 'amulet', mat: 'gold', mat2: 'holy' }] },
-  bulwark: { items: [{ id: 'chainmail' }, { id: 'plate' }, { id: 'shield', mat: 'steel', mat2: 'gold' }] },
+  bulwark: { items: [{ id: 'chainmail' }, { id: 'plate' }, { id: 'towerShield' }] },
   emberglass: { items: [{ id: 'emberglassRod' }] },
   'halo-of-mercy': { items: [{ id: 'circlet', mat: 'gold', mat2: 'holy' }, { id: 'cape', mat: 'clothWhite', mat2: 'gold' }], aura: 'holy' },
 };

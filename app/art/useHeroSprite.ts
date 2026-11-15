@@ -5,7 +5,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { heroKey, heroLook } from './hero-look.ts';
 
 // Bump the version when the sprite style changes, so cached strips re-render.
-const STORE_PREFIX = 'life-rpg:sprite:v8:';
+const STORE_PREFIX = 'life-rpg:sprite:v9:';
 const MAX_STORED = 12;
 const memory = new Map<string, string>();
 const pending = new Map<string, Promise<string | null>>();
