@@ -9,6 +9,7 @@ import { STAT_IDS, type BossDef, type ClassDef, type GearDef, type GearSlot, typ
 
 import type { Feedback } from '../../src/engine/calibration.ts';
 import { themeFor, type Goal, type ThemeDef } from '../content/seasons.ts';
+import { bossForSeason } from '../../src/content/boss-forms.ts';
 import type { Omen } from '../../src/engine/combat.ts';
 
 export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
@@ -65,7 +66,8 @@ export interface SaveFile {
 }
 
 export interface BossStatus {
-  def: BossDef;
+  /** The boss in this season's form (keeps the base id; `form` names the variant). */
+  def: BossDef & { form?: string; blurb?: string };
   tier: number;
   defeated: boolean;
   foughtToday: boolean;
@@ -290,7 +292,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   // Bosses advance when you beat them, paced by the calendar: boss N arrives no
   // sooner than week bossWeek(N). A boss you haven't beaten waits for you.
   const beaten = new Set(events.flatMap((e) => (e.type === 'boss' && e.win ? [e.bossId] : [])));
-  const bossOf = (t: number) => corePack.bosses.find((b) => b.tier === t) ?? corePack.bosses[0];
+  const bossOf = (t: number) => bossForSeason(corePack.bosses.find((b) => b.tier === t) ?? corePack.bosses[0], seasonsCompleted + 1);
   const maxTier = Math.max(...corePack.bosses.map((b) => b.tier));
   const arrivedTier = Math.min(maxTier, Math.max(1, Math.ceil(week / 2)));
   let tier = 1;

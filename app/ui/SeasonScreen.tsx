@@ -1,5 +1,6 @@
 // Season end: a recap of the run, the Legacy it earned, and setup for the next season.
 import { useState } from 'preact/hooks';
+import { seasonBosses } from '../../src/content/boss-forms.ts';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
 import { PERKS } from '../content/legacy.ts';
@@ -48,14 +49,14 @@ export function SeasonScreen() {
           <Hero classId={g.activeClass.id} scale={7} gear={g.equipped.map((x) => x.id)} />
           <h2>{g.activeClass.name} · Lv {g.totalLevel}</h2>
           <span class="faint">{season.quests} quests this season</span>
-          {season.goal && <span class={season.goalReached ? 'r-rare' : 'faint'}>Goal: {goalName(season.goal)} · {season.goalReached ? 'reached!' : 'not this time'}</span>}
+          {season.goal && <span class={season.goalReached ? 'r-rare' : 'faint'}>Goal: {goalName(season.goal, season.number)} · {season.goalReached ? 'reached!' : 'not this time'}</span>}
         </div>
       </Win>
 
       <h3>Bosses</h3>
       <Win quiet>
         <div class="stack" style={{ gap: '4px' }}>
-          {corePack.bosses.map((b) => (
+          {seasonBosses(season.number).map((b) => (
             <div key={b.id} class="row between">
               <span>{b.name}</span>
               <span class={season.bossesBeaten.includes(b.id) ? 'r-rare' : 'faint'}>{season.bossesBeaten.includes(b.id) ? 'Defeated' : 'Not this time'}</span>

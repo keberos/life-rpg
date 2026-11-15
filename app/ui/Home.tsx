@@ -66,7 +66,7 @@ export function Home() {
           <span style={{ color: 'var(--accent)' }}><Icon name="flag" /></span>
           {g.season.goal ? (
             <span class="grow">
-              {goalName(g.season.goal)}
+              {goalName(g.season.goal, g.season.number)}
               <span class={g.season.goalReached ? 'r-legendary' : 'faint'}> · {goalProgress(g)}</span>
             </span>
           ) : (
@@ -90,7 +90,7 @@ export function Home() {
 
       <Win tone="danger" title={`Boss ${boss.tier}/4`}>
         <div class="row" style={{ gap: '12px' }}>
-          <Boss bossId={boss.def.id} scale={4} />
+          <Boss bossId={boss.def.id} form={boss.def.form} scale={4} />
           <div class="grow stack" style={{ gap: '6px' }}>
             <h3>{boss.def.name}</h3>
             <div class="row wrap" style={{ gap: '4px' }}>

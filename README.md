@@ -36,9 +36,11 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | --- | --- |
 | `src/engine/` | Game rules as plain TypeScript, no UI: types, XP/levels, calibration, classes, combat |
 | `src/content/core-pack.ts` | All game data (classes, gear, battle items, bosses). Engine never hard-codes content |
+| `src/content/boss-forms.ts` | Seasonal boss forms: from Season 2 each boss returns in one of three forms (name, colors, weaknesses, special, armor), rotating with the theme |
 | `src/sim/scenarios.ts` | Builds, gear loadouts and win-rate helpers shared by the sim and tests |
 | `sim/simulate.ts` | Balance report: thousands of fights per cell |
 | `sim/tune.ts` | Finds boss HP/attack for a target win rate |
+| `sim/tune-forms.ts` | Tunes seasonal boss forms to match the base boss's win rate (`npm run tune:forms`) |
 | `art-kit/src/motion.ts` | Borrowed motion: CC0 clip joint positions (exported by `art-kit/blender/export_motion.py`) drive our own rig |
 | `sim/season.ts` | Season pacing report: whole simulated seasons per play style (`npm run season`, writes nothing; output kept in `season-report.txt`) |
 | `test/rules.test.ts` | The design rules as tests (no lockouts, every stat helps, honor-system XP, calibration) |

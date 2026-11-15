@@ -14,6 +14,7 @@
     "season": "node --no-warnings sim/season.ts",
     "test": "vitest run",
     "tune": "node sim/tune.ts",
+    "tune:forms": "node --no-warnings sim/tune-forms.ts",
     "explain": "node sim/explain.ts",
     "typecheck": "tsc --noEmit"
   },

@@ -89,8 +89,9 @@ export function BossScreen() {
 
       <Win tone="danger" title={boss.def.name}>
         <div class="stack center" style={{ alignItems: 'center', paddingTop: '6px' }}>
-          <Boss bossId={boss.def.id} scale={10} className={flash === 'hit' ? 'shake' : ''} />
+          <Boss bossId={boss.def.id} form={boss.def.form} scale={10} className={flash === 'hit' ? 'shake' : ''} />
           {v && <div style={{ width: '100%' }}><HpBar value={v.bossHp} max={v.bossMaxHp} color="var(--boss-hp)" /></div>}
+          {!fight && boss.def.blurb && <p class="faint center" style={{ margin: 0 }}>This season's form: {boss.def.blurb}</p>}
           {!fight && (
             <div class="row wrap" style={{ gap: '4px', justifyContent: 'center' }}>
               {boss.def.weakTo.map((s) => <StatChip key={s} stat={s} />)}

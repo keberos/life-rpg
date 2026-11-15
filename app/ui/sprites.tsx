@@ -141,7 +141,24 @@ const BOSSES: Record<string, { rows: string[]; palette: Palette }> = {
   },
 };
 
-export function Boss({ bossId, scale = 8, className }: { bossId: string; scale?: number; className?: string }) {
+/** Seasonal forms (src/content/boss-forms.ts) recolor the base boss. */
+const FORM_PALETTES: Record<string, Palette> = {
+  'moss-troll': { g: '#4f8a5a', d: '#2f5e3e', t: '#d6e86a' },
+  'stone-troll': { g: '#8a8a96', d: '#5a5a68', w: '#efe9da', t: '#efe9da' },
+  'lantern-troll': { g: '#5a6a8a', d: '#3a4466', w: '#fff3a0', t: '#ffe066' },
+  'mist-harpy': { p: '#9ab0c8', o: '#e0e8f0', w: '#ffffff' },
+  'ironfeather-harpy': { p: '#6a7088', o: '#c0c4d0', w: '#e8ecf4' },
+  'ember-harpy': { p: '#c84a2a', o: '#ffb040', w: '#ffe080' },
+  'silent-warden': { a: '#3a3a4a', m: '#22222e', c: '#e8e8ff', s: '#8a8a9a' },
+  'rusted-warden': { a: '#9a5a3a', m: '#5e3422', c: '#ffb060', s: '#c08a5a' },
+  'lantern-warden': { a: '#5a6a5a', m: '#344034', c: '#ffe066', s: '#a0b090' },
+  'frost-wyrm': { r: '#5aa8d8', d: '#bfe8ff', y: '#ffffff', o: '#8ad0f0', w: '#2a5a8a' },
+  'iron-wyrm': { r: '#6a6e80', d: '#a0a4b4', y: '#e8e4d0', o: '#c0a060', w: '#34364a' },
+  'void-wyrm': { r: '#3a2a6a', d: '#8a6ad8', y: '#e8d8ff', o: '#b08aff', w: '#1a1240' },
+};
+
+export function Boss({ bossId, form, scale = 8, className }: { bossId: string; form?: string; scale?: number; className?: string }) {
   const b = BOSSES[bossId] ?? BOSSES['bog-troll'];
-  return <Pixels rows={b.rows} palette={b.palette} scale={scale} className={className} />;
+  const palette = form && FORM_PALETTES[form] ? { ...b.palette, ...FORM_PALETTES[form] } : b.palette;
+  return <Pixels rows={b.rows} palette={palette} scale={scale} className={className} />;
 }

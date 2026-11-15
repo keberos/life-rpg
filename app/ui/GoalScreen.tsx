@@ -1,5 +1,6 @@
 // Season goal: pick a class to unlock or a boss to beat. Quick quest then leans
 // toward the stats that get you there. Optional, and changeable any time.
+import { seasonBoss, seasonBosses } from '../../src/content/boss-forms.ts';
 import { corePack } from '../../src/content/core-pack.ts';
 import type { StatId } from '../../src/engine/types.ts';
 import { GOAL_MIN_BOSS_TIER, type Goal } from '../content/seasons.ts';
@@ -7,9 +8,9 @@ import type { GameState } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatChip, TopBar, Win, go } from './components.tsx';
 
-export function goalName(goal: Goal): string {
+export function goalName(goal: Goal, seasonNumber = 1): string {
   if (goal.kind === 'class') return `Unlock ${corePack.classes.find((c) => c.id === goal.id)?.name ?? goal.id}`;
-  return `Beat the ${corePack.bosses.find((b) => b.id === goal.id)?.name ?? goal.id}`;
+  return `Beat the ${seasonBoss(goal.id, seasonNumber)?.name ?? goal.id}`;
 }
 
 /** One line on where the goal stands: stat levels toward a class, or the boss's week and weaknesses. */
@@ -21,7 +22,7 @@ export function goalProgress(g: GameState): string {
     const c = corePack.classes.find((x) => x.id === goal.id);
     return Object.entries(c?.requires ?? {}).map(([s, need]) => `${s} ${Math.min(g.levels[s as StatId], need!)}/${need}`).join(' · ');
   }
-  const b = corePack.bosses.find((x) => x.id === goal.id);
+  const b = seasonBoss(goal.id, g.season.number);
   return b ? `Boss ${b.tier} of 4 · weak to ${b.weakTo.join(' and ')}` : '';
 }
 
@@ -34,7 +35,7 @@ export function GoalScreen() {
   };
   const isCurrent = (kind: Goal['kind'], id: string) => current?.kind === kind && current.id === id;
   const classes = corePack.classes.filter((c) => c.id !== 'adventurer' && !g.unlocked.some((u) => u.id === c.id));
-  const bosses = corePack.bosses.filter((b) => b.tier >= GOAL_MIN_BOSS_TIER && !g.season.bossesBeaten.includes(b.id));
+  const bosses = seasonBosses(g.season.number).filter((b) => b.tier >= GOAL_MIN_BOSS_TIER && !g.season.bossesBeaten.includes(b.id));
 
   return (
     <div class="stack">

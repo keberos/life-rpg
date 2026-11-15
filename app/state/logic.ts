@@ -1,5 +1,6 @@
 // Game actions: pick quests, finish quests, fight bosses. They turn player
 // actions into log events using the engine's rules; no UI here.
+import { seasonBoss } from '../../src/content/boss-forms.ts';
 import { corePack } from '../../src/content/core-pack.ts';
 import { paramFor, placementRating, updateRating, type Feedback } from '../../src/engine/calibration.ts';
 import { questXp, levelFromXp, type QuestOutcome, type RelativeDifficulty } from '../../src/engine/progression.ts';
@@ -83,7 +84,7 @@ export function goalPull(state: GameState, s: StatId): number {
     if (goal.kind === 'class') {
       const need = corePack.classes.find((c) => c.id === goal.id)?.requires[s];
       if (need && state.levels[s] < need) pull += 1.5;
-    } else if (corePack.bosses.find((b) => b.id === goal.id)?.weakTo.includes(s)) pull += 1;
+    } else if (seasonBoss(goal.id, state.season.number)?.weakTo.includes(s)) pull += 1;
   }
   return pull;
 }
