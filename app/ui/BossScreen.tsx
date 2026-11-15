@@ -184,6 +184,7 @@ export function BossScreen() {
                 : `The ${boss.def.name} was down to ${Math.max(1, Math.round((v.bossHp / v.bossMaxHp) * 100))}% HP. Every quest makes the next attempt stronger. Try again tomorrow.`}
             </p>
             {loot && loot.length > 0 && <p class="pop">Loot: <b>{loot.join(', ')}</b></p>}
+            {v.win && g.season.goal?.kind === 'boss' && g.season.goal.id === boss.def.id && <p class="pop"><b>Season goal reached!</b></p>}
             {mastered && (
               <div class="class-banner pop">
                 <b>{mastered} mastered!</b>

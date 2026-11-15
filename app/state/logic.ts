@@ -6,6 +6,7 @@ import { questXp, levelFromXp, type QuestOutcome, type RelativeDifficulty } from
 import { makeRng } from '../../src/engine/rng.ts';
 import type { Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
+import { THEME_BONUS } from '../content/seasons.ts';
 import { rollDrop, type Drop } from './drops.ts';
 import { dayKeyOf, type GameState } from './model.ts';
 import { store } from './store.ts';
@@ -52,7 +53,7 @@ export function suggestQuest(state: GameState, enabled: StatId[], stat?: StatId,
     }
     let best = -Infinity;
     for (const s of enabled) {
-      const score = Math.min(state.daysSinceTrained[s], 7) + (state.boss.def.weakTo.includes(s) ? 1.5 : 0) - 2 * (today[s] ?? 0) + rng() * 2;
+      const score = Math.min(state.daysSinceTrained[s], 7) + (state.boss.def.weakTo.includes(s) ? 1.5 : 0) + goalPull(state, s) - 2 * (today[s] ?? 0) + rng() * 2;
       if (score > best) [best, pickStat] = [score, s];
     }
   }
@@ -62,8 +63,23 @@ export function suggestQuest(state: GameState, enabled: StatId[], stat?: StatId,
   return list[Math.floor(rng() * list.length)];
 }
 
+/** How much the season's theme and goal pull the quest picker toward a stat. */
+export function goalPull(state: GameState, s: StatId): number {
+  let pull = state.season.theme?.stats.includes(s) ? 1 : 0;
+  const goal = state.season.goal;
+  if (goal && !state.season.goalReached) {
+    if (goal.kind === 'class') {
+      const need = corePack.classes.find((c) => c.id === goal.id)?.requires[s];
+      if (need && state.levels[s] < need) pull += 1.5;
+    } else if (corePack.bosses.find((b) => b.id === goal.id)?.weakTo.includes(s)) pull += 1;
+  }
+  return pull;
+}
+
 export interface QuestResult {
   xp: number;
+  /** Part of xp that came from the season theme. */
+  themeXp: number;
   leveledUp: boolean;
   newLevel: number;
   ratingChange: number;
@@ -84,7 +100,9 @@ export function completeQuest(
   const before = calibratedRating ?? state.ratings[q.stat];
   // Easy wins don't push difficulty up (unless you say it was too easy); everything else uses the rule.
   const after = calibratedRating !== undefined ? calibratedRating : difficulty === 'easy' && feedback === 'success' ? before : updateRating(before, feedback);
-  const xp = questXp(difficulty, outcome, state.daysSinceTrained[q.stat]);
+  const baseXp = questXp(difficulty, outcome, state.daysSinceTrained[q.stat]);
+  const themeXp = state.season.theme?.stats.includes(q.stat) ? Math.round(baseXp * THEME_BONUS) : 0;
+  const xp = baseXp + themeXp;
   const newXp = state.xp[q.stat] + xp;
   const newLevel = levelFromXp(newXp);
 
@@ -92,7 +110,7 @@ export function completeQuest(
 
   const drop = rollDrop(state, q, store.get().events, seedRng()) ?? undefined;
   if (drop) store.log({ type: 'loot', kind: drop.kind, id: drop.id, source: `quest:${q.id}` });
-  return { xp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
+  return { xp, themeXp, leveledUp: newLevel > state.levels[q.stat], newLevel, ratingChange: after - before, drop };
 }
 
 /** Record a calibration result (max reps / longest hold) and return the stat's new rating. */

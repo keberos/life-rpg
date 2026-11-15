@@ -1,9 +1,11 @@
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
 import { STAT_INFO } from '../content/quests.ts';
+import { THEME_BONUS } from '../content/seasons.ts';
 import { SEASON_WEEKS } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatBar, StatChip, Win, go } from './components.tsx';
+import { goalName, goalProgress } from './GoalScreen.tsx';
 import { HelpTip } from './Help.tsx';
 import { Boss, Hero } from './sprites.tsx';
 
@@ -45,11 +47,28 @@ export function Home() {
           <span class="small-text">Choose a class to get its abilities in boss fights ›</span>
         </button>
       )}
+      {(g.season.theme || g.lifetime.questsTotal > 0) && !g.seasonOver && (
+        <div class="stack" style={{ gap: '4px' }}>
+          {g.season.theme && (
+            <div class="row wrap" style={{ gap: '4px' }}>
+              <span class="faint"><b>{g.season.theme.name}:</b> +{Math.round(THEME_BONUS * 100)}% XP on</span>
+              {g.season.theme.stats.map((s) => <StatChip key={s} stat={s} />)}
+            </div>
+          )}
+          {g.lifetime.questsTotal > 0 && (
+            <button class="btn ghost small" onClick={() => go('#/goal')}>
+              {g.season.goal ? (
+                <>Goal: {goalName(g.season.goal)} <span class={g.season.goalReached ? 'r-rare' : 'faint'}>· {goalProgress(g)}</span> ›</>
+              ) : 'Set a season goal ›'}
+            </button>
+          )}
+        </div>
+      )}
       {g.lifetime.questsTotal === 0 && (
         <p class="muted center">Welcome, adventurer. When you'd normally scroll, take a quest instead. Your first quest in each stat is a quick check, so later ones fit you.</p>
       )}
       <button class="btn primary big" onClick={() => go('#/quest')}>Quick quest</button>
-      <span class="faint center">Picks a stat for you: rested stats and the boss's weaknesses first. <HelpTip topic="start" /></span>
+      <span class="faint center">Picks a stat for you: rested stats, the boss's weaknesses and your season goal first. <HelpTip topic="start" /></span>
       <div class="row wrap" style={{ gap: '6px' }}>
         <span class="faint">Choose a stat:</span>
         {STAT_IDS.filter((s) => enabled.includes(s)).map((s) => (

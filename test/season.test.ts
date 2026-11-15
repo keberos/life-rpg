@@ -68,4 +68,22 @@ describe('seasons', () => {
     const s = derive(save([...season1, ...all.map((b, i) => win(10 + i * 14, b))]));
     expect(s.lifetime.unlockedPerks).toContain('heirloom');
   });
+
+  it('themes start in Season 2 and rotate', () => {
+    expect(derive(save(season1)).season.theme).toBeUndefined();
+    const s2 = derive(save([...season1, { at: d(60), type: 'newSeason' }]));
+    expect(s2.season.theme?.stats).toEqual(['STA', 'WIS']);
+  });
+
+  it('a season goal is reached by unlocking the class or beating the boss, and resets next season', () => {
+    const goal = (kind: 'class' | 'boss', id: string): LogEvent => ({ at: d(1), type: 'setGoal', goal: { kind, id } });
+    const boss = derive(save([goal('boss', 'hollow-warden'), ...season1]));
+    expect(boss.season.goal).toEqual({ kind: 'boss', id: 'hollow-warden' });
+    expect(boss.season.goalReached).toBe(true);
+    const cls = derive(save([goal('class', 'warrior'), { at: d(2), type: 'debugXp', stat: 'STR', xp: 200 }]));
+    expect(cls.season.goalReached).toBe(false);
+    const done = derive(save([goal('class', 'warrior'), ...(['STR', 'STA'] as const).map((stat): LogEvent => ({ at: d(2), type: 'debugXp', stat, xp: 200 }))]));
+    expect(done.season.goalReached).toBe(true);
+    expect(derive(save([goal('boss', 'hollow-warden'), ...season1, { at: d(60), type: 'newSeason' }])).season.goal).toBeUndefined();
+  });
 });

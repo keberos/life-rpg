@@ -126,12 +126,16 @@ export function QuestScreen({ stat, questId }: { stat?: StatId; questId?: string
           <div class="stack center">
             <div class="big-number pop" style={{ color: info.color }}>+{result.xp} XP</div>
             <p class="muted">{info.name}{g.daysSinceTrained[quest.stat] >= 1 ? ' (rested bonus)' : ''}</p>
+            {result.themeXp > 0 && <p class="faint">Includes +{result.themeXp} from the {g.season.theme?.name}</p>}
             {result.leveledUp && <h2 class="pop">{info.short} level {result.newLevel}!</h2>}
             {result.leveledUp && g.newClasses.length > 0 && (
               <button class="btn class-banner pop" onClick={() => go('#/gear')}>
                 <span class="pixel">Class unlocked: {g.newClasses.map((c) => c.name).join(', ')}!</span>
                 <span class="small-text">See its abilities ›</span>
               </button>
+            )}
+            {result.leveledUp && g.season.goal?.kind === 'class' && g.newClasses.some((c) => c.id === g.season.goal!.id) && (
+              <p class="pop"><b>Season goal reached!</b></p>
             )}
             {score && <p>{score.replace('/', ' of ')} right</p>}
             {calibNote && <p>{calibNote}</p>}

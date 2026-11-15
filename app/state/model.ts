@@ -8,6 +8,7 @@ import { emptyStats } from '../../src/engine/stats.ts';
 import { STAT_IDS, type BossDef, type ClassDef, type GearDef, type GearSlot, type StatBlock, type StatId } from '../../src/engine/types.ts';
 
 import type { Feedback } from '../../src/engine/calibration.ts';
+import { themeFor, type Goal, type ThemeDef } from '../content/seasons.ts';
 import type { Omen } from '../../src/engine/combat.ts';
 
 export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
@@ -42,6 +43,8 @@ export type LogEvent = Base & (
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
+  /** The player's target for this season (null clears it). */
+  | { type: 'setGoal'; goal: Goal | null }
   /** The player has seen these unlocked classes (clears the "new class" banner). */
   | { type: 'seenClasses'; ids: string[] }
   /** Player's pick for a slot; null = wear nothing there. Overrides auto-equip. */
@@ -89,6 +92,10 @@ export interface Season {
   perk?: string;
   startClass?: string;
   heirloom?: string;
+  /** Bonus XP on two stats (none in Season 1). */
+  theme?: ThemeDef;
+  goal?: Goal;
+  goalReached: boolean;
   quests: number;
   bossesBeaten: string[];
   /** Calibration results this season, with last season's for comparison. */
@@ -188,6 +195,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const owned = new Set<string>();
   const items: Record<string, number> = {};
   let classChoice: string | null = seasonEvent?.startClass ?? null;
+  let goal: Goal | undefined;
   // Legacy perks picked for this season.
   if (seasonEvent?.perk === 'field-kit') {
     items.potion = 2;
@@ -228,6 +236,9 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
         break;
       case 'chooseClass':
         classChoice = e.classId;
+        break;
+      case 'setGoal':
+        goal = e.goal ?? undefined;
         break;
       case 'seenClasses':
         for (const id of e.ids) seenClasses.add(id);
@@ -289,6 +300,8 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const foughtToday = events.some((e) => e.type === 'boss' && dayKeyOf(e.at) === dayKey);
   const nextBossWeek = tier < maxTier ? bossWeek(tier + 1) : null;
   const behind = arrivedTier > tier; // a later boss would be here if this one were beaten
+  // A class goal counts when your stats unlock it (a Legacy starting class doesn't count).
+  const goalReached = !!goal && (goal.kind === 'class' ? byStats.some((c) => c.id === goal!.id) : beaten.has(goal.id));
 
   return {
     now, dayKey, week,
@@ -296,6 +309,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     season: {
       number: seasonsCompleted + 1, start: seasonStart,
       perk: seasonEvent?.perk, startClass: seasonEvent?.startClass, heirloom: seasonEvent?.heirloom,
+      theme: themeFor(seasonsCompleted + 1), goal, goalReached,
       quests: questsTotal, bossesBeaten: [...beaten], rechecks,
     },
     lifetime: { seasonsCompleted, questsTotal: lifetimeQuests, bossesBeaten, masteredClasses, fullClear, unlockedPerks },

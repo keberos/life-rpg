@@ -3,9 +3,11 @@ import { useState } from 'preact/hooks';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
 import { PERKS } from '../content/legacy.ts';
+import { THEME_BONUS, themeFor } from '../content/seasons.ts';
 import { STAT_INFO, questById } from '../content/quests.ts';
 import { store, useGame } from '../state/store.ts';
 import { StatBar, TopBar, Win, go } from './components.tsx';
+import { goalName } from './GoalScreen.tsx';
 import { Hero } from './sprites.tsx';
 
 export function SeasonScreen() {
@@ -24,6 +26,7 @@ export function SeasonScreen() {
     );
   }
 
+  const nextTheme = themeFor(season.number + 1);
   const className = (id: string) => corePack.classes.find((c) => c.id === id)?.name ?? id;
   const canStart = perk !== 'heirloom' || !!heirloom;
   const start = () => {
@@ -33,7 +36,7 @@ export function SeasonScreen() {
       ...(perk ? { perk } : {}),
       ...(perk === 'heirloom' && heirloom ? { heirloom } : {}),
     });
-    go('#/');
+    go('#/goal');
   };
 
   return (
@@ -45,6 +48,7 @@ export function SeasonScreen() {
           <Hero classId={g.activeClass.id} scale={7} gear={g.equipped.map((x) => x.id)} />
           <h2>{g.activeClass.name} · Lv {g.totalLevel}</h2>
           <span class="faint">{season.quests} quests this season</span>
+          {season.goal && <span class={season.goalReached ? 'r-rare' : 'faint'}>Goal: {goalName(season.goal)} · {season.goalReached ? 'reached!' : 'not this time'}</span>}
         </div>
       </Win>
 
@@ -88,7 +92,7 @@ export function SeasonScreen() {
       )}
 
       <h3>Legacy</h3>
-      <p class="muted">Your levels and gear reset for the new season. Your calibration and lifetime record carry over, and Legacy gives you new ways to start.</p>
+      <p class="muted">Your levels and gear reset for the new season. Your calibration and lifetime record carry over, and Legacy gives you new ways to start.{nextTheme ? ` Next up: the ${nextTheme.name}, with +${Math.round(THEME_BONUS * 100)}% XP on ${nextTheme.stats.join(' and ')}. You'll pick a season goal after you start.` : ''}</p>
 
       <Win quiet>
         <div class="stack" style={{ gap: '6px' }}>
