@@ -1,6 +1,6 @@
 // Renders a hero sprite strip off the main thread (the art kit takes a few
-// seconds). Same layout as the pre-rendered strips: frames 0-1 idle stance,
-// 2-5 strike, in the crisp 3/4 battle view. Replies with a PNG data URL.
+// seconds). Same layout as the pre-rendered strips: frames 0-3 breathing stance,
+// 4-7 attack, in the crisp 3/4 battle view. Replies with a PNG data URL.
 import { battleFrames } from '../../art-kit/src/battle.ts';
 import type { Look } from '../../art-kit/src/wardrobe.ts';
 

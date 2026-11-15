@@ -23,9 +23,9 @@ function Pixels({ rows, palette, scale = 6, className }: { rows: string[]; palet
 }
 
 // Hero sprites are pre-rendered by the art kit (npm run sprites) into
-// public/sprites/<classId>.png: frames 0-1 idle stance, 2-5 attack.
+// public/sprites/<classId>.png: frames 0-3 breathing stance, 4-7 attack.
 const FRAME = 96;
-const STRIP = 6;
+const STRIP = 8;
 const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sage', 'cleric', 'spellblade']);
 
 /** `gear` = equipped gear ids: the hero is rendered wearing them (cached). Without it, the class's stock strip. */
@@ -33,11 +33,11 @@ export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: s
   const id = KNOWN.has(classId) ? classId : 'adventurer';
   const sprite = useHeroSprite(id, gear);
   const px = Math.round((FRAME * scale) / 5);
-  const frames = action === 'attack' ? [2, 3, 4, 5] : [0, 1];
+  const frames = action === 'attack' ? [4, 5, 6, 7] : [0, 1, 2, 3];
   const [i, setI] = useState(0);
   useEffect(() => {
     setI(0);
-    const t = setInterval(() => setI((n) => (action === 'attack' ? Math.min(n + 1, frames.length - 1) : (n + 1) % frames.length)), action === 'attack' ? 90 : 520);
+    const t = setInterval(() => setI((n) => (action === 'attack' ? Math.min(n + 1, frames.length - 1) : (n + 1) % frames.length)), action === 'attack' ? 90 : 300);
     return () => clearInterval(t);
   }, [action]);
   const frame = frames[Math.min(i, frames.length - 1)];

@@ -1,5 +1,5 @@
 // Pre-renders placeholder hero sprites for the app, one strip per class:
-// frames 0-1 = battle-stance idle, frames 2-5 = strike, all in the 3/4 battle view (crisp style).
+// frames 0-3 = breathing battle stance, frames 4-7 = attack, all in the 3/4 battle view (crisp style).
 // Writes public/sprites/<classId>.png and public/sprites/manifest.json.
 // Usage: node art-kit/cli/export-app.ts
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -38,6 +38,6 @@ for (const [id, look] of Object.entries(CLASS_MAP)) {
 }
 writeFileSync(
   `${out}/manifest.json`,
-  JSON.stringify({ size, frames: { idle: [0, 1], attack: [2, 3, 4, 5] }, classes: Object.keys(CLASS_MAP) }, null, 2),
+  JSON.stringify({ size, frames: { idle: [0, 1, 2, 3], attack: [4, 5, 6, 7] }, classes: Object.keys(CLASS_MAP) }, null, 2),
 );
 console.log(`done in ${Date.now() - t0} ms`);

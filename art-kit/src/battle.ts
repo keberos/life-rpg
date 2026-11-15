@@ -1,4 +1,5 @@
-// The frames the app uses for a hero in battle: 2 stance frames, then 4 attack frames.
+// The frames the app uses for a hero in battle. Crisp: 4 breathing stance frames,
+// then 4 attack frames (the older jrpg strip has 2 stance frames).
 // Crisp style: our own readable stance for idle; attacks borrow motion from CC0
 // clips (art-kit/src/motion.ts), picked by what the hero is holding.
 import { renderLook, type Image } from './render.ts';
@@ -38,8 +39,7 @@ export function battleFrames(look: Look, style: 'jrpg' | 'crisp'): Image[] {
     ];
   }
   return [
-    renderLook(look, { dir: 'battle', anim: 'stance', frame: 0, ...q }),
-    renderLook(look, { dir: 'battle', anim: 'stance', frame: 1, ...q }),
+    ...[0, 1, 2, 3].map((f) => renderLook(look, { dir: 'battle', anim: 'stance', frame: f, ...q })),
     ...(() => {
       const kind = attackKind(look);
       if (kind === 'own') return [0, 1, 2, 3].map((f) => renderLook(look, { dir: 'battle', anim: 'strike', frame: f, ...q }));

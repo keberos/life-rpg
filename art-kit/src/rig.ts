@@ -149,13 +149,17 @@ export function animPose(anim: AnimName, frame: number): Pose {
   }
   if (anim === 'stance') {
     // Battle-ready: feet apart, weight shifted, weapon arm up and forward.
-    const b = frame % 2 === 0 ? 0 : -0.4;
+    // Four-frame breath: the weight settles into the knees as the chest lifts,
+    // the weapon tip drifts, and hair and capes trail a beat behind.
+    const ph = ((frame % 4) / 4) * Math.PI * 2;
+    const br = (1 - Math.cos(ph)) / 2; // 0 -> 1 -> 0 over the loop
+    const sw = Math.sin(ph); // -1..1, a quarter-beat ahead of the breath
     return {
-      ...REST, bob: b - 0.3, lean: D(6),
-      legOut: D(9), legL: D(10), legR: D(-6), kneeL: D(16), kneeR: D(10),
-      armOut: 0.24, armR: D(38), elbowR: D(58), armL: D(22), elbowL: D(48),
-      twist: D(16), tilt: D(4),
-      sway: frame % 2 ? 0.5 : 0.1,
+      ...REST, bob: -0.3 - 0.7 * br, lean: D(6) + D(2.5) * br,
+      legOut: D(9), legL: D(10), legR: D(-6), kneeL: D(16) + D(6) * br, kneeR: D(10) + D(5) * br,
+      armOut: 0.24, armR: D(38) + D(6) * sw, elbowR: D(58) - D(8) * sw, armL: D(22) - D(4) * sw, elbowL: D(48) + D(5) * br,
+      twist: D(16) + D(3) * sw, tilt: D(4) + D(2) * br,
+      sway: 0.05 + 0.8 * (1 - Math.cos(ph - 0.9)) / 2,
     };
   }
   if (anim === 'walk') {
@@ -195,4 +199,4 @@ export function animPose(anim: AnimName, frame: number): Pose {
   return { ...REST, ...k, legOut: D(6), armL: D(15), elbowL: D(40), kneeL: D(14), kneeR: D(8), armOut: 0.2 };
 }
 
-export const ANIM_FRAMES: Record<AnimName, number> = { idle: 2, stance: 2, walk: 6, attack: 4, strike: 4 };
+export const ANIM_FRAMES: Record<AnimName, number> = { idle: 2, stance: 4, walk: 6, attack: 4, strike: 4 };
