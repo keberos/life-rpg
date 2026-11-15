@@ -306,7 +306,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   function stampFace() {
     const big = size >= 120;
     const G = big
-      ? { near: ['KKKK', 'WIIH', 'WIii', '.ii.'], far: ['KKK', 'IIH', 'Iii'], browNear: 'BBBB', browFar: 'BB', mouth: 'MM' }
+      ? { near: ['KKKK', 'KiHi', 'WiIi', 'WIIi', '.ii.'], far: ['KKK', 'iHK', 'iIi', 'Ii.'], browNear: 'BBBB', browFar: 'BBB', mouth: 'MM' }
       : { near: ['KKK', 'WIH', 'WIi'], far: ['KK', 'IH', 'Ii'], browNear: 'BBB', browFar: 'BB', mouth: 'MM' };
     const turn = dir === 'battle' ? BATTLE_HEAD_TURN : 0;
     const hs = joints.hs;
@@ -351,7 +351,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
           put(e.pe.col - Math.floor(w / 2) + cc, e.pe.row - 1 + r, g[r][c]);
         }
       const bw = (e === near ? G.browNear : G.browFar).length;
-      const browRow = Math.min(e.pb.row, e.pe.row - 3);
+      const browRow = Math.min(e.pb.row, e.pe.row - 3) - (big ? 1 : 0);
       for (let c = 0; c < bw; c++) put(e.pe.col - Math.floor(bw / 2) + c, browRow, 'B');
     }
     const mouth = toWorld(v(0.15, -2.0, 2.35)), pm = project(mouth);
