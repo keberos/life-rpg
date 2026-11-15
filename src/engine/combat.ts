@@ -379,16 +379,25 @@ function toButton(a: ActiveDef): Button {
   return { name: a.name, effects: a.effects, hint: a.hint, charges: a.charges, cooldown: a.cooldown, ready: 1, consumable: false };
 }
 
-/** The simulator's stand-in for a sensible player. Gear actives before scarce items. */
+/**
+ * The simulator's stand-in for a sensible player (also the boss screen's odds).
+ * One press per turn, so urgent needs come first: survive (low HP), then brace
+ * for a special, then attack. Within each, gear actives before scarce items.
+ */
 export function pickButton(v: FightView): number | undefined {
   const hpPct = v.hp / v.maxHp;
-  const wants = (b: ButtonView) =>
-    b.usable &&
-    ((b.hint === 'lowHp' && hpPct < 0.35) || (b.hint === 'beforeSpecial' && v.specialNext && v.shield <= 0) || b.hint === 'asap');
-  const gearIdx = v.buttons.findIndex((b) => !b.consumable && wants(b));
-  if (gearIdx >= 0) return gearIdx;
-  const itemIdx = v.buttons.findIndex((b) => b.consumable && wants(b));
-  return itemIdx >= 0 ? itemIdx : undefined;
+  const needs: ((b: ButtonView) => boolean)[] = [
+    (b) => b.hint === 'lowHp' && hpPct < 0.35,
+    (b) => b.hint === 'beforeSpecial' && v.specialNext && v.shield <= 0,
+    (b) => b.hint === 'asap',
+  ];
+  for (const need of needs) {
+    const gearIdx = v.buttons.findIndex((b) => b.usable && !b.consumable && need(b));
+    if (gearIdx >= 0) return gearIdx;
+    const itemIdx = v.buttons.findIndex((b) => b.usable && b.consumable && need(b));
+    if (itemIdx >= 0) return itemIdx;
+  }
+  return undefined;
 }
 
 /** One-line text for an event (sim logs, debug). */

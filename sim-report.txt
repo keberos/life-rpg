@@ -4,54 +4,54 @@ Target: every build lands near the Balanced build; none falls far behind.
 
 Build             Troll    Harpy   Warden     Wyrm
                    36pt     72pt    108pt    150pt
-Balanced            64%      61%      60%      60%
-Brute               75%      45%      51%      29%
-Scholar             53%      47%      47%      48%
-Devout              58%      27%      44%      54%
-Skirmisher          64%      67%      49%      32%
-No FTH              53%      65%      57%      54%
-No INT              61%      55%      64%      60%
-No STR              54%      61%      71%      66%
-No STA              66%      55%      53%      58%
+Balanced            75%      76%      78%      75%
+Brute               74%      68%      76%      54%
+Scholar             65%      80%      80%      82%
+Devout              68%      43%      66%      67%
+Skirmisher          80%      78%      76%      46%
+No FTH              71%      78%      79%      74%
+No INT              76%      71%      78%      73%
+No STR              60%      79%      81%      80%
+No STA              61%      74%      69%      73%
 
 === 2. Training pays off: Balanced build, % of on-schedule points ===
 Target: behind = tough, on schedule = favored, ahead = comfortable.
 
 Boss                60%      80%     100%     120%     140%
-Bog Troll            6%      28%      64%      89%      96%
-Storm Harpy          1%      11%      61%      90%      99%
-Hollow Warden        1%      20%      60%      91%      99%
-Ashen Wyrm           1%      17%      60%      91%      98%
+Bog Troll            1%       9%      75%      92%      99%
+Storm Harpy          6%      36%      76%      94%      99%
+Hollow Warden        4%      40%      78%      97%     100%
+Ashen Wyrm           4%      33%      75%      96%     100%
 
 === 3a. Gear tiers: Balanced, on schedule, no buttons pressed ===
 Target: each step up in gear is a clear, not crushing, gain.
 
 Boss               none   common     rare     epic
-Bog Troll           20%      43%      79%      95%
-Storm Harpy         31%      44%      72%      88%
-Hollow Warden       36%      41%      75%      89%
-Ashen Wyrm          36%      46%      69%      81%
+Bog Troll           10%      27%      63%      88%
+Storm Harpy         23%      31%      63%      79%
+Hollow Warden       30%      39%      66%      83%
+Ashen Wyrm          30%      39%      63%      76%
 
 === 3b. Buttons, measured where an untouched fight is a coin flip ===
 Stats are set so the no-buttons win rate is ~50%, so gains are not hidden by a 100% ceiling.
 Target: pressing gear actives +10-20 points; spending the 2 battle items +10-15 on top.
 
 Boss               gear     auto +actives   +items
-Bog Troll          rare      50%      50%      66%
-                   epic      49%      66%      81%
-Storm Harpy        rare      50%      50%      68%
-                   epic      49%      70%      80%
-Hollow Warden      rare      52%      52%      68%
-                   epic      51%      71%      82%
-Ashen Wyrm         rare      50%      50%      63%
-                   epic      46%      61%      71%
+Bog Troll          rare      63%      81%      93%
+                   epic      54%      72%      88%
+Storm Harpy        rare      50%      69%      84%
+                   epic      50%      84%      92%
+Hollow Warden      rare      50%      65%      83%
+                   epic      43%      75%      88%
+Ashen Wyrm         rare      47%      62%      82%
+                   epic      49%      76%      90%
 
 === 4. Every stat helps: +10 to one stat, Balanced at 80% of schedule ===
 Target: every cell positive. Bold-ish (*) = boss is weak to that stat.
 
 Boss                STR      AGI      STA      INT      WIS      FTH
-Bog Troll          +45*      +40      +26      +44      +19     +54*
-Storm Harpy         +12     +19*       +9     +20*       +8      +15
-Hollow Warden       +11      +15     +13*      +14     +11*      +16
-Ashen Wyrm           +6       +9       +6      +9*       +8     +11*
+Bog Troll          +19*      +16       +8      +18       +5     +26*
+Storm Harpy         +14     +21*      +11     +21*      +10      +18
+Hollow Warden        +8      +13      +7*      +11      +7*      +11
+Ashen Wyrm           +6       +8       +5      +9*       +7     +10*
 

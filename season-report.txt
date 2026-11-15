@@ -5,63 +5,60 @@ Targets: a boss beaten within a week or so of arriving (weeks 1, 3, 5, 7); a cla
 every play style can clear tier 1-2; skipping Faith is never locked out.
 
 === Every day: 3 to 5 quests a day, every day.
-Quests per season:   224   Final total level: 120.8
+Quests per season:   224   Final total level: 120.7
 Class picked:  100% of seasons, avg week   2.0
 Boss    Beaten   1st try   Odds at 1st fight   Week beaten   Fights to win
-T1      100%       70%            71%               2.0            1.5
-T2      100%       73%            73%               3.0            1.3
-T3      100%       60%            70%               5.0            1.5
-T4      100%       73%            64%               7.0            1.4
-Stat spread at season end (run 1): STR 20 · AGI 20 · STA 19 · INT 20 · WIS 20 · FTH 22
+T1      100%       70%            72%               2.0            1.3
+T2      100%       77%            71%               3.0            1.2
+T3      100%       63%            77%               5.0            1.4
+T4      100%       60%            64%               7.0            1.6
+Stat spread at season end (run 1): STR 19 · AGI 19 · STA 18 · INT 21 · WIS 20 · FTH 21
 
 === Casual: 1 to 3 quests on most days; skips about two days a week.
-Quests per season:    78   Final total level:  85.2
+Quests per season:    79   Final total level:  85.6
 Class picked:  100% of seasons, avg week   2.7
 Boss    Beaten   1st try   Odds at 1st fight   Week beaten   Fights to win
-T1      100%       67%            67%               2.6            1.5
-T2      100%       73%            66%               3.9            1.4
-T3      100%       67%            60%               6.7            1.5
-T4       80%       30%            20%               8.0            2.1
-Stat spread at season end (run 1): STR 14 · AGI 13 · STA 14 · INT 15 · WIS 12 · FTH 15
+T1      100%       70%            76%               2.7            1.4
+T2      100%       90%            66%               3.8            1.1
+T3      100%       47%            62%               6.3            1.8
+T4       67%       17%            18%               8.0            3.0
+Stat spread at season end (run 1): STR 15 · AGI 13 · STA 13 · INT 15 · WIS 14 · FTH 15
 
 === Weekends: Rarely on weekdays, 5 to 8 quests on Saturday and Sunday.
-Quests per season:   112   Final total level:  91.8
+Quests per season:   111   Final total level:  91.5
 Class picked:  100% of seasons, avg week   2.9
 Boss    Beaten   1st try   Odds at 1st fight   Week beaten   Fights to win
-T1      100%       77%            80%               2.7            1.2
-T2      100%       73%            72%               3.6            1.3
-T3      100%       70%            65%               6.3            1.5
-T4       70%       30%            34%               8.0            1.7
-Stat spread at season end (run 1): STR 15 · AGI 15 · STA 14 · INT 17 · WIS 14 · FTH 16
+T1      100%       77%            87%               2.9            1.3
+T2      100%       63%            72%               3.6            1.4
+T3      100%       70%            65%               5.8            1.3
+T4       60%       27%            30%               8.0            1.8
+Stat spread at season end (run 1): STR 17 · AGI 16 · STA 15 · INT 17 · WIS 13 · FTH 15
 
 === Skips Faith: Plays every day but never trains Faith.
-Quests per season:   224   Final total level: 113.9
-Class picked:  100% of seasons, avg week   1.6
+Quests per season:   226   Final total level: 114.3
+Class picked:  100% of seasons, avg week   1.7
 Boss    Beaten   1st try   Odds at 1st fight   Week beaten   Fights to win
-T1      100%       67%            71%               1.7            1.3
-T2      100%       77%            73%               3.0            1.3
-T3      100%       50%            67%               5.0            1.6
-T4      100%       53%            62%               7.4            1.6
-Stat spread at season end (run 1): STR 23 · AGI 23 · STA 22 · INT 23 · WIS 23 · FTH 1
+T1      100%       73%            78%               1.7            1.4
+T2      100%       63%            71%               3.0            1.6
+T3      100%       70%            74%               5.0            1.5
+T4      100%       60%            63%               7.4            2.0
+Stat spread at season end (run 1): STR 22 · AGI 22 · STA 22 · INT 24 · WIS 23 · FTH 1
 
 === One full season in detail (Every day, seed 1000)
-Every day: 56 days, 226 quests (stopped: seasonEnd)
+Every day: 56 days, 221 quests (stopped: seasonEnd)
 Week  Quests  Level  STR AGI STA INT WIS FTH  Gear  Class
-   1      29     28    7   5   4   4   2   6     8  Adventurer
-   2      28     46   11   7   7   6   5  10     9  Warrior
-   3      31     63   12  11   9  10   8  13    11  Warrior
-   4      30     76   14  14  10  13  10  15    11  Warrior
-   5      26     88   15  15  14  14  14  16    11  Warrior
-   6      29    100   17  17  16  16  16  18    11  Warrior
-   7      27    112   18  18  18  19  18  21    11  Warrior
-   8      26    122   20  20  19  21  19  23    11  Warrior
+   1      29     30    7   5   5   3   4   6     8  Adventurer
+   2      26     46   11   7   6   6   6  10     9  Warrior
+   3      24     60   12  10   8  10   8  12    11  Warrior
+   4      31     75   14  14  11  13  10  13    11  Warrior
+   5      27     87   16  15  14  14  13  15    11  Warrior
+   6      30     99   17  17  17  16  16  16    11  Warrior
+   7      25    110   19  18  18  18  18  19    11  Warrior
+   8      29    120   20  20  19  21  19  21    11  Warrior
 Bosses:
-  week 2: Bog Troll (tier 1) lost at 70% odds, level 34
-  week 2: Bog Troll (tier 1) lost at 79% odds, level 36
-  week 2: Bog Troll (tier 1) WON at 92% odds, level 38
-  week 3: Storm Harpy (tier 2) WON at 71% odds, level 51
-  week 5: Hollow Warden (tier 3) WON at 75% odds, level 78
-  week 7: Ashen Wyrm (tier 4) lost at 68% odds, level 103
-  week 7: Ashen Wyrm (tier 4) lost at 71% odds, level 106
-  week 7: Ashen Wyrm (tier 4) WON at 71% odds, level 106
+  week 2: Bog Troll (tier 1) WON at 62% odds, level 33
+  week 3: Storm Harpy (tier 2) WON at 68% odds, level 48
+  week 5: Hollow Warden (tier 3) WON at 80% odds, level 76
+  week 7: Ashen Wyrm (tier 4) lost at 70% odds, level 103
+  week 7: Ashen Wyrm (tier 4) WON at 68% odds, level 104
 Class picked: Warrior

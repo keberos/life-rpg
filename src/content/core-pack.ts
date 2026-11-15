@@ -116,14 +116,14 @@ export const corePack: ContentPack = {
   battleItems: [
     { id: 'potion', name: 'Healing Potion', hint: 'lowHp', effects: [{ kind: 'heal', pctMaxHp: 0.2 }] },
     { id: 'ward-scroll', name: 'Ward Scroll', hint: 'beforeSpecial', effects: [{ kind: 'shield', pctMaxHp: 0.25 }] },
-    { id: 'thunder-scroll', name: 'Thunder Scroll', hint: 'asap', effects: [{ kind: 'damagePctBoss', pct: 0.05 }] },
+    { id: 'thunder-scroll', name: 'Thunder Scroll', hint: 'asap', effects: [{ kind: 'damagePctBoss', pct: 0.12 }] },
   ],
 
   // Tier ~ week of the season. Tier 4 = season boss.
   bosses: [
-    { id: 'bog-troll', name: 'Bog Troll', tier: 1, hp: 590, attack: 30, armor: 20, weakTo: ['STR', 'FTH'], special: { name: 'Mud Slam', every: 4, mult: 2.2 }, enrageTurn: 14 },
-    { id: 'storm-harpy', name: 'Storm Harpy', tier: 2, hp: 1180, attack: 49, armor: 10, weakTo: ['AGI', 'INT'], special: { name: 'Gale Dive', every: 3, mult: 2.0 }, enrageTurn: 14 },
-    { id: 'hollow-warden', name: 'Hollow Warden', tier: 3, hp: 1795, attack: 67, armor: 30, weakTo: ['WIS', 'STA'], special: { name: 'Grave Cleave', every: 4, mult: 2.5 }, enrageTurn: 15 },
-    { id: 'ashen-wyrm', name: 'Ashen Wyrm', tier: 4, hp: 2910, attack: 90, armor: 12, weakTo: ['FTH', 'INT'], special: { name: 'Cinder Breath', every: 3, mult: 2.3 }, enrageTurn: 16 },
+    { id: 'bog-troll', name: 'Bog Troll', tier: 1, hp: 633, attack: 32, armor: 20, weakTo: ['STR', 'FTH'], special: { name: 'Mud Slam', every: 4, mult: 2.2 }, enrageTurn: 14 },
+    { id: 'storm-harpy', name: 'Storm Harpy', tier: 2, hp: 1240, attack: 51.5, armor: 10, weakTo: ['AGI', 'INT'], special: { name: 'Gale Dive', every: 3, mult: 2.0 }, enrageTurn: 14 },
+    { id: 'hollow-warden', name: 'Hollow Warden', tier: 3, hp: 1817, attack: 68, armor: 30, weakTo: ['WIS', 'STA'], special: { name: 'Grave Cleave', every: 4, mult: 2.5 }, enrageTurn: 15 },
+    { id: 'ashen-wyrm', name: 'Ashen Wyrm', tier: 4, hp: 3022, attack: 93.5, armor: 12, weakTo: ['FTH', 'INT'], special: { name: 'Cinder Breath', every: 3, mult: 2.3 }, enrageTurn: 16 },
   ],
 };

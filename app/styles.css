@@ -1,3 +1,22 @@
+/* Pixelify Sans draws 3 and 5 almost like S. Digits come from Silkscreen
+   instead (bundled, a pixel font with plain digit shapes); letters stay Pixelify. */
+@font-face {
+  font-family: 'Pixel Digits';
+  src: url('../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2') format('woff2');
+  font-weight: 100 600;
+  font-display: swap;
+  size-adjust: 90%;
+  unicode-range: U+0030-0039;
+}
+@font-face {
+  font-family: 'Pixel Digits';
+  src: url('../node_modules/@fontsource/silkscreen/files/silkscreen-latin-700-normal.woff2') format('woff2');
+  font-weight: 601 900;
+  font-display: swap;
+  size-adjust: 90%;
+  unicode-range: U+0030-0039;
+}
+
 :root {
   --bg: #0f0c22;
   --bg-2: #1b1730;
@@ -20,7 +39,7 @@
   --stat-wis: #b98cff;
   --stat-fth: #f2c14e;
   --outline: #0b0a1a;
-  --pixel: 'Pixelify Sans', ui-monospace, monospace;
+  --pixel: 'Pixel Digits', 'Pixelify Sans', ui-monospace, monospace;
   --read: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --radius: 0px;
   --nav-h: 64px;
