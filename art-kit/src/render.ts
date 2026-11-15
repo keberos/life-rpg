@@ -2,7 +2,9 @@
 // 4-tone ramps with ambient occlusion, cast shadows and painted surface
 // detail, then smoothing, outline, contour, cleanup and aura passes.
 import { MATERIALS, OUTLINE_DARK, mixHex, rgba, vividRamp } from './materials.ts';
-import { ANIM_FRAMES, animPose, solve, type AnimName, type Pose } from './rig.ts';
+import { ANIM_FRAMES, animPose, shieldGuard, solve, type AnimName, type Pose } from './rig.ts';
+
+const SHIELD_IDS = new Set(['shield', 'kiteShield', 'towerShield']);
 import { clipFrame, jointsFromMotion } from './motion.ts';
 import { add, dot, mul, norm, rotY, sub, v, type V3 } from './sdf.ts';
 import { STYLES, type Style } from './styles.ts';
@@ -68,9 +70,11 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const crisp = style.render === 'crisp';
 
   const bodyDims = { build: look.build ?? 1, height: look.height ?? 1, ...style.body };
-  const joints = opts.motion
+  const posed = opts.motion
     ? jointsFromMotion(bodyDims, clipFrame(opts.motion.clip, opts.motion.t), { turn: opts.motion.turn })
     : solve(bodyDims, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
+  // Crisp battle style: anyone carrying a shield holds it up in a guard.
+  const joints = style.render === 'crisp' && !opts.pose && look.items.some((i) => SHIELD_IDS.has(i.id)) ? shieldGuard(posed) : posed;
   // Toward the camera in character space, so flat weapons can show their broad side.
   const viewChar = rotY([0, Math.sin(pitch), Math.cos(pitch)], -yaw);
   const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp', view: viewChar });

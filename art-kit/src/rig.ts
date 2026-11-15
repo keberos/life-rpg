@@ -202,3 +202,26 @@ export function animPose(anim: AnimName, frame: number): Pose {
 }
 
 export const ANIM_FRAMES: Record<AnimName, number> = { idle: 2, stance: 4, walk: 6, attack: 4, strike: 4 };
+
+/**
+ * Shield guard: a sword-and-shield fighter keeps the shield up in front of the
+ * body whatever the sword arm is doing. Rebuild the left arm (same bone lengths)
+ * with the upper arm forward and down and the forearm across the chest, following
+ * the torso's lean. Used by the crisp battle style when the hero carries a shield.
+ */
+export function shieldGuard(j: Joints): Joints {
+  const len3 = (a: V3, b: V3) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const nrm = (a: V3): V3 => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  const upper = len3(j.shoulderL, j.elbowL), fore = len3(j.elbowL, j.handL);
+  // Build the guard in the torso's own frame, so it follows lean and twist:
+  // up = pelvis to neck, right = the shoulder line, forward = out of the chest.
+  const up = nrm(sub(j.neck, j.pelvis));
+  const right = nrm(sub(j.shoulderR, j.shoulderL));
+  const fwd = nrm([up[1] * right[2] - up[2] * right[1], up[2] * right[0] - up[0] * right[2], up[0] * right[1] - up[1] * right[0]]);
+  const inTorso = (x: number, y: number, z: number): V3 => nrm(add(add(mul(right, -x), mul(up, y)), mul(fwd, z)));
+  const upperDir = inTorso(0.25, -0.5, 0.85);
+  const foreDir = inTorso(-0.55, 0.3, 0.78);
+  const elbowL = add(j.shoulderL, mul(upperDir, upper));
+  const handL = add(elbowL, mul(foreDir, fore));
+  return { ...j, elbowL, handL, forearmL: foreDir };
+}

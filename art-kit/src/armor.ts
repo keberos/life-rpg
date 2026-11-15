@@ -4,9 +4,12 @@
 // stacked plates. Shields are flat silhouettes held out in front so the
 // shield arm (the far arm in the battle view) still shows them.
 // Registered into ITEMS on import; overrides the simpler versions.
-import { add, capsule, ellipsoid, inflate, intersect, lerp3, roundBox, skirt, sphere, union, v, type V3 } from './sdf.ts';
+import { add, capsule, ellipsoid, inflate, intersect, len, lerp3, mul, norm, roundBox, skirt, sphere, union, v, type V3 } from './sdf.ts';
+
+const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 import { ITEMS, above, below, legSdf, sleeve, torsoSdf, type ItemDef, type Part } from './wardrobe.ts';
-import { circle2, flat, frameAt, paintF, poly2 } from './weapons.ts';
+import { circle2, flat, frameFacing, paintF, poly2 } from './weapons.ts';
+import type { Joints } from './rig.ts';
 
 type Paint = NonNullable<Part['paint']>;
 const keep = (o: { mat?: string; dl?: number }) => ({ ...o, keep: true });
@@ -159,7 +162,7 @@ const A: Record<string, ItemDef> = {
   shield: {
     anchor: 'handL', mat: 'wood', mat2: 'steel',
     fn: (j, m, m2) => {
-      const f = frameAt(j, shieldAt(j), v(0, 1, 0));
+      const f = shieldFrame(j);
       return [
         {
           sdf: flat(f, circle2(0, 0, 2.9), 0.35), mat: m,
@@ -178,7 +181,7 @@ const A: Record<string, ItemDef> = {
   kiteShield: {
     anchor: 'handL', mat: 'clothBlue', mat2: 'silver',
     fn: (j, m, m2) => {
-      const f = frameAt(j, shieldAt(j), v(0, 1, 0));
+      const f = shieldFrame(j);
       const outer = poly2([[2.6, -2.2], [2.9, 0], [2.6, 2.2], [0.6, 2.4], [-1.8, 1.4], [-4.2, 0], [-1.8, -1.4], [0.6, -2.4]]);
       return [
         {
@@ -196,7 +199,7 @@ const A: Record<string, ItemDef> = {
   towerShield: {
     anchor: 'handL', mat: 'steel', mat2: 'gold',
     fn: (j, m, m2) => {
-      const f = frameAt(j, shieldAt(j), v(0, 1, 0));
+      const f = shieldFrame(j);
       const outer = poly2([[3.0, -2.5], [3.3, 0], [3.0, 2.5], [-1.5, 2.5], [-3.6, 1.2], [-4.1, 0], [-3.6, -1.2], [-1.5, -2.5]]);
       return [
         {
@@ -214,9 +217,19 @@ const A: Record<string, ItemDef> = {
   },
 };
 
-/** Where a shield sits: out in front of the body on the shield arm, so it shows in the battle view. */
-function shieldAt(j: { elbowL: V3; handL: V3 }): V3 {
-  return add(lerp3(j.elbowL, j.handL, 0.5), v(1.9, 0.6, 1.3));
+/**
+ * A shield is strapped to the forearm: centered on it, its face pointing out from
+ * the arm (forward, since shield fighters hold a guard across the chest), turned
+ * partway toward the camera so its design still reads.
+ */
+function shieldFrame(j: Joints) {
+  const fore = j.forearmL;
+  let out = cross(fore, v(0, 1, 0));
+  if (out[2] < 0) out = mul(out, -1);
+  if (len(out) < 1e-3) out = v(0, 0, 1);
+  const n = norm(add(mul(norm(out), 0.3), mul(j.view ?? v(0, 0, 1), 0.7)));
+  const c = add(lerp3(j.elbowL, j.handL, 0.55), mul(n, 1.0));
+  return frameFacing(c, v(0, 1, 0), n);
 }
 
 Object.assign(ITEMS, A);

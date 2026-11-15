@@ -43,6 +43,14 @@ export function frameAt(j: Joints, o: V3, u: V3): Frame {
   n = norm(n);
   return { o, u, w: cross(n, u), n };
 }
+/** A frame whose flat faces a given direction n (u is projected to lie in the flat). */
+export function frameFacing(o: V3, u: V3, n0: V3): Frame {
+  const n = norm(n0);
+  let uu = sub(u, mul(n, dot(u, n)));
+  if (len(uu) < 1e-3) uu = norm([n[2], 0, -n[0]]);
+  uu = norm(uu);
+  return { o, u: uu, w: cross(n, uu), n };
+}
 export const local = (f: Frame, p: V3) => {
   const q = sub(p, f.o);
   return [dot(q, f.u), dot(q, f.w), dot(q, f.n)] as const;

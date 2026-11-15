@@ -11,7 +11,7 @@ from mathutils import Vector, Euler
 args = sys.argv[sys.argv.index('--') + 1:]
 ROOT, OUT = args[0], args[1]
 HEAD_SCALE = float(args[2]) if len(args) > 2 else 1.6
-SIZE, SS = 96, 4  # final sprite size, supersampling factor
+SIZE, SS = int(os.environ.get('SIZE', 96)), 4  # final sprite size, supersampling factor
 CAM_YAW = float(os.environ.get('CAM_YAW', -0.95))  # battle view: body toward the enemy (screen right)...
 HEAD_TURN = float(os.environ.get('HEAD_TURN', -0.6))  # ...head turned back toward us
 PITCH = math.radians(14)
