@@ -28,7 +28,9 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
 | `art-kit/src/exercises.ts` | Exercise guide poses; `npm run exercises` renders them to `public/exercises/` |
 | `public/sprites/body/`, `public/sprites/held/` | Modular battle sprites: an AI-painted body strip per class × attack kind, with the weapon layer stacked on top by the app (no shields are drawn) (`art-kit/src/held-gear.ts` picks the layers) |
-| `app/ui/` | Preact screens; `sprites.tsx` holds placeholder pixel art |
+| `app/ui/` | Preact screens; `sprites.tsx` stacks the hero layers and draws bosses |
+| `art-kit/ai/` | AI paint pipeline (Python): two-pass body painting, layer comparison sheets, boss candidates; run via `npm run paint` |
+| `CLAUDE.md`, `.claude/` | Working rules for Claude Code, specialist agents (art pipeline, content, balance, ship check), the sprite-pipeline skill and the pre-push privacy hook |
 
 ## What's here (phase 0: engine + battle simulator)
 
@@ -55,9 +57,11 @@ npm run explain -- 2    # derived combat numbers per build vs boss #2 (why a bui
 npm test
 npm run typecheck
 npm run sprites         # art kit: raw class bodies (art-kit/out/modular/body) + weapon layers (public/sprites/held)
+npm run paint -- bodies # AI-paint the raw bodies into public/sprites/body (needs LIFE_RPG_SD, see below)
+npm run ship-check      # typecheck + tests + build + privacy scan of unpushed commits
 ```
 
-Hero bodies are then repainted as 2D pixel art by a local, offline SDXL pipeline (SDXL base 1.0, the fp16-fix VAE, ControlNet canny and the Pixel Art XL LoRA), using the art-kit frame as the start image and edge guide, then snapped back to the exact pixel grid with one shared palette. The silhouette is kept from the art kit, so weapon layers stay aligned. The pipeline lives outside this repo.
+Hero bodies are then repainted as 2D pixel art by a local, offline SDXL pipeline (`art-kit/ai/`: SDXL base 1.0, the fp16-fix VAE, ControlNet canny and the Pixel Art XL LoRA). Pass 1 paints a whole strip as one sheet so the outfit stays the same in every frame; pass 2 is a light per-frame pass guided by the art kit's edges. Results are snapped back to the exact pixel grid with one shared palette, and the silhouette is kept from the art kit, so weapon layers stay aligned. `LIFE_RPG_SD` must point at a folder with a Python venv (torch + diffusers) and the models (`npm run paint -- download` fetches them, ~10 GB). `npm run paint` with no arguments lists its commands.
 
 Needs Node 23.6+ (runs `.ts` directly, no build step).
 

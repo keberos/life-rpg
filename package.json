@@ -9,6 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "sprites": "node art-kit/cli/export-modular.ts",
+    "paint": "node art-kit/cli/paint.ts",
+    "ship-check": "node .claude/hooks/ship-check.ts --full",
     "exercises": "node art-kit/cli/export-exercises.ts",
     "sim": "node sim/simulate.ts",
     "season": "node --no-warnings sim/season.ts",
