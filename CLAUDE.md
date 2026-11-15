@@ -16,6 +16,24 @@ hero who fights seasonal bosses. README.md has the file map and commands.
   playtest, ship-check). The lead (main session) plans, integrates, talks to the owner and does
   every commit and push.
 
+## Delegation (standing permission from the owner)
+
+The lead hands work to the specialist agents **without asking** when it matches:
+
+- Sprite, weapon or boss art, a repaint, or a paint A/B → **art-pipeline**
+- Any change to a screen in the quest → reward → camp → boss flow, before calling it
+  done → **playtest**
+- Any change to `src/content` numbers, drops, XP or season pacing → **balance**
+  (measure before and after)
+- New or reworked quest text, readings or quizzes → **content-writer**
+
+The lead does it directly instead when it's small (a few edits, plumbing, under ~5
+minutes) or needs this conversation's context more than the specialist's focus. Run
+`npm run ship-check` directly; the ship-check agent is for when the lead is busy.
+Long agent jobs (repaints) run in the background while the lead keeps working or
+talking. Say in one line which agent got what. Agents bring taste calls back as
+options; they never commit, push or install a pick the owner hasn't made.
+
 ## Game design rules (tests in test/rules.test.ts enforce most)
 
 - Training never costs anything; skipping a stat never locks you out.
