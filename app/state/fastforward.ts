@@ -8,7 +8,7 @@ import { createFight, fight as simulateFight, pickButton } from '../../src/engin
 import { makeRng, type Rng } from '../../src/engine/rng.ts';
 import { STAT_IDS, type StatBlock, type StatId } from '../../src/engine/types.ts';
 import { DEFAULT_RATING, SEASON_WEEKS, type GameState } from './model.ts';
-import { canCalibrate, completeQuest, packSatchel, recordFight, recordPlacement, suggestQuest } from './logic.ts';
+import { canCalibrate, completeQuest, heroLoadout, recordFight, recordPlacement, suggestQuest } from './logic.ts';
 import { store } from './store.ts';
 
 export type PlayStyleId = 'daily' | 'casual' | 'weekends' | 'noFaith';
@@ -92,7 +92,7 @@ function abilityFor(profileId: string, rng: Rng): StatBlock {
 /** Win chance for the current boss, same method as the boss screen. */
 export function bossOdds(g: GameState, n = 200): number {
   const rng = makeRng(12345);
-  const load = { stats: g.levels, cls: g.activeClass, gear: g.equipped, items: packSatchel(g.items) };
+  const load = heroLoadout(g);
   let wins = 0;
   for (let i = 0; i < n; i++) if (simulateFight(load, g.boss.def, rng).win) wins++;
   return wins / n;
@@ -124,8 +124,9 @@ function playQuest(g: GameState, style: PlayStyle, t: StatBlock, rng: Rng) {
 }
 
 function fightBoss(g: GameState, rng: Rng, odds: number): BossLine {
-  const satchel = packSatchel(g.items);
-  const f = createFight({ stats: g.levels, cls: g.activeClass, gear: g.equipped, items: satchel }, g.boss.def, makeRng(Math.floor(rng() * 2 ** 32) >>> 0));
+  const load = heroLoadout(g);
+  const satchel = load.items;
+  const f = createFight(load, g.boss.def, makeRng(Math.floor(rng() * 2 ** 32) >>> 0));
   while (!f.view().over) f.step(pickButton(f.view()));
   const v = f.view();
   recordFight(g, satchel, v);

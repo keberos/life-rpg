@@ -3,7 +3,7 @@ import { useState } from 'preact/hooks';
 import { seasonBosses } from '../../src/content/boss-forms.ts';
 import { corePack } from '../../src/content/core-pack.ts';
 import { STAT_IDS } from '../../src/engine/types.ts';
-import { PERKS } from '../content/legacy.ts';
+import { PERKS, perkSlots } from '../content/legacy.ts';
 import { THEME_BONUS, themeFor } from '../content/seasons.ts';
 import { STAT_INFO, questById } from '../content/quests.ts';
 import { store, useGame } from '../state/store.ts';
@@ -15,7 +15,7 @@ export function SeasonScreen() {
   const g = useGame();
   const { season, lifetime } = g;
   const [startClass, setStartClass] = useState<string>('adventurer');
-  const [perk, setPerk] = useState<string | null>(null);
+  const [perks, setPerks] = useState<string[]>([]);
   const [heirloom, setHeirloom] = useState<string | null>(null);
 
   if (!g.seasonOver) {
@@ -29,13 +29,16 @@ export function SeasonScreen() {
 
   const nextTheme = themeFor(season.number + 1);
   const className = (id: string) => corePack.classes.find((c) => c.id === id)?.name ?? id;
-  const canStart = perk !== 'heirloom' || !!heirloom;
+  const slots = perkSlots(lifetime.unlockedPerks);
+  const togglePerk = (id: string) =>
+    setPerks((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : slots === 1 ? [id] : [...cur, id].slice(-slots)));
+  const canStart = !perks.includes('heirloom') || !!heirloom;
   const start = () => {
     store.log({
       type: 'newSeason',
       ...(startClass !== 'adventurer' ? { startClass } : {}),
-      ...(perk ? { perk } : {}),
-      ...(perk === 'heirloom' && heirloom ? { heirloom } : {}),
+      ...(perks.length ? { perks, perk: perks[0] } : {}),
+      ...(perks.includes('heirloom') && heirloom ? { heirloom } : {}),
     });
     go('#/goal');
   };
@@ -110,22 +113,22 @@ export function SeasonScreen() {
 
       <Win quiet>
         <div class="stack" style={{ gap: '6px' }}>
-          <b>Starting perk</b>
-          <span class="faint">Pick one for the new season.</span>
-          <button class={`btn ghost option-row ${perk === null ? 'selected' : ''}`} onClick={() => setPerk(null)}>
+          <b>Starting perk{slots > 1 ? 's' : ''}</b>
+          <span class="faint">{slots > 1 ? 'Collector: pick two for the new season.' : 'Pick one for the new season.'} Relics from bosses unlock more.</span>
+          <button class={`btn ghost option-row ${perks.length === 0 ? 'selected' : ''}`} onClick={() => setPerks([])}>
             <b>None</b>
           </button>
-          {PERKS.map((p) => {
+          {PERKS.filter((p) => p.id !== 'collector').map((p) => {
             const open = lifetime.unlockedPerks.includes(p.id);
             return (
-              <button key={p.id} class={`btn ghost option-row ${perk === p.id ? 'selected' : ''}`} disabled={!open} onClick={() => setPerk(p.id)}>
+              <button key={p.id} class={`btn ghost option-row ${perks.includes(p.id) ? 'selected' : ''}`} disabled={!open} onClick={() => togglePerk(p.id)}>
                 <b>{p.name}</b>{!open && <span class="faint"> · locked</span>}
                 <span class="small-text">{p.effect}</span>
                 {!open && <span class="faint">Unlock: {p.unlock}</span>}
               </button>
             );
           })}
-          {perk === 'heirloom' && (
+          {perks.includes('heirloom') && (
             <div class="stack" style={{ gap: '6px' }}>
               <span class="faint">Which piece carries over?</span>
               {g.ownedGear.map((x) => (

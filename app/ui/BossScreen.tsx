@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { createFight, fight as simulate, type Fight, type FightEvent } from '../../src/engine/combat.ts';
 import { makeRng } from '../../src/engine/rng.ts';
 import type { BattleItemDef } from '../../src/engine/types.ts';
-import { packSatchel, recordFight } from '../state/logic.ts';
+import { perkById, relicById } from '../content/legacy.ts';
+import { heroLoadout, recordFight } from '../state/logic.ts';
 import { mastersClass } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { HpBar, StatChip, TopBar, Win, go } from './components.tsx';
@@ -20,13 +21,15 @@ export function BossScreen() {
   const [fast, setFast] = useState(false);
   const [loot, setLoot] = useState<string[] | null>(null);
   const [mastered, setMastered] = useState<string | null>(null);
+  const [relics, setRelics] = useState<{ names: string[]; perks: string[] }>({ names: [], perks: [] });
   const [flash, setFlash] = useState<'hit' | 'hurt' | null>(null);
   const [heroAction, setHeroAction] = useState<'idle' | 'attack'>('idle');
   const queued = useRef<number | undefined>(undefined);
   const [, force] = useState(0);
 
   // Pack the satchel: one of each item type first, then repeats.
-  const satchel = useMemo<BattleItemDef[]>(() => packSatchel(g.items), []);
+  const loadout = useMemo(() => heroLoadout(g), []);
+  const satchel: BattleItemDef[] = loadout.items;
 
   const canFight = !boss.defeated && !boss.foughtToday && !g.seasonOver;
 
@@ -34,7 +37,7 @@ export function BossScreen() {
   const odds = useMemo(() => {
     if (!canFight) return null;
     const rng = makeRng(12345);
-    const load = { stats: g.levels, cls: g.activeClass, gear: g.equipped, items: satchel };
+    const load = loadout;
     let wins = 0;
     let bossLeft = 0;
     const N = 300;
@@ -47,7 +50,7 @@ export function BossScreen() {
   }, [canFight, satchel]);
 
   const start = () => {
-    const f = createFight({ stats: g.levels, cls: g.activeClass, gear: g.equipped, items: satchel }, boss.def, makeRng((Date.now() ^ 0x9e3779b9) >>> 0));
+    const f = createFight(loadout, boss.def, makeRng((Date.now() ^ 0x9e3779b9) >>> 0));
     setFight(f);
     setLines([]);
   };
@@ -79,6 +82,11 @@ export function BossScreen() {
     const v = f.view();
     if (v.win && mastersClass(boss.def.id, g.activeClass.id) && !g.lifetime.masteredClasses.includes(g.activeClass.id)) setMastered(g.activeClass.name);
     setLoot(recordFight(g, satchel, v));
+    // New relics (and any perks they unlock), worked out from the updated record.
+    const after = store.state().lifetime;
+    const newRelics = after.relics.filter((id) => !g.lifetime.relics.includes(id));
+    const newPerks = after.unlockedPerks.filter((id) => !g.lifetime.unlockedPerks.includes(id));
+    setRelics({ names: newRelics.map((id) => relicById(id)?.name ?? id), perks: newPerks.map((id) => perkById(id)?.name ?? id) });
   };
 
   const v = fight?.view();
@@ -166,6 +174,12 @@ export function BossScreen() {
             </p>
             {loot && loot.length > 0 && <p class="pop">Loot: <b>{loot.join(', ')}</b></p>}
             {v.win && g.season.goal?.kind === 'boss' && g.season.goal.id === boss.def.id && <p class="pop"><b>Season goal reached!</b></p>}
+            {relics.names.length > 0 && (
+              <div class="class-banner pop">
+                <b>Relic{relics.names.length > 1 ? 's' : ''}: {relics.names.join(', ')}</b>
+                <span class="small-text">{relics.perks.length ? `New starting perk unlocked: ${relics.perks.join(', ')}. Pick it when the next season starts.` : 'Added to your Reliquary (Menu).'}</span>
+              </div>
+            )}
             {mastered && (
               <div class="class-banner pop">
                 <b>{mastered} mastered!</b>

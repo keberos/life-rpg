@@ -36,6 +36,15 @@ export interface Loadout {
   cls: ClassDef;
   gear: GearDef[];
   items: BattleItemDef[];
+  /** Small Legacy perk bonuses (relic perks), all optional. */
+  bonus?: FightBonus;
+}
+
+/** Legacy perk bonuses: a shield at fight start (share of max HP), extra dodge, softer specials. */
+export interface FightBonus {
+  shieldPct?: number;
+  dodge?: number;
+  specialResist?: number;
 }
 
 /** 'auto' = the player never presses anything; 'smart' = presses at good moments. */
@@ -72,17 +81,19 @@ export function derive(load: Loadout, boss: BossDef): Derived {
   for (const s of STAT_IDS) if (boss.weakTo.includes(s)) eff[s] *= WEAKNESS_MULT;
   const p = load.cls.passive;
   const level = STAT_IDS.reduce((n, s) => n + load.stats[s], 0); // every stat trained adds a little HP
+  const bonus = load.bonus ?? {};
+  const maxHp = Math.round((80 + 1.2 * level + 6 * eff.STA) * (p.hpMult ?? 1));
   return {
     eff,
-    maxHp: Math.round((80 + 1.2 * level + 6 * eff.STA) * (p.hpMult ?? 1)), // STA: survive
+    maxHp, // STA: survive
     phys: (4 + 2.1 * eff.STR + 1.2 * eff.AGI) * (p.physMult ?? 1), // STR (+ AGI flurry): armor-reduced damage
     spell: 1.8 * eff.INT * (p.spellMult ?? 1), // INT: damage that ignores armor
-    ward: 1.5 * eff.INT, // INT: arcane ward, a shield at fight start
+    ward: 1.5 * eff.INT + maxHp * (bonus.shieldPct ?? 0), // INT: arcane ward, a shield at fight start (+ relic perk)
     smite: 1.3 * eff.FTH, // FTH: a little holy damage
     insight: 1 + eff.WIS * 0.012, // WIS: reads the fight, finds openings
     crit: Math.min(0.6, 0.05 + (0.6 * eff.AGI) / (eff.AGI + 30) + (p.critBonus ?? 0)), // AGI
-    dodge: Math.min(0.5, (0.5 * eff.AGI) / (eff.AGI + 25) + (p.dodgeBonus ?? 0)), // AGI
-    specialResist: (0.7 * eff.WIS) / (eff.WIS + 25), // WIS: blunts the boss's big hits
+    dodge: Math.min(0.5, (0.5 * eff.AGI) / (eff.AGI + 25) + (p.dodgeBonus ?? 0) + (bonus.dodge ?? 0)), // AGI
+    specialResist: Math.min(0.8, (0.7 * eff.WIS) / (eff.WIS + 25) + (bonus.specialResist ?? 0)), // WIS: blunts the boss's big hits
     heal: (8 + 1.8 * eff.FTH) * (p.healMult ?? 1), // FTH: auto-heal (everyone has a small one)
     reviveChance: eff.FTH / (eff.FTH + 80), // FTH: one revive chance per fight
   };

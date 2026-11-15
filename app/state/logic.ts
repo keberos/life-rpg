@@ -5,7 +5,8 @@ import { corePack } from '../../src/content/core-pack.ts';
 import { paramFor, placementRating, updateRating, type Feedback } from '../../src/engine/calibration.ts';
 import { questXp, levelFromXp, type QuestOutcome, type RelativeDifficulty } from '../../src/engine/progression.ts';
 import { makeRng } from '../../src/engine/rng.ts';
-import type { FightView } from '../../src/engine/combat.ts';
+import type { FightView, Loadout } from '../../src/engine/combat.ts';
+import { perkEffects } from '../content/legacy.ts';
 import type { BattleItemDef, Rarity, StatId } from '../../src/engine/types.ts';
 import { QUESTS, questById, type QuestDef } from '../content/quests.ts';
 import { secondWind, THEME_BONUS } from '../content/seasons.ts';
@@ -179,13 +180,13 @@ export function bossLoot(state: GameState, win: boolean, heldItems = state.items
 export const SATCHEL_SIZE = 3;
 
 /** Pack the satchel: one of each item type first, then repeats. */
-export function packSatchel(items: Record<string, number>): BattleItemDef[] {
+export function packSatchel(items: Record<string, number>, size = SATCHEL_SIZE): BattleItemDef[] {
   const out: BattleItemDef[] = [];
   const left = { ...items };
-  while (out.length < SATCHEL_SIZE) {
+  while (out.length < size) {
     const before = out.length;
     for (const it of corePack.battleItems) {
-      if (out.length < SATCHEL_SIZE && (left[it.id] ?? 0) > 0) {
+      if (out.length < size && (left[it.id] ?? 0) > 0) {
         out.push(it);
         left[it.id]--;
       }
@@ -193,6 +194,12 @@ export function packSatchel(items: Record<string, number>): BattleItemDef[] {
     if (out.length === before) break;
   }
   return out;
+}
+
+/** Everything the hero brings to a boss fight, including this season's Legacy perks. */
+export function heroLoadout(state: GameState): Loadout {
+  const { bonus, satchel } = perkEffects(state.season.perks);
+  return { stats: state.levels, cls: state.activeClass, gear: state.equipped, items: packSatchel(state.items, satchel), bonus };
 }
 
 /** Log a finished fight: spent items, the result, and the loot. Returns the loot names. */

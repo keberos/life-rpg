@@ -304,3 +304,10 @@ button.stat.tappable { width: 100%; background: none; border: none; padding: 2px
 
 /* Debug fast-forward report */
 .ff-report { font: 11px/1.4 ui-monospace, Consolas, monospace; white-space: pre; overflow-x: auto; margin: 0; padding: 8px; background: rgba(0,0,0,0.35); color: var(--read, #e8e6f0); }
+
+/* Reliquary */
+.relic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.relic { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 8px 6px; background: rgba(0,0,0,0.25); border: 2px solid var(--frame-dark, #2a2440); opacity: 0.55; }
+.relic.got { opacity: 1; border-color: var(--c); }
+.relic .relic-gem { color: var(--c); filter: grayscale(1); }
+.relic.got .relic-gem { filter: none; }

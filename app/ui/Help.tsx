@@ -187,6 +187,7 @@ export function Guide({ topic }: { topic?: string }) {
         <p><b>Themes and goals.</b> From Season 2, each season has a theme that gives two stats +{Math.round(THEME_BONUS * 100)}% XP. You can also set a <b>season goal</b>: a class to unlock or a boss to beat. Quick quest then leans toward the stats that get you there. Both are optional, and every quest counts in full either way.</p>
         <p><b>Boss forms.</b> From Season 2 the bosses come back in a new form each season, rotating with the theme: new colors, new weaknesses, a new special attack and different armor. Across a season's four bosses every stat is a weakness at least once, so no build is left out, and each form is tuned to be as fair as the original.</p>
         <p><b>Legacy</b> makes each season different. Beat the Hollow Warden or the Ashen Wyrm (the two late-season bosses) as a class to master it, and you can start a later season as that class. Starting perks (unlocked by finishing a season, or beating every boss in one) give you a different opening.</p>
+        <p><b>Relics.</b> Every boss form leaves a relic the first time you beat it (16 in all, kept in the Reliquary under Menu). Two relics from the same boss family unlock that family's starting perk: a small shield at the start of fights, a little extra dodge, softer boss specials, or a fourth battle item. Eight relics unlock Collector, so you can pick two perks a season. Relics never expire: a boss you miss now still gives its relic later.</p>
       </Section>
     </div>
   );

@@ -10,6 +10,7 @@ import { STAT_IDS, type BossDef, type ClassDef, type GearDef, type GearSlot, typ
 import type { Feedback } from '../../src/engine/calibration.ts';
 import { themeFor, type Goal, type ThemeDef } from '../content/seasons.ts';
 import { bossForSeason } from '../../src/content/boss-forms.ts';
+import { relicFor, relicPerks } from '../content/legacy.ts';
 import type { Omen } from '../../src/engine/combat.ts';
 
 export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
@@ -40,7 +41,7 @@ export type LogEvent = Base & (
   | { type: 'quest'; questId: string; stat: StatId; difficulty: RelativeDifficulty; amount?: number; outcome: QuestOutcome; feedback: Feedback; xp: number; ratingBefore: number; ratingAfter: number; score?: string }
   | { type: 'boss'; bossId: string; win: boolean; turns: number; omen: Omen; pressed: number; classId?: string }
   /** A new season starts at this event. Everything season-scoped resets; ratings and the lifetime record don't. */
-  | { type: 'newSeason'; perk?: string; startClass?: string; heirloom?: string }
+  | { type: 'newSeason'; perk?: string; perks?: string[]; startClass?: string; heirloom?: string }
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
@@ -86,12 +87,16 @@ export interface Lifetime {
   /** Beat all four bosses in a single season (unlocks Heirloom). */
   fullClear: boolean;
   unlockedPerks: string[];
+  /** Relic ids earned: the first win over each boss form (see app/content/legacy.ts). */
+  relics: string[];
 }
 
 export interface Season {
   number: number;
   start: number;
   perk?: string;
+  /** Starting perks picked for this season (Collector allows two). */
+  perks: string[];
   startClass?: string;
   heirloom?: string;
   /** Bonus XP on two stats (none in Season 1). */
@@ -164,20 +169,34 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   const masteredClasses = [...new Set(all.flatMap((e) => (e.type === 'boss' && e.win && mastersClass(e.bossId, e.classId) ? [e.classId!] : [])))];
   let bossesBeaten = 0;
   let fullClear = false;
+  const relics: string[] = [];
   {
     let seasonWins = new Set<string>();
+    let seasonNo = 1;
     for (const e of all) {
-      if (e.type === 'newSeason') seasonWins = new Set();
+      if (e.type === 'newSeason') {
+        seasonWins = new Set();
+        seasonNo++;
+      }
       if (e.type === 'boss' && e.win) {
         bossesBeaten++;
         seasonWins.add(e.bossId);
         if (corePack.bosses.every((b) => seasonWins.has(b.id))) fullClear = true;
+        // The first win over each boss form leaves a relic. The original boss only
+        // appears in Season 1, so a later win also grants its relic if you missed it:
+        // no relic is ever lost for good.
+        const base = corePack.bosses.find((b) => b.id === e.bossId);
+        if (base) {
+          for (const relic of [relicFor(base.id, undefined), relicFor(base.id, bossForSeason(base, seasonNo).form)])
+            if (relic && !relics.includes(relic.id)) relics.push(relic.id);
+        }
       }
     }
   }
   // Season 1 counts as finished once its weeks are up, so its unlocks show on the recap.
   const finishedSeasons = seasonsCompleted + (week > SEASON_WEEKS ? 1 : 0);
-  const unlockedPerks = [...(finishedSeasons >= 1 ? ['field-kit'] : []), ...(fullClear ? ['heirloom'] : [])];
+  const unlockedPerks = [...(finishedSeasons >= 1 ? ['field-kit'] : []), ...(fullClear ? ['heirloom'] : []), ...relicPerks(relics)];
+  const seasonPerks = seasonEvent?.perks ?? (seasonEvent?.perk ? [seasonEvent.perk] : []);
 
   // Last calibration per quest before this season, for "recheck" comparisons. Ratings carry over.
   const before = new Map<string, number>();
@@ -199,11 +218,11 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
   let classChoice: string | null = seasonEvent?.startClass ?? null;
   let goal: Goal | undefined;
   // Legacy perks picked for this season.
-  if (seasonEvent?.perk === 'field-kit') {
+  if (seasonPerks.includes('field-kit')) {
     items.potion = 2;
     items['ward-scroll'] = 1;
   }
-  if (seasonEvent?.perk === 'heirloom' && seasonEvent.heirloom) owned.add(seasonEvent.heirloom);
+  if (seasonPerks.includes('heirloom') && seasonEvent?.heirloom) owned.add(seasonEvent.heirloom);
   const seenClasses = new Set<string>();
   const slotChoice = new Map<GearSlot, string | null>();
   let questsToday = 0;
@@ -310,11 +329,11 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
     seasonOver: week > SEASON_WEEKS,
     season: {
       number: seasonsCompleted + 1, start: seasonStart,
-      perk: seasonEvent?.perk, startClass: seasonEvent?.startClass, heirloom: seasonEvent?.heirloom,
+      perk: seasonEvent?.perk, perks: seasonPerks, startClass: seasonEvent?.startClass, heirloom: seasonEvent?.heirloom,
       theme: themeFor(seasonsCompleted + 1), goal, goalReached,
       quests: questsTotal, bossesBeaten: [...beaten], rechecks,
     },
-    lifetime: { seasonsCompleted, questsTotal: lifetimeQuests, bossesBeaten, masteredClasses, fullClear, unlockedPerks },
+    lifetime: { seasonsCompleted, questsTotal: lifetimeQuests, bossesBeaten, masteredClasses, fullClear, unlockedPerks, relics },
     xp, levels, levelProgress, ratings, calibrated, daysSinceTrained, totalLevel,
     ownedGear, equipped: GEAR_SLOTS.flatMap((slot) => {
       if (slotChoice.has(slot)) {

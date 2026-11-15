@@ -18,6 +18,7 @@ export function Menu() {
         <button class="btn ghost tile" onClick={() => go('#/checkin')}><Icon name="flag" size={28} />Daily check-in</button>
         <button class="btn ghost tile" onClick={() => go('#/shortcut')}><Icon name="sword" size={28} />Scroll catcher</button>
         <button class="btn ghost tile" onClick={() => go('#/help')}><Icon name="guide" size={28} />Guide</button>
+        <button class="btn ghost tile" onClick={() => go('#/relics')}><Icon name="gem" size={28} />Reliquary · {g.lifetime.relics.length}/16</button>
         <button class="btn ghost tile" onClick={() => go('#/save')}><Icon name="bag" size={28} />Backup</button>
       </div>
       <Win quiet title="Hero record">
