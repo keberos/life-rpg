@@ -22,6 +22,8 @@ export interface Part {
   paint?: (pc: V3, n: V3) => Paint | null;
   /** Scaled with the head (JRPG big heads) or with a hand (oversized weapons). */
   anchor?: 'head' | 'handR' | 'handL';
+  /** The face: the crisp style stamps designed eyes on it instead of painting them. */
+  face?: boolean;
 }
 
 export interface ItemSpec {
@@ -173,7 +175,7 @@ export function bodyParts(j: Joints, skin: string, browMat: string, anime = fals
   return [
     { sdf: torsoSdf(j), mat: skin },
     { sdf: capsule(add(j.neck, v(0, 0.4, 0)), add(j.chest, v(0, 1.4, 0)), 0.95), mat: skin },
-    { sdf: headSdf(j.head), mat: skin, paint: facePaint(j.head, browMat, anime, iris), anchor: 'head' },
+    { sdf: headSdf(j.head), mat: skin, paint: facePaint(j.head, browMat, anime, iris), anchor: 'head', face: true },
     { sdf: anime ? capsule(add(j.head, v(0, -0.6, 2.75)), add(j.head, v(0, -1.25, 3.0)), 0.3, 0.32) : sphere(add(j.head, v(0, -0.7, 2.8)), 0.55), mat: skin, anchor: 'head' },
     { sdf: union(ellipsoid(add(j.head, v(2.6, -0.4, 0.1)), v(0.45, 0.75, 0.55)), ellipsoid(add(j.head, v(-2.6, -0.4, 0.1)), v(0.45, 0.75, 0.55))), mat: skin, anchor: 'head' }, // ears
     { sdf: armSdf(j, 'L'), mat: skin },

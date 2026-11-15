@@ -169,7 +169,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
     const part = parts[s.part];
     let matName = part.mat;
     let dl = 0;
-    if (!basic && part.paint) {
+    if (!basic && part.paint && !(crisp && part.face)) {
       const pc = toChar(p);
       let paint = part.paint(pc, toChar(n));
       // Minimal detail: drop shading-only lines (folds, strands, seams); keep colors and protected marks.
@@ -299,6 +299,68 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
       solid[i] = 1;
     }
   }
+
+  // Face glyphs, drawn for a face looking screen-right (mirrored when it looks left).
+  // K lash/outline, W eye white, I iris, i dark iris, H catch-light, B brow, M mouth.
+  // The near eye is the wider one; the far eye sits by the profile and is narrower.
+  function stampFace() {
+    const big = size >= 120;
+    const G = big
+      ? { near: ['KKKK', 'WIIH', 'WIii', '.ii.'], far: ['KKK', 'IIH', 'Iii'], browNear: 'BBBB', browFar: 'BB', mouth: 'MM' }
+      : { near: ['KKK', 'WIH', 'WIi'], far: ['KK', 'IH', 'Ii'], browNear: 'BBB', browFar: 'BB', mouth: 'MM' };
+    const turn = dir === 'battle' ? BATTLE_HEAD_TURN : 0;
+    const hs = joints.hs;
+    const toWorld = (local: V3): V3 => rotY(add(joints.head, rotY(mul(local, hs), turn)), yaw);
+    const project = (pw: V3) => ({ col: Math.round(dot(pw, R) * k + size / 2 - 0.5), row: Math.round(feetRow - dot(pw, U) * k - 0.5), depth: dot(pw, D) });
+    // A face point shows only if the ray at its pixel lands on the face, close to the point itself.
+    const faceIdx = parts.findIndex((p) => p.face);
+    const visible = (pw: V3, col: number, row: number) => {
+      if (col < 0 || row < 0 || col >= size || row >= size) return false;
+      const sm = samples[row * size + col];
+      if (!sm || sm.part !== faceIdx) return false;
+      const d = sub(sm.p, pw);
+      return Math.hypot(d[0], d[1], d[2]) < 0.9 * hs;
+    };
+    const eyeR = rampOf[rampId('eye')], whiteR = rampOf[rampId('eyeWhite')], irisR = rampOf[rampId(look.iris ?? 'irisBlue')];
+    const browR = rampOf[rampId(look.hair?.mat ?? 'hairBrown')], skinR = rampOf[rampId(look.skin ?? 'skin')];
+    const COL: Record<string, string> = {
+      K: mixHex(eyeR[0], OUTLINE_DARK, 0.3), W: whiteR[3], I: irisR[2], i: irisR[0], H: whiteR[3], B: mixHex(browR[0], OUTLINE_DARK, 0.25), M: mixHex(skinR[0], OUTLINE_DARK, 0.2),
+    };
+    const put = (col: number, row: number, ch: string) => {
+      if (ch === '.' || col < 0 || row < 0 || col >= size || row >= size) return;
+      const i = row * size + col;
+      if (!solid[i]) return;
+      data.set(rgba(COL[ch]), i * 4);
+    };
+    const eyes = [1, -1].map((s) => {
+      const eye = toWorld(v(1.15 * s, -0.4, 2.7));
+      const brow = toWorld(v(1.15 * s, 0.95, 2.6));
+      return { s, eye, brow, pe: project(eye), pb: project(brow) };
+    });
+    // Which way the face looks on screen, and which eye is nearer the camera.
+    // The character's left eye (+x) lands right of its right eye when the face looks screen-right.
+    const lookRight = eyes[0].pe.col > eyes[1].pe.col;
+    const near = eyes[0].pe.depth < eyes[1].pe.depth ? eyes[0] : eyes[1];
+    for (const e of eyes) {
+      if (!visible(e.eye, e.pe.col, e.pe.row)) continue;
+      const g = e === near ? G.near : G.far;
+      const w = g[0].length;
+      for (let r = 0; r < g.length; r++)
+        for (let c = 0; c < w; c++) {
+          const cc = lookRight ? c : w - 1 - c;
+          put(e.pe.col - Math.floor(w / 2) + cc, e.pe.row - 1 + r, g[r][c]);
+        }
+      const bw = (e === near ? G.browNear : G.browFar).length;
+      const browRow = Math.min(e.pb.row, e.pe.row - 3);
+      for (let c = 0; c < bw; c++) put(e.pe.col - Math.floor(bw / 2) + c, browRow, 'B');
+    }
+    const mouth = toWorld(v(0.15, -2.0, 2.35)), pm = project(mouth);
+    if (visible(mouth, pm.col, pm.row)) for (let c = 0; c < G.mouth.length; c++) put(pm.col + (lookRight ? c : -c), pm.row, 'M');
+  }
+
+  // ---- Pass 5b: crisp faces. Designed pixel eyes, brows and mouth stamped where the
+  // face points land on screen (like hand-drawn sprites), instead of sampling them from 3D.
+  if (crisp && style.face === 'anime') stampFace();
 
   // ---- Pass 6: prestige aura (glow ring + a few sparkles) ----
   if (look.aura && !basic && !crisp) {

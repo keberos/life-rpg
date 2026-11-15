@@ -4,7 +4,7 @@
 import { battleFrames } from '../../art-kit/src/battle.ts';
 import type { Look } from '../../art-kit/src/wardrobe.ts';
 
-const SIZE = 96;
+import { BATTLE_FRAME as SIZE } from '../../art-kit/src/battle.ts';
 const ctx = self as unknown as { onmessage: ((e: MessageEvent) => void) | null; postMessage: (m: unknown) => void };
 
 ctx.onmessage = async (e: MessageEvent<{ key: string; look: Look }>) => {

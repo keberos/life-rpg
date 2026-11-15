@@ -104,7 +104,7 @@ export function BossScreen() {
       {!fight && <div class="vs">VS</div>}
       <Win title={g.activeClass.name}>
         <div class="row" style={{ gap: '12px' }}>
-          <Hero classId={g.activeClass.id} scale={4} action={heroAction} gear={g.equipped.map((x) => x.id)} />
+          <Hero classId={g.activeClass.id} scale={6} action={heroAction} gear={g.equipped.map((x) => x.id)} />
           <div class="grow stack" style={{ gap: '6px' }}>
             <div class="row between"><span class="lv-badge">LV {g.totalLevel}</span></div>
             {v ? (

@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { CLASS_LOOKS } from '../src/class-looks.ts';
 import { LOOKS } from '../src/looks.ts';
 import { encodePng, sheet } from '../src/png.ts';
-import { battleFrames } from '../src/battle.ts';
+import { BATTLE_FRAME, battleFrames } from '../src/battle.ts';
 import type { Look } from '../src/wardrobe.ts';
 
 const byName = (list: Look[], n: string) => {
@@ -27,7 +27,7 @@ const CLASS_MAP: Record<string, Look> = {
   spellblade: byName(CLASS_LOOKS, 'Spellblade'),
 };
 
-const size = 96;
+const size = BATTLE_FRAME;
 const out = 'public/sprites';
 mkdirSync(out, { recursive: true });
 const t0 = Date.now();

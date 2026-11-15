@@ -7,6 +7,6 @@ import { renderLook } from '../src/render.ts';
 const [spec, who, sc, turn] = process.argv.slice(2);
 const frames = spec.split(',').map((s) => ({ clip: s.split(':')[0], t: Number(s.split(':')[1]) }));
 const looks = CLASS_LOOKS.filter((l) => who.split(',').some((o) => l.name.toLowerCase().startsWith(o)));
-const rows = looks.map((l) => frames.map((f) => renderLook(l, { dir: 'battle', motion: { ...f, turn: Number(turn ?? 0) }, quality: 'hd', style: 'crisp' })));
+const rows = looks.map((l) => frames.map((f) => renderLook(l, { dir: 'battle', motion: { ...f, turn: Number(turn ?? 0) }, quality: (process.env.Q ?? 'xl') as 'xl', style: 'crisp' })));
 writeFileSync('art-kit/out/motion-test.png', encodePng(sheet(rows, Number(sc ?? 3), [58, 64, 92, 255], 1)));
 console.log('ok');

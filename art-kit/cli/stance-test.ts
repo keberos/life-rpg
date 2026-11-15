@@ -5,5 +5,5 @@ import { encodePng, sheet } from '../src/png.ts';
 import { renderLook } from '../src/render.ts';
 const [who, sc] = process.argv.slice(2);
 const looks = CLASS_LOOKS.filter((l) => who.split(',').some((o) => l.name.toLowerCase().startsWith(o)));
-const rows = looks.map((l) => [0, 1, 2, 3].map((f) => renderLook(l, { dir: 'battle', anim: 'stance', frame: f, quality: 'hd', style: 'crisp' })));
+const rows = looks.map((l) => [0, 1, 2, 3].map((f) => renderLook(l, { dir: 'battle', anim: 'stance', frame: f, quality: (process.env.Q ?? 'xl') as 'xl', style: 'crisp' })));
 writeFileSync('art-kit/out/stance-test.png', encodePng(sheet(rows, Number(sc ?? 4), [58, 64, 92, 255], 1)));

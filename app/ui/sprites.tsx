@@ -24,7 +24,9 @@ function Pixels({ rows, palette, scale = 6, className }: { rows: string[]; palet
 
 // Hero sprites are pre-rendered by the art kit (npm run sprites) into
 // public/sprites/<classId>.png: frames 0-3 breathing stance, 4-7 attack.
-const FRAME = 96;
+const FRAME = 128; // art-kit BATTLE_FRAME
+/** Screen size of `scale` 1, in CSS px per 5 scale units (kept from the 96 px era so layouts hold). */
+const BASE = 96;
 const STRIP = 8;
 const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sage', 'cleric', 'spellblade']);
 
@@ -35,7 +37,7 @@ export function Hero({ classId, scale = 6, action = 'idle', gear }: { classId: s
   // Whole screen pixels per art pixel: at in-between sizes (say 3.6x) some art pixels
   // come out 3 screen pixels wide and some 4, which makes edges and faces look jagged.
   const dpr = typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
-  const n = Math.max(1, Math.round(((FRAME * scale) / 5) * dpr / FRAME + 0.15)); // lean a little toward bigger
+  const n = Math.max(1, Math.round(((BASE * scale) / 5) * dpr / FRAME + 0.15)); // lean a little toward bigger
   const px = (FRAME * n) / dpr;
   const frames = action === 'attack' ? [4, 5, 6, 7] : [0, 1, 2, 3];
   const [i, setI] = useState(0);

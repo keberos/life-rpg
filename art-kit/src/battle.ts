@@ -29,8 +29,11 @@ export function attackKind(look: Look): AttackKind {
   return 'punch';
 }
 
+/** Battle sprites are drawn in a 128 px frame (heroes ~75 px tall): room for real faces. */
+export const BATTLE_FRAME = 128;
+
 export function battleFrames(look: Look, style: 'jrpg' | 'crisp'): Image[] {
-  const q = { quality: 'hd' as const, style };
+  const q = { quality: style === 'crisp' ? ('xl' as const) : ('hd' as const), style };
   if (style === 'jrpg') {
     return [
       renderLook(look, { dir: 'downRight', anim: 'stance', frame: 0, ...q }),
