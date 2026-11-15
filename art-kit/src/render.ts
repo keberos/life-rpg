@@ -8,6 +8,7 @@ import { add, dot, mul, norm, rotY, sub, v, type V3 } from './sdf.ts';
 import { STYLES, type Style } from './styles.ts';
 import { lookParts, type Look, type Part } from './wardrobe.ts';
 import './wardrobe-more.ts'; // registers the extra gear
+import './weapons.ts'; // detailed weapons (override the simple ones)
 
 export type Dir = 'down' | 'left' | 'right' | 'up' | 'downRight' | 'downLeft' | 'upRight' | 'upLeft' | 'battle';
 const YAW: Record<Dir, number> = {
@@ -69,7 +70,9 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
   const joints = opts.motion
     ? jointsFromMotion(bodyDims, clipFrame(opts.motion.clip, opts.motion.t), { turn: opts.motion.turn })
     : solve(bodyDims, opts.pose ?? animPose(opts.anim ?? style.idleAnim, opts.frame ?? 0));
-  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp' });
+  // Toward the camera in character space, so flat weapons can show their broad side.
+  const viewChar = rotY([0, Math.sin(pitch), Math.cos(pitch)], -yaw);
+  const parts: Part[] = lookParts(look, joints, { weaponScale: style.weaponScale, anime: style.face === 'anime', headTurn: dir === 'battle' ? BATTLE_HEAD_TURN : 0, frameFace: style.render === 'crisp', view: viewChar });
 
   const toChar = (p: V3): V3 => rotY(p, -yaw);
   const scene = (pw: V3): [number, number] => {

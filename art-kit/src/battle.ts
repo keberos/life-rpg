@@ -16,10 +16,10 @@ const ATTACKS = {
 } as const;
 export type AttackKind = keyof typeof ATTACKS | 'own';
 
-const MELEE = new Set(['sword', 'axe', 'mace', 'dagger', 'runeblade', 'greatsword', 'spear', 'hammer']);
+const MELEE = new Set(['sword', 'ironSword', 'twinfang', 'axe', 'mace', 'dagger', 'runeblade', 'greatsword', 'spear', 'hammer']);
 /** Archers keep our own designed strike: the borrowed swing flails the bow in the off hand. */
 const ARCHER = 'bow';
-const CASTER = new Set(['staff', 'tome', 'wand']);
+const CASTER = new Set(['staff', 'oakStaff', 'emberglassRod', 'tome', 'wand']);
 
 export function attackKind(look: Look): AttackKind {
   const ids = look.items.map((i) => i.id);

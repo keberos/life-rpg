@@ -51,6 +51,8 @@ export interface Joints {
   forearmL: V3; forearmR: V3;
   /** Blade direction out of each fist, when known (borrowed motion). */
   gripL?: V3; gripR?: V3;
+  /** Toward the camera, in character space: flat weapons turn their broad side this way. */
+  view?: V3;
   build: number;
   hs: number; // head scale
   shoulderW: number;

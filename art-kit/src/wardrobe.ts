@@ -519,9 +519,12 @@ export interface LookOptions {
   headTurn?: number;
   /** Add bangs and cheek locks so hair frames the face (crisp style). */
   frameFace?: boolean;
+  /** Toward the camera, in character space (flat weapons face it). */
+  view?: V3;
 }
 
-export function lookParts(look: Look, j: Joints, opts: LookOptions = {}): Part[] {
+export function lookParts(look: Look, j0: Joints, opts: LookOptions = {}): Part[] {
+  const j: Joints = opts.view ? { ...j0, view: opts.view } : j0;
   const brow = look.hair?.mat ?? 'hairBrown';
   const parts = bodyParts(j, look.skin ?? 'skin', brow, !!opts.anime, look.iris ?? 'irisBlue');
   if (look.hair) parts.push(...hairParts(j, look.hair.style, look.hair.mat, opts.frameFace));

@@ -17,16 +17,16 @@ const CLASS_STYLE: Record<string, { cloth: string; accent?: ItemSpec[]; lookName
 
 /** Game gear id -> art-kit pieces worn on the hero. */
 export const GEAR_VISUALS: Record<string, { items: ItemSpec[]; aura?: string }> = {
-  'iron-sword': { items: [{ id: 'sword', mat: 'steelDark', mat2: 'leather' }] },
-  'oak-staff': { items: [{ id: 'staff', mat: 'wood', mat2: 'wood' }] },
+  'iron-sword': { items: [{ id: 'ironSword' }] },
+  'oak-staff': { items: [{ id: 'oakStaff' }] },
   'leather-vest': { items: [{ id: 'vest' }] },
   'prayer-beads': { items: [{ id: 'amulet', mat: 'wood', mat2: 'holy' }] },
-  twinfang: { items: [{ id: 'sword', mat: 'silver', mat2: 'gold' }] },
+  twinfang: { items: [{ id: 'twinfang' }] },
   mossweave: { items: [{ id: 'chainmail' }, { id: 'leatherArmor', mat: 'clothForest', mat2: 'leatherDark' }] },
   'mirror-charm': { items: [{ id: 'amulet', mat: 'silver', mat2: 'arcane' }] },
   'saints-locket': { items: [{ id: 'amulet', mat: 'gold', mat2: 'holy' }] },
   bulwark: { items: [{ id: 'chainmail' }, { id: 'plate' }, { id: 'shield', mat: 'steel', mat2: 'gold' }] },
-  emberglass: { items: [{ id: 'staff', mat: 'gold', mat2: 'flame' }] },
+  emberglass: { items: [{ id: 'emberglassRod' }] },
   'halo-of-mercy': { items: [{ id: 'circlet', mat: 'gold', mat2: 'holy' }, { id: 'cape', mat: 'clothWhite', mat2: 'gold' }], aura: 'holy' },
 };
 

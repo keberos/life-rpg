@@ -54,6 +54,12 @@ export const MATERIALS: Record<string, Material> = {
   shadow: { ramp: ['#2a1050', '#5a2a9a', '#9a5ae0', '#e2c8ff'], finish: 'glow' },
   arcane: { ramp: ['#2a6aa8', '#4aa8e0', '#8ee0ff', '#e8fcff'], finish: 'glow' },
   holy: { ramp: ['#a87a2a', '#e8c04a', '#fff08a', '#fffde8'], finish: 'glow' },
+  // Weapon materials: set gems (bright, glow) and a dark blade metal.
+  gemBlue: { ramp: ['#14306e', '#2a62c8', '#5aa8ff', '#d8f0ff'], finish: 'glow' },
+  gemRed: { ramp: ['#5a0e1e', '#b01e2e', '#ff4a4a', '#ffd0c8'], finish: 'glow' },
+  gemGreen: { ramp: ['#0e4a2a', '#1e9a4a', '#5ae07a', '#d8ffe0'], finish: 'glow' },
+  obsidian: { ramp: ['#0c0a16', '#221c36', '#3e3460', '#8a7ab8'], finish: 'metal' },
+  ironDark: { ramp: ['#1a1a26', '#34364a', '#565a72', '#8a90aa'], finish: 'metal' },
 };
 
 export const OUTLINE_DARK = '#140e1c';
