@@ -1,7 +1,8 @@
 // Sprites. Heroes come from the art kit; bosses are still hand-placed placeholders
 // (each row a string, each character a palette color, '.' transparent).
 import { useEffect, useState } from 'preact/hooks';
-import { heroLayers } from '../../art-kit/src/held-gear.ts';
+import { heroLayers, kindFor, weaponFor } from '../../art-kit/src/held-gear.ts';
+import { DEFAULT_LOOK, heroStripPath, recolorHero, type HeroLook } from '../content/appearance.ts';
 
 type Palette = Record<string, string>;
 
@@ -30,14 +31,70 @@ const BASE = 96;
 const STRIP = 8;
 const KNOWN = new Set(['adventurer', 'warrior', 'paladin', 'ranger', 'monk', 'sage', 'cleric', 'spellblade']);
 
+// Layered heroes: public/sprites/hero/<hairstyle>/<class>-<kind>.png holds the painted
+// strip (top half) and a mask (bottom half, red: 1 skin, 2 hair). Hair color and skin tone
+// are recolored here once per look and cached as an object URL.
+const bodies = new Map<string, string | null>();
+const pending = new Map<string, Promise<string | null>>();
+function layeredBody(look: HeroLook, classId: string, kind: string): Promise<string | null> {
+  const key = `${look.hair}|${look.hairColor}|${look.skin}|${classId}|${kind}`;
+  if (bodies.has(key)) return Promise.resolve(bodies.get(key)!);
+  let p = pending.get(key);
+  if (!p) {
+    p = new Promise<string | null>((done) => {
+      const img = new Image();
+      img.onerror = () => done(null);
+      img.onload = () => {
+        const w = img.width, h = img.height / 2;
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = img.height;
+        const ctx = c.getContext('2d');
+        if (!ctx || h !== FRAME) return done(null);
+        ctx.drawImage(img, 0, 0);
+        const art = ctx.getImageData(0, 0, w, h), mask = ctx.getImageData(0, h, w, h);
+        recolorHero(art.data, mask.data, look);
+        c.height = h;
+        ctx.putImageData(art, 0, 0);
+        c.toBlob((b) => done(b ? URL.createObjectURL(b) : null));
+      };
+      img.src = `./${heroStripPath(look, classId, kind)}`;
+    }).then((url) => {
+      bodies.set(key, url);
+      pending.delete(key);
+      return url;
+    });
+    pending.set(key, p);
+  }
+  return p;
+}
+
+function useLayeredBody(look: HeroLook | undefined, classId: string, kind: string): { ready: boolean; url: string | null } {
+  const key = look && `${look.hair}|${look.hairColor}|${look.skin}|${classId}|${kind}`;
+  const known = key !== undefined && bodies.has(key);
+  const [state, setState] = useState<{ key?: string; url: string | null }>({ key, url: known ? bodies.get(key!)! : null });
+  useEffect(() => {
+    if (!look) return;
+    let live = true;
+    layeredBody(look, classId, kind).then((url) => live && setState({ key, url }));
+    return () => { live = false; };
+  }, [key]);
+  if (!look) return { ready: true, url: null };
+  if (known) return { ready: true, url: bodies.get(key!)! };
+  return { ready: state.key === key, url: state.key === key ? state.url : null };
+}
+
 /**
- * The hero is a stack of pre-made layers: the class body (its standard outfit) and
- * the weapon on top. The art for each layer is painted ahead of
- * time; the app only stacks them, so new gear needs one new layer, not new heroes.
+ * The hero is a stack of pre-made layers: the body (the player's look in the class's
+ * standard outfit) and the weapon on top. The art for each layer is painted ahead of
+ * time; the app only stacks them (and recolors hair and skin), so new gear needs one
+ * new layer, not new heroes. Without a painted strip for the look, the class body is used.
  */
-export function Hero({ classId, scale = 6, action = 'idle', gear = [] }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[] }) {
+export function Hero({ classId, scale = 6, action = 'idle', gear = [], look = DEFAULT_LOOK }: { classId: string; scale?: number; action?: 'idle' | 'attack'; gear?: string[]; look?: HeroLook }) {
   const id = KNOWN.has(classId) ? classId : 'adventurer';
-  const layers = heroLayers(id, gear);
+  const kind = kindFor(weaponFor(id, gear));
+  const body = useLayeredBody(look, id, kind);
+  const layers = heroLayers(id, gear).map((l, i) => (i === 0 && body.url ? body.url : l));
   // Whole screen pixels per art pixel: at in-between sizes (say 3.6x) some art pixels
   // come out 3 screen pixels wide and some 4, which makes edges and faces look jagged.
   const dpr = typeof devicePixelRatio === 'number' && devicePixelRatio > 0 ? devicePixelRatio : 1;
@@ -59,8 +116,9 @@ export function Hero({ classId, scale = 6, action = 'idle', gear = [] }: { class
       style={{
         width: `${px}px`,
         height: `${px}px`,
+        visibility: body.ready ? undefined : 'hidden',
         // CSS paints the first background on top, so held layers go first.
-        backgroundImage: [...layers].reverse().map((l) => `url(./${l})`).join(', '),
+        backgroundImage: [...layers].reverse().map((l) => `url(${l.startsWith('blob:') ? l : `./${l}`})`).join(', '),
         backgroundSize: layers.map(() => `${px * STRIP}px ${px}px`).join(', '),
         backgroundPosition: layers.map(() => `-${frame * px}px 0px`).join(', '),
       }}

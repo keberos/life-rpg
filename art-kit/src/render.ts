@@ -54,7 +54,20 @@ export interface RenderOpts {
    * so the app can stack weapon and shield layers over a class body.
    */
   layer?: 'body' | 'held' | 'heldR' | 'heldL';
+  /**
+   * Layered sprites: filled with one byte per pixel saying which layer won it
+   * (low 3 bits: 1 person, 2 hair, 3 outfit, 4 held; see ID_* below).
+   */
+  ids?: Uint8Array;
+  /** Layered sprites: filled with each pixel's material (ramp) name, '' where empty. */
+  mats?: string[];
 }
+
+/** Pixel id bits written to RenderOpts.ids. */
+export const ID_GROUP = { body: 1, hair: 2, outfit: 3, held: 4 } as const;
+export const ID_SKIN = 8; // skin material (recolored per skin tone)
+export const ID_LINE = 16; // outline or inner contour pixel
+export const ID_STAMP = 32; // stamped face glyph (eyes, brows, mouth)
 
 const isHeld = (p: Part) => p.anchor === 'handR' || p.anchor === 'handL';
 
@@ -348,6 +361,7 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
       const i = row * size + col;
       if (!solid[i]) return;
       data.set(rgba(COL[ch]), i * 4);
+      stamped[i] = 1;
     };
     const eyes = [1, -1].map((s) => {
       const eye = toWorld(v(1.15 * s, -0.4, 2.7));
@@ -394,7 +408,33 @@ export function renderLook(look: Look, opts: RenderOpts = {}): Image {
 
   // ---- Pass 5b: crisp faces. Designed pixel eyes, brows and mouth stamped where the
   // face points land on screen (like hand-drawn sprites), instead of sampling them from 3D.
+  const stamped = new Uint8Array(N);
   if (crisp && style.face === 'anime') stampFace();
+
+  // ---- Layer ids: which group won each pixel; outline pixels go to the part they outline. ----
+  if (opts.ids) {
+    const rampName: string[] = [];
+    for (const [name, idx] of rampIdx) rampName[idx] = name;
+    const ids = opts.ids;
+    ids.fill(0);
+    opts.mats?.fill('');
+    for (let i = 0; i < N; i++) {
+      if (!solid[i]) continue;
+      let j = i;
+      if (!samples[i]) {
+        j = -1;
+        for (const jj of nb4(i)) if (samples[jj] && (j < 0 || depth[jj] < depth[j])) j = jj;
+        if (j < 0) continue;
+      }
+      const g = parts[samples[j]!.part].group;
+      let id: number = g ? ID_GROUP[g] : ID_GROUP.body;
+      if (ramp[j] >= 0 && rampName[ramp[j]].startsWith('skin')) id |= ID_SKIN;
+      if (!samples[i] || inner[i]) id |= ID_LINE;
+      if (stamped[i]) id |= ID_STAMP;
+      ids[i] = id;
+      if (opts.mats && ramp[j] >= 0) opts.mats[i] = rampName[ramp[j]];
+    }
+  }
 
   // ---- Pass 6: prestige aura (glow ring + a few sparkles) ----
   if (look.aura && !basic && !crisp) {

@@ -1,7 +1,7 @@
 // More gear for every slot. Registered into ITEMS on import.
 import type { Joints } from './rig.ts';
 import { add, capsule, ellipsoid, inflate, intersect, lerp3, mul, norm, roundBox, skirt, sphere, sub, subtract, union, v, type Sdf, type V3 } from './sdf.ts';
-import { ITEMS, above, band, below, folds, legSdf, sleeve, torsoSdf, type ItemDef, type Part } from './wardrobe.ts';
+import { ITEMS, above, aboveRim, band, below, folds, headband, headbandCut, helmCut, legSdf, sleeve, torsoSdf, type ItemDef, type Part } from './wardrobe.ts';
 
 /** Direction a one-handed weapon points from the right hand (same as the sword). */
 const gripDir = (j: Joints) => j.gripR ?? norm(add(j.forearmR, v(0, 0.55, 1.15)));
@@ -16,6 +16,7 @@ const MORE: Record<string, ItemDef> = {
   // ---------------- Heads ----------------
   wizardHat: {
     anchor: 'head', mat: 'clothPurple', mat2: 'gold',
+    hairCut: (j) => intersect(ellipsoid(add(j.head, v(0, 1.7, 0)), v(5.0, 40, 5.0)), above(j.head[1] + 1.2)),
     fn: (j, m, m2) => {
       const h = j.head;
       return [
@@ -26,6 +27,7 @@ const MORE: Record<string, ItemDef> = {
   },
   travelerHat: {
     anchor: 'head', mat: 'leather', mat2: 'clothRed',
+    hairCut: (j) => intersect(ellipsoid(add(j.head, v(0, 1.95, 0)), v(5.4, 40, 5.4)), above(j.head[1] + 1.5)),
     fn: (j, m, m2) => {
       const h = j.head;
       return [
@@ -37,6 +39,7 @@ const MORE: Record<string, ItemDef> = {
   },
   hornedHelm: {
     anchor: 'head', mat: 'steelDark', mat2: 'bone',
+    hairCut: (j) => union(helmCut(intersect(ellipsoid(add(j.head, v(0, 0.3, -0.1)), v(3.45, 3.8, 3.45)), above(j.head[1] + 0.3))), aboveRim(j, 0.3)),
     fn: (j, m, m2) => {
       const h = j.head;
       const horn = (s: 1 | -1) => union(
@@ -52,19 +55,27 @@ const MORE: Record<string, ItemDef> = {
   },
   bandana: {
     anchor: 'head', mat: 'clothRed',
+    hairCut: (j) => headbandCut(j, 1.3, 2.6),
     fn: (j, m) => {
       const h = j.head;
       return [
-        { sdf: intersect(ellipsoid(add(h, v(0, 0.3, -0.05)), v(3.25, 3.6, 3.25)), above(h[1] + 1.3), below(h[1] + 2.6)), mat: m },
-        { sdf: union(capsule(add(h, v(0.3, 1.4, -3.2)), add(h, v(1.2, -1.6, -4.3)), 0.7, 0.4), capsule(add(h, v(-0.3, 1.4, -3.2)), add(h, v(-0.9, -1.0, -4.5)), 0.7, 0.4)), mat: m },
+        // The band shows across the front (hairCut clears the fringe there) and goes under the hair at the back.
+        { sdf: headband(h, 1.3, 2.6), mat: m, underHair: true },
+        // Knot and short tails at the back rest on the hair (restOnHair).
+        {
+          sdf: union(sphere(add(h, v(0, 1.9, -3.3)), 0.7), capsule(add(h, v(0.3, 1.6, -3.3)), add(h, v(0.9, -0.3, -3.9)), 0.6, 0.35), capsule(add(h, v(-0.3, 1.6, -3.3)), add(h, v(-0.6, 0.1, -4.0)), 0.6, 0.35)),
+          mat: m,
+          restOnHair: { at: [[add(h, v(0, 1.9, -3.3)), 0.6], [add(h, v(0.9, -0.3, -3.9)), 0.3], [add(h, v(-0.6, 0.1, -4.0)), 0.3]], dir: v(0, 0, -1) },
+        },
       ];
     },
   },
   crown: {
     anchor: 'head', mat: 'gold', mat2: 'clothRed',
+    hairCut: (j) => headbandCut(j, 1.2, 2.5),
     fn: (j, m, m2) => {
       const h = j.head;
-      const ring = subtract(intersect(ellipsoid(add(h, v(0, 0.3, 0)), v(3.35, 3.7, 3.35)), above(h[1] + 1.2), below(h[1] + 2.5)), ellipsoid(add(h, v(0, 0.3, 0)), v(2.9, 3.3, 2.9)));
+      const ring = headband(h, 1.2, 2.5);
       const points: Sdf[] = [];
       for (let i = 0; i < 6; i++) {
         const a = (i / 6) * Math.PI * 2;
@@ -72,7 +83,8 @@ const MORE: Record<string, ItemDef> = {
         points.push(capsule(base, add(base, v(0, 1.4, 0)), 0.45, 0.12));
       }
       return [
-        { sdf: union(ring, ...points), mat: m },
+        { sdf: ring, mat: m, underHair: true },
+        { sdf: union(...points), mat: m },
         { sdf: sphere(add(h, v(0, 1.85, 3.3)), 0.55), mat: m2 },
       ];
     },
@@ -190,6 +202,7 @@ const MORE: Record<string, ItemDef> = {
       const h = j.head, sw = j.sway;
       const knot = add(h, v(0, 1.6, -3.2));
       return [{
+        restOnHair: { at: [[knot, 0.6], [add(knot, v(1.2, 0.3, 0)), 0.5], [add(knot, v(-1.2, 0.3, 0)), 0.5]], dir: v(0, 0.2, -1) },
         sdf: union(
           ellipsoid(add(knot, v(1.2, 0.3, 0)), v(1.2, 0.8, 0.4)),
           ellipsoid(add(knot, v(-1.2, 0.3, 0)), v(1.2, 0.8, 0.4)),

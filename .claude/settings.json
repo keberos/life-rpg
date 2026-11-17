@@ -8,6 +8,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/ship-check.ts\"",
             "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/scripts/game-guard.ts\" --hook",
+            "timeout": 30
           }
         ]
       }

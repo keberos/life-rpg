@@ -18,7 +18,10 @@ hero who fights seasonal bosses. README.md has the file map and commands.
 
 ## Delegation (standing permission from the owner)
 
-The lead hands work to the specialist agents **without asking** when it matches:
+The lead picks where each job runs (inline, an agent, a background command) by what is
+most efficient and effective, without asking, and **says in one line what it chose and
+why**. The triggers below are the defaults; the lead hands work to these agents
+without asking when it matches:
 
 - Sprite, weapon or boss art, a repaint, or a paint A/B → **art-pipeline**
 - Any change to a screen in the quest → reward → camp → boss flow, before calling it
@@ -31,7 +34,7 @@ The lead does it directly instead when it's small (a few edits, plumbing, under 
 minutes) or needs this conversation's context more than the specialist's focus. Run
 `npm run ship-check` directly; the ship-check agent is for when the lead is busy.
 Long agent jobs (repaints) run in the background while the lead keeps working or
-talking. Say in one line which agent got what. Agents bring taste calls back as
+talking. Agents bring taste calls back as
 options; they never commit, push or install a pick the owner hasn't made.
 
 ## Game design rules (tests in test/rules.test.ts enforce most)
@@ -54,6 +57,15 @@ options; they never commit, push or install a pick the owner hasn't made.
   Guide (`app/ui/Help.tsx`) in the same commit as the feature.
 - Line endings are mixed in some files: when scripting edits, detect `\r\n` first.
   Bash heredocs eat backslashes; write patch scripts with the Write tool.
+
+## Game guard
+
+The owner games on this PC. Heavy work (GPU paint, art-kit renders, sims, shots/loop,
+builds) never runs while a game is up: `scripts/game-guard.ts` detects it (full-screen
+app, Steam game, listed processes, busy GPU), a PreToolUse hook blocks heavy commands, and
+`npm run paint` refuses to start and stops mid-run if a game starts. When blocked, do
+light work (code, reading, typecheck, tests) and say what's waiting. Always ask before a
+long GPU run even when no game is up.
 
 ## Testing in the browser
 

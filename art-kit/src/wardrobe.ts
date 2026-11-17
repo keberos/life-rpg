@@ -24,6 +24,14 @@ export interface Part {
   anchor?: 'head' | 'handR' | 'handL';
   /** The face: the crisp style stamps designed eyes on it instead of painting them. */
   face?: boolean;
+  /** Which layer the part belongs to (person, hair, outfit, held), for layered sprites. Set by lookParts. */
+  group?: 'body' | 'hair' | 'outfit' | 'held';
+  /** Drapes over the hair (bandana tails): pushed along `dir` until every `at` point
+   *  (with its radius) clears the wearer's hair, so it lies on the hair, not in it. */
+  restOnHair?: { at: [V3, number][]; dir: V3 };
+  /** Goes under the hair (a headband's back): it doesn't carve the hair, so hair covers it.
+   *  Where it should show over hair, the item's hairCut says. */
+  underHair?: boolean;
 }
 
 export interface ItemSpec {
@@ -251,7 +259,25 @@ export const sleeve = (a: V3, b: V3, upTo: number, ra: number, rb: number): Sdf 
 
 export type ItemFn = (j: Joints, mat: string, mat2: string) => Part[];
 
-export interface ItemDef { fn: ItemFn; mat: string; mat2?: string; anchor?: Part['anchor'] }
+/** A band around the head just over the hair cap (radius 3.25), from y0 to y1 above the head center. */
+export const headband = (h: V3, y0: number, y1: number, r = 3.4): Sdf =>
+  intersect(ellipsoid(add(h, v(0, 0.3, -0.05)), v(r, r + 0.35, r)), above(h[1] + y0), below(h[1] + y1));
+/** Hair rule for a headband (worn with underHair): clear the fringe around the band on the
+ *  front half only (the back goes under the hair), never above its top edge (no scalp). */
+export const headbandCut = (j: Joints, y0: number, y1: number, r = 3.4): Sdf =>
+  intersect(inflate(headband(j.head, y0, y1, r), 0.3), (p: V3) => j.head[2] + 0.5 - p[2], below(j.head[1] + y1));
+/** Hair rule for a helmet or hood: no hair within `margin` outside its shell (hair can't poke
+ *  through), except where `keep` is (a face opening). Hair hanging below the edge stays. */
+export const helmCut = (shell: Sdf, margin = 1.0, keep?: Sdf): Sdf => (keep ? subtract(inflate(shell, margin), keep) : inflate(shell, margin));
+/** Hair rule for anything worn over the crown (helms, hoods): no hair above the rim (`dy` above
+ *  the head center) anywhere around the head, so buns and swept locks can't stick out of it. */
+export const aboveRim = (j: Joints, dy: number): Sdf => intersect(ellipsoid(add(j.head, v(0, 0, -0.5)), v(6, 40, 6.5)), above(j.head[1] + dy));
+
+export interface ItemDef {
+  fn: ItemFn; mat: string; mat2?: string; anchor?: Part['anchor'];
+  /** Headwear: the space where no hair may be (e.g. everything above a brim). Hair is carved out of it. */
+  hairCut?: (j: Joints) => Sdf;
+}
 export const ITEMS: Record<string, ItemDef> = {
   shirt: {
     mat: 'linen',
@@ -429,6 +455,7 @@ export const ITEMS: Record<string, ItemDef> = {
   },
   hood: {
     anchor: 'head', mat: 'clothDeepBlue',
+    hairCut: (j) => union(helmCut(ellipsoid(add(j.head, v(0, 0.5, -0.5)), v(3.75, 4.0, 3.75)), 1.0, roundBox(add(j.head, v(0, -0.4, 3.2)), v(2.6, 2.7, 2.6), 1.3)), subtract(aboveRim(j, 2.4), roundBox(add(j.head, v(0, -0.4, 3.2)), v(2.6, 2.7, 2.6), 1.3))),
     fn: (j, m) => {
       const shell = ellipsoid(add(j.head, v(0, 0.5, -0.5)), v(3.75, 4.0, 3.75));
       const face = roundBox(add(j.head, v(0, -0.4, 3.2)), v(2.6, 2.7, 2.6), 1.3);
@@ -438,6 +465,7 @@ export const ITEMS: Record<string, ItemDef> = {
   },
   helmOpen: {
     anchor: 'head', mat: 'steel', mat2: 'leather',
+    hairCut: (j) => union(helmCut(intersect(ellipsoid(add(j.head, v(0, 0.3, -0.1)), v(3.4, 3.75, 3.4)), above(j.head[1] + 0.5))), aboveRim(j, 0.5)),
     fn: (j, m) => [
       { sdf: intersect(ellipsoid(add(j.head, v(0, 0.3, -0.1)), v(3.4, 3.75, 3.4)), above(j.head[1] + 0.5)), mat: m, paint: (pc) => (Math.abs(pc[1] - (j.head[1] + 0.85)) < 0.3 ? { dl: -1 } : null) },
       { sdf: roundBox(add(j.head, v(0, 0.0, 3.1)), v(0.35, 1.3, 0.35), 0.2), mat: m },
@@ -445,6 +473,7 @@ export const ITEMS: Record<string, ItemDef> = {
   },
   helmKnight: {
     anchor: 'head', mat: 'steel', mat2: 'clothRed',
+    hairCut: (j) => union(helmCut(ellipsoid(add(j.head, v(0, 0.2, 0)), v(3.5, 3.85, 3.5))), aboveRim(j, 0.5)),
     fn: (j, m, m2) => [
       {
         sdf: subtract(ellipsoid(add(j.head, v(0, 0.2, 0)), v(3.5, 3.85, 3.5)), roundBox(add(j.head, v(0, 0.35, 3.2)), v(2.1, 0.32, 1.2), 0.1)), mat: m,
@@ -456,8 +485,9 @@ export const ITEMS: Record<string, ItemDef> = {
   },
   circlet: {
     anchor: 'head', mat: 'gold', mat2: 'arcane',
+    hairCut: (j) => headbandCut(j, 0.95, 1.6, 3.35),
     fn: (j, m, m2) => [
-      { sdf: intersect(ellipsoid(add(j.head, v(0, 0.3, 0)), v(3.2, 3.55, 3.2)), above(j.head[1] + 0.95), below(j.head[1] + 1.6)), mat: m },
+      { sdf: headband(j.head, 0.95, 1.6, 3.35), mat: m, underHair: true },
       { sdf: sphere(add(j.head, v(0, 1.3, 3.1)), 0.6), mat: m2 },
     ],
   },
@@ -526,15 +556,39 @@ export interface LookOptions {
 export function lookParts(look: Look, j0: Joints, opts: LookOptions = {}): Part[] {
   const j: Joints = opts.view ? { ...j0, view: opts.view } : j0;
   const brow = look.hair?.mat ?? 'hairBrown';
-  const parts = bodyParts(j, look.skin ?? 'skin', brow, !!opts.anime, look.iris ?? 'irisBlue');
-  if (look.hair) parts.push(...hairParts(j, look.hair.style, look.hair.mat, opts.frameFace));
-  if (look.beard) parts.push(...beardParts(j, look.beard, brow));
+  const tag = (ps: Part[], group: Part['group']) => ps.map((p) => ({ ...p, group: p.group ?? group }));
+  const parts = tag(bodyParts(j, look.skin ?? 'skin', brow, !!opts.anime, look.iris ?? 'irisBlue'), 'body');
+  if (look.hair) parts.push(...tag(hairParts(j, look.hair.style, look.hair.mat, opts.frameFace), 'hair'));
+  if (look.beard) parts.push(...tag(beardParts(j, look.beard, brow), 'hair'));
   for (const it of look.items) {
     const def = ITEMS[it.id];
     if (!def) throw new Error(`Unknown item ${it.id}`);
     const made = def.fn(j, it.mat ?? def.mat, it.mat2 ?? def.mat2 ?? def.mat);
     if (def.anchor) for (const p of made) p.anchor ??= def.anchor;
-    parts.push(...made);
+    parts.push(...tag(made, def.anchor === 'handR' || def.anchor === 'handL' ? 'held' : 'outfit'));
+  }
+  // Drapes lie on the hair: push each one out until it clears the hair (no hair, no push).
+  const hairSdfs = parts.filter((p) => p.group === 'hair').map((p) => p.sdf);
+  if (hairSdfs.length) {
+    const hair = union(...hairSdfs);
+    for (let i = 0; i < parts.length; i++) {
+      const r = parts[i].restOnHair;
+      if (!r) continue;
+      const dir = norm(r.dir);
+      let d = 0;
+      while (d < 6 && r.at.some(([p, rad]) => hair(add(p, mul(dir, d))) < rad)) d += 0.05;
+      if (d === 0) continue;
+      const off = mul(dir, d), sdf = parts[i].sdf, paint = parts[i].paint;
+      parts[i] = { ...parts[i], sdf: (q) => sdf(sub(q, off)), paint: paint && ((pc: V3, n: V3) => paint(sub(pc, off), n)) };
+    }
+  }
+  // Headwear sits on the hair: carve the hair away wherever a hat, helm or band is,
+  // so no hair pokes through a brim and no band pokes out through the hair.
+  const headwear = parts.filter((p) => p.group === 'outfit' && p.anchor === 'head' && !p.underHair).map((p) => p.sdf);
+  for (const it of look.items) { const cut = ITEMS[it.id].hairCut; if (cut) headwear.push(cut(j)); }
+  if (headwear.length) {
+    const cover = inflate(union(...headwear), 0.35);
+    for (let i = 0; i < parts.length; i++) if (parts[i].group === 'hair') parts[i] = { ...parts[i], sdf: subtract(parts[i].sdf, cover) };
   }
   // Scale anchored parts: heads by the body's head scale, held items by the weapon scale.
   const ws = opts.weaponScale ?? 1;

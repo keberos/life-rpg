@@ -311,3 +311,8 @@ button.stat.tappable { width: 100%; background: none; border: none; padding: 2px
 .relic.got { opacity: 1; border-color: var(--c); }
 .relic .relic-gem { color: var(--c); filter: grayscale(1); }
 .relic.got .relic-gem { filter: none; }
+
+/* Hero look picker: wrapping rows of option buttons, colors with a swatch. */
+.look-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.look-row .btn { flex: 0 0 auto; gap: 6px; }
+.swatch { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--outline); }

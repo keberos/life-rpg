@@ -12,6 +12,7 @@ import { themeFor, type Goal, type ThemeDef } from '../content/seasons.ts';
 import { bossForSeason } from '../../src/content/boss-forms.ts';
 import { relicFor, relicPerks } from '../content/legacy.ts';
 import type { Omen } from '../../src/engine/combat.ts';
+import { cleanLook, type HeroLook } from '../content/appearance.ts';
 
 export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'charm', 'relic'];
 
@@ -45,6 +46,8 @@ export type LogEvent = Base & (
   | { type: 'loot'; kind: 'gear' | 'item'; id: string; source: string }
   | { type: 'useItem'; id: string }
   | { type: 'chooseClass'; classId: string }
+  /** How the hero looks (hairstyle, hair color, skin tone). Lifetime: survives new seasons. */
+  | { type: 'appearance'; look: HeroLook }
   /** The player's target for this season (null clears it). */
   | { type: 'setGoal'; goal: Goal | null }
   /** The player has seen these unlocked classes (clears the "new class" banner). */
@@ -133,6 +136,8 @@ export interface GameState {
   /** Unlocked classes the player hasn't looked at yet. */
   newClasses: ClassDef[];
   activeClass: ClassDef;
+  /** The hero's appearance (latest 'appearance' event, any season; defaults otherwise). */
+  look: HeroLook;
   boss: BossStatus;
   questsToday: number;
   questsTotal: number;
@@ -347,6 +352,7 @@ export function derive(save: SaveFile, realNow = Date.now()): GameState {
       return best ? [best] : [];
     }), items,
     unlocked, newClasses, activeClass,
+    look: cleanLook(all.findLast((e) => e.type === 'appearance')?.look),
     boss: { def, tier, defeated, foughtToday, nextBossWeek, behind },
     questsToday, questsTotal, checkedInToday,
     interceptsAccepted: accepted, interceptsSkipped: skipped,

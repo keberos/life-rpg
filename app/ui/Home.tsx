@@ -38,7 +38,7 @@ export function Home() {
       <Win title={g.activeClass.name}>
         <div class="row" style={{ alignItems: 'center', gap: '12px' }}>
           <button class="iconbtn hero-stand" style={{ padding: 0 }} onClick={() => go('#/gear')} aria-label="Open hero and gear">
-            <Hero classId={g.activeClass.id} scale={6} gear={g.equipped.map((x) => x.id)} />
+            <Hero classId={g.activeClass.id} scale={6} gear={g.equipped.map((x) => x.id)} look={g.look} />
           </button>
           <div class="grow stack" style={{ gap: '5px' }}>
             <div class="row between">

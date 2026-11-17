@@ -49,7 +49,7 @@ export function SeasonScreen() {
 
       <Win>
         <div class="stack center" style={{ alignItems: 'center', gap: '6px' }}>
-          <Hero classId={g.activeClass.id} scale={7} gear={g.equipped.map((x) => x.id)} />
+          <Hero classId={g.activeClass.id} scale={7} gear={g.equipped.map((x) => x.id)} look={g.look} />
           <h2>{g.activeClass.name} · Lv {g.totalLevel}</h2>
           <span class="faint">{season.quests} quests this season</span>
           {season.goal && <span class={season.goalReached ? 'r-rare' : 'faint'}>Goal: {goalName(season.goal, season.number)} · {season.goalReached ? 'reached!' : 'not this time'}</span>}

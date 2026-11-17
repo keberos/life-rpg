@@ -6,6 +6,35 @@ import { GEAR_SLOTS, masteryBosses } from '../state/model.ts';
 import { store, useGame } from '../state/store.ts';
 import { TopBar, Win, go } from './components.tsx';
 import { Hero } from './sprites.tsx';
+import { HAIRSTYLES, HAIR_COLORS, SKIN_TONES, type HeroLook } from '../content/appearance.ts';
+import { MATERIALS } from '../../art-kit/src/materials.ts';
+
+/** Hairstyle, hair color and skin tone: the hero looks like you. Saved as an 'appearance' event. */
+function LookPicker({ look }: { look: HeroLook }) {
+  const set = (patch: Partial<HeroLook>) => store.log({ type: 'appearance', look: { ...look, ...patch } });
+  const row = (label: string, opts: { id: string; label: string; mat?: string }[], cur: string, key: keyof HeroLook) => (
+    <div class="stack" style={{ gap: '4px' }}>
+      <span class="faint">{label}</span>
+      <div class="look-row">
+        {opts.map((o) => (
+          <button key={o.id} class={`btn ghost small ${cur === o.id ? 'selected' : ''}`} aria-pressed={cur === o.id} onClick={() => set({ [key]: o.id })}>
+            {o.mat && <i class="swatch" style={{ background: MATERIALS[o.mat].ramp[2] }} />}
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <Win quiet title="Look">
+      <div class="stack" style={{ gap: '8px', paddingTop: '4px' }}>
+        {row('Hair', HAIRSTYLES, look.hair, 'hair')}
+        {row('Hair color', HAIR_COLORS, look.hairColor, 'hairColor')}
+        {row('Skin', SKIN_TONES, look.skin, 'skin')}
+      </div>
+    </Win>
+  );
+}
 
 const pct = (x: number) => `${Math.round((x - 1) * 100)}%`;
 function describeClass(c: ClassDef): string {
@@ -68,10 +97,12 @@ export function Equipment() {
 
       <Win title={g.activeClass.name}>
         <div class="stack center" style={{ alignItems: 'center', gap: '6px' }}>
-          <div class="hero-stand"><Hero classId={g.activeClass.id} scale={9} gear={equippedIds} /></div>
+          <div class="hero-stand"><Hero classId={g.activeClass.id} scale={9} gear={equippedIds} look={g.look} /></div>
           <span class="lv-badge">LV {g.totalLevel}</span>
         </div>
       </Win>
+
+      <LookPicker look={g.look} />
 
       <h3>Gear</h3>
       <div class="gear-grid">

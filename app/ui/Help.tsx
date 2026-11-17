@@ -168,6 +168,7 @@ export function Guide({ topic }: { topic?: string }) {
 
       <Section id="classes" title="Classes">
         <p>You start as an Adventurer: base attacks and battle items. When two stats reach the level a class needs, you can choose it. Switch any time from the equipment screen (tap your hero).</p>
+        <p>Your hero is you: pick a hairstyle, hair color and skin tone under Look on the equipment screen. Every class outfit is worn by the same person, and your look stays when a new season starts.</p>
         <p>Each class has a signature passive that changes how fights go (a Warrior gets stronger as they take hits, a Ranger counterattacks when they dodge) and two abilities you tap during boss fights.</p>
         <span class="small-text">
           {corePack.classes.filter((c) => Object.keys(c.requires).length).map((c) => `${c.name}: ${Object.entries(c.requires).map(([s, v]) => `${s} ${v}`).join(' + ')}`).join(' · ')}

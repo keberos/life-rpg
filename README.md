@@ -27,10 +27,12 @@ Shortcuts "scroll catcher" setup (`#/intercept`), backup/restore, and a debug pa
 | `app/content/seasons.ts` | Season themes (bonus XP on two stats, from Season 2) and season goals (a class or boss to aim for) |
 | `app/state/drops.ts` | Quest drops: guided first five (full common kit + 2 items), then random with bad-luck protection; rarer gear unlocks by boss tier |
 | `art-kit/src/exercises.ts` | Exercise guide poses; `npm run exercises` renders them to `public/exercises/` |
+| `public/sprites/hero/`, `app/content/appearance.ts` | Layered heroes: the hero looks like the player. One strip per hairstyle × class × attack kind, composed from separately painted hair and outfit layers with interaction rules (hats and helms clear the hair under them, headbands go under it at the back, ribbons rest on it); the bottom half of each strip is a skin/hair mask the app uses to recolor hair color and skin tone. Picked under Look on the equipment screen (`appearance` event). Made by `node art-kit/cli/hero-layers.ts` + `npm run paint -- heroes` |
 | `public/sprites/body/`, `public/sprites/held/` | Modular battle sprites: an AI-painted body strip per class × attack kind, with the weapon layer stacked on top by the app (no shields are drawn) (`art-kit/src/held-gear.ts` picks the layers) |
 | `app/ui/` | Preact screens; `sprites.tsx` stacks the hero layers and draws bosses |
 | `art-kit/ai/` | AI paint pipeline (Python): two-pass body painting, layer comparison sheets, boss candidates; run via `npm run paint` |
 | `scripts/loop.ts` | Plays the core loop by tapping the real UI from an empty save (quests for every stat, reward, boss fight, reload); fails on page errors or a stuck screen (`npm run loop`) |
+| `scripts/game-guard.ts` | Game guard: heavy jobs (AI paint, renders, sims) don't start while a game is running and `npm run paint` stops if one starts (full-screen app, Steam, `.claude/game-guard.local.json` processes, busy GPU; `LIFE_RPG_IGNORE_GAMES=1` overrides). Also a Claude Code hook |
 | `scripts/shots.ts` | Headless phone-size screenshots with a simulated season save (`npm run shots`, Playwright core + installed Chrome) |
 | `CLAUDE.md`, `.claude/` | Working rules for Claude Code, specialist agents (art pipeline, content, balance, ship check), the sprite-pipeline skill and the pre-push privacy hook |
 
@@ -63,6 +65,11 @@ npm run paint -- bodies # AI-paint the raw bodies into public/sprites/body (need
 npm run ship-check      # typecheck + tests + build + privacy scan of unpushed commits
 npm run shots           # headless phone-size screenshots of the main screens (out/shots/, uses installed Chrome)
 npm run loop            # play the core loop by tapping the UI from an empty save (out/loop/, fake clock)
+node art-kit/cli/hero-layers.ts      # layered heroes: render hair/outfit sources + every look target (art-kit/out/hero-layers)
+npm run paint -- heroes paint        # paint the sources (GPU, ~1 h; resumable)
+                                     #   a bad source: delete its painted/*.png, rerun with --seed=N
+npm run paint -- heroes compose      # compose public/sprites/hero (CPU, no painting)
+npm run paint -- heroes sheet        # preview sheet design/hero-looks.png
 npm run paint -- refs   # contact sheet for picking each class's paint reference frame (design/ref-pick.png)
 ```
 
