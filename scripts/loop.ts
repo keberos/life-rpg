@@ -116,8 +116,31 @@ try {
     } else errors.push('boss screen has no Fight! button');
   } else log.push('no Fight button at camp (boss not available yet)');
 
+  // Look picker: change hair, hair color and skin on the Hero screen; the hero must redraw
+  // from a recolored layered strip (a blob: URL) and the look must survive the reload.
+  const heroBg = () => page.locator('.hero-stand [style*="background-image"]').first().evaluate((e) => (e as HTMLElement).style.backgroundImage).catch(() => '');
+  await page.goto(`${base}#gear`);
+  await page.clock.runFor(1000);
+  if (await tap(page, 'Change look')) {
+    const picks = ['Long', 'Red', 'Deep'];
+    for (const p of picks) if (!(await tap(page, p))) errors.push(`look picker has no "${p}" button`);
+    await page.clock.runFor(1000);
+    await snap(page, 'hero-look-changed');
+    if (!(await heroBg()).includes('blob:')) errors.push('hero did not redraw from a layered strip after a look change');
+    log.push(`look: ${picks.join(', ')}`);
+  } else errors.push('Hero screen has no Change look button');
+
   const events = await page.evaluate((k) => (JSON.parse(localStorage.getItem(k) ?? '{}').events ?? []).length, KEY);
   await page.reload();
+  await page.clock.runFor(1000);
+  if (await tap(page, 'Change look')) {
+    for (const p of ['Long', 'Red', 'Deep']) {
+      const on = await page.getByRole('button', { name: p, exact: true }).first().getAttribute('aria-pressed').catch(() => null);
+      if (on !== 'true') errors.push(`look "${p}" not kept after reload`);
+    }
+    await snap(page, 'hero-after-reload');
+  }
+  await page.goto(base);
   await page.clock.runFor(1000);
   await snap(page, 'camp-after-reload');
   log.push(`save: ${events} events, survives reload`);

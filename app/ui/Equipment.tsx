@@ -26,13 +26,11 @@ function LookPicker({ look }: { look: HeroLook }) {
     </div>
   );
   return (
-    <Win quiet title="Look">
-      <div class="stack" style={{ gap: '8px', paddingTop: '4px' }}>
-        {row('Hair', HAIRSTYLES, look.hair, 'hair')}
-        {row('Hair color', HAIR_COLORS, look.hairColor, 'hairColor')}
-        {row('Skin', SKIN_TONES, look.skin, 'skin')}
-      </div>
-    </Win>
+    <div class="stack look-picker" style={{ gap: '8px' }}>
+      {row('Hair', HAIRSTYLES, look.hair, 'hair')}
+      {row('Hair color', HAIR_COLORS, look.hairColor, 'hairColor')}
+      {row('Skin', SKIN_TONES, look.skin, 'skin')}
+    </div>
   );
 }
 
@@ -78,6 +76,7 @@ function GearDetails({ g }: { g: GearDef }) {
 export function Equipment() {
   const g = useGame();
   const [open, setOpen] = useState<GearSlot | null>(null);
+  const [lookOpen, setLookOpen] = useState(false);
   const equippedIds = g.equipped.map((x) => x.id);
   const unlockedIds = new Set(g.unlocked.map((c) => c.id));
   // Remember which classes were new when the screen opened, then mark them seen.
@@ -99,10 +98,12 @@ export function Equipment() {
         <div class="stack center" style={{ alignItems: 'center', gap: '6px' }}>
           <div class="hero-stand"><Hero classId={g.activeClass.id} scale={9} gear={equippedIds} look={g.look} /></div>
           <span class="lv-badge">LV {g.totalLevel}</span>
+          <button class="btn ghost small" aria-expanded={lookOpen} onClick={() => setLookOpen(!lookOpen)}>
+            {lookOpen ? 'Done' : 'Change look'}
+          </button>
         </div>
+        {lookOpen && <LookPicker look={g.look} />}
       </Win>
-
-      <LookPicker look={g.look} />
 
       <h3>Gear</h3>
       <div class="gear-grid">
